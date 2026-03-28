@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const { email, first_name, last_name, phone, org_id, track, temp_password } = body;
+  const { email, first_name, last_name, phone, org_id, track, temp_password, books_certified } = body as typeof body & { books_certified?: number[] };
 
   if (!email || !first_name || !last_name || !temp_password) {
     return NextResponse.json(
@@ -162,6 +162,7 @@ export async function POST(req: NextRequest) {
       phone:           phone ?? null,
       organization_id: org_id ?? null,
       role:            track ?? 'community',
+      books_certified: books_certified ?? [],
       cert_id:         certId,
       cert_status:     'active',
       cert_issued:     new Date().toISOString().split('T')[0],

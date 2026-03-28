@@ -52,6 +52,25 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, org: data });
 }
 
+// PATCH /api/admin/orgs?id=xxx — update organization
+export async function PATCH(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const id = req.nextUrl.searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+
+  const body = await req.json().catch(() => ({}));
+  const allowed = ['name','type','license_type','license_status','license_start','license_renewal',
+                   'contact_name','contact_email','contact_phone','address','state','notes'];
+  const updates: Record<string, unknown> = {};
+  for (const k of allowed) if (k in body) updates[k] = body[k];
+
+  const supabase = getSupabaseServer();
+  const { error } = await supabase.from('organizations').update(updates).eq('id', id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
+
 // DELETE /api/admin/orgs?id=xxx
 export async function DELETE(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

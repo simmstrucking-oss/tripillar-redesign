@@ -2,83 +2,885 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-// ── Colours ───────────────────────────────────────────────────────────────────
+/* ── Google Fonts ── */
+const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
+
+/* ── Design tokens ── */
 const C = {
   navy:    '#2D3142',
   gold:    '#B8942F',
-  bg:      '#f0f4f8',
-  white:   '#ffffff',
-  border:  '#d1d5db',
-  muted:   '#6b7280',
-  danger:  '#dc2626',
-  success: '#16a34a',
-  warn:    '#d97706',
+  goldLt:  '#F5EDD5',
+  bg:      '#F5F4F0',
+  white:   '#FFFFFF',
+  border:  '#DDD9D0',
+  muted:   '#6B7280',
+  danger:  '#DC2626',
+  success: '#16A34A',
+  warn:    '#D97706',
+  info:    '#2563EB',
 };
 
+/* ── Shared styles ── */
 const inp: React.CSSProperties = {
-  width: '100%', padding: '0.5rem 0.75rem', border: `1px solid ${C.border}`,
-  borderRadius: 4, fontSize: '0.9rem', boxSizing: 'border-box',
-};
-const btn = (bg: string, color = '#fff'): React.CSSProperties => ({
-  background: bg, color, border: 'none', borderRadius: 4,
-  padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 600,
-  cursor: 'pointer',
-});
-const label: React.CSSProperties = {
-  display: 'block', fontSize: '0.8rem', fontWeight: 600,
-  color: C.navy, marginBottom: 4,
+  width: '100%', padding: '0.55rem 0.75rem',
+  border: `1px solid ${C.border}`, borderRadius: 6,
+  fontSize: '0.9rem', fontFamily: 'Inter, sans-serif',
+  background: C.white, boxSizing: 'border-box', color: C.navy,
 };
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+const btn = (bg: string, fg = '#fff', small = false): React.CSSProperties => ({
+  background: bg, color: fg, border: 'none', borderRadius: 6,
+  padding: small ? '0.35rem 0.75rem' : '0.6rem 1.2rem',
+  fontSize: small ? '0.78rem' : '0.875rem', fontWeight: 600,
+  fontFamily: 'Inter, sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' as const,
+});
+
+const fieldLabel: React.CSSProperties = {
+  display: 'block', fontSize: '0.78rem', fontWeight: 600,
+  color: C.navy, marginBottom: 4, fontFamily: 'Inter, sans-serif',
+  textTransform: 'uppercase', letterSpacing: '0.04em',
+};
+
+const card: React.CSSProperties = {
+  background: C.white, borderRadius: 10,
+  border: `1px solid ${C.border}`,
+  padding: '1.75rem', marginBottom: '1.5rem',
+  boxShadow: '0 1px 4px rgba(0,0,0,.05)',
+};
+
+const sectionTitle: React.CSSProperties = {
+  fontFamily: 'Playfair Display, serif', fontSize: '1.3rem',
+  color: C.navy, fontWeight: 700, margin: '0 0 1.25rem',
+};
+
+/* ── Types ── */
+interface Org {
+  id: string; name: string; type?: string;
+  license_type?: string; license_status?: string;
+  license_start?: string; license_renewal?: string;
+  contact_name?: string; contact_email?: string; contact_phone?: string;
+  address?: string; state?: string; notes?: string;
+  facilitator_count?: number; created_at?: string;
+}
+
 interface Facilitator {
   id: string; user_id: string; full_name: string; email: string;
   phone?: string; role: string; cert_id: string; cert_status: string;
-  cert_issued: string; cert_renewal: string; organization_id?: string;
+  cert_issued: string; cert_renewal: string;
+  organization_id?: string; books_certified?: number[];
   created_at: string; last_active?: string;
 }
-interface Org { id: string; name: string; contact_name?: string; contact_email?: string; facilitator_count: number; }
 
-// ── Status badge ──────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: string }) {
-  const color = status === 'active' ? C.success : status === 'pending_renewal' ? C.warn : C.danger;
+/* ── Helpers ── */
+function adminSecret(): string {
+  const m = document.cookie.match(/lg-admin-session=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+
+function StatusBadge({ s }: { s: string }) {
+  const bg = s === 'active' ? C.success
+    : s === 'pending_renewal' ? C.warn
+    : s === 'expired' ? C.danger : C.muted;
   return (
-    <span style={{ background: color + '20', color, border: `1px solid ${color}`, borderRadius: 12,
-      padding: '2px 8px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-      {status}
+    <span style={{ background: bg + '18', color: bg, border: `1px solid ${bg}40`,
+      borderRadius: 20, padding: '2px 10px', fontSize: '0.75rem', fontWeight: 600,
+      fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
+      {s.replace('_', ' ')}
     </span>
   );
 }
 
-// ── Admin login gate ──────────────────────────────────────────────────────────
-function LoginGate({ onAuth }: { onAuth: () => void }) {
-  const [secret, setSecret] = useState('');
-  const [error,  setError]  = useState('');
-  const [loading, setLoading] = useState(false);
+function Toast({ msg, ok }: { msg: string; ok: boolean }) {
+  return (
+    <div style={{
+      position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
+      background: ok ? C.success : C.danger, color: '#fff',
+      borderRadius: 8, padding: '0.75rem 1.25rem',
+      fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 600,
+      boxShadow: '0 4px 16px rgba(0,0,0,.18)',
+    }}>{msg}</div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION 1 — Create Facilitator Form
+═════════════════════════════════════════════════════════════*/
+const BOOKS = [
+  { id: 1, label: 'Book 1 — Understanding Grief' },
+  { id: 2, label: 'Book 2 — The Grieving Body' },
+  { id: 3, label: 'Book 3 — Relationships and Grief' },
+  { id: 4, label: 'Book 4 — Finding Meaning' },
+  { id: 5, label: 'Book 5 — Continuing Bonds' },
+  { id: 6, label: 'Book 6 — Living Forward' },
+];
+
+const ROLES = [
+  { value: 'community',    label: 'Community Track' },
+  { value: 'professional', label: 'Professional Track' },
+  { value: 'ministry',     label: 'Ministry Track' },
+  { value: 'org_admin',    label: 'Org Admin' },
+];
+
+interface CreateResult { cert_id: string; temp_password: string; email: string; full_name: string; }
+
+function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: () => void }) {
+  const empty = {
+    first_name: '', last_name: '', email: '', phone: '',
+    temp_password: '', role: 'community', org_id: '',
+  };
+  const [form,         setForm]         = useState(empty);
+  const [books,        setBooks]        = useState<number[]>([]);
+  const [addOrg,       setAddOrg]       = useState(false);
+  const [newOrgName,   setNewOrgName]   = useState('');
+  const [loading,      setLoading]      = useState(false);
+  const [result,       setResult]       = useState<CreateResult | null>(null);
+  const [error,        setError]        = useState('');
+
+  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  function toggleBook(id: number) {
+    setBooks(b => b.includes(id) ? b.filter(x => x !== id) : [...b, id]);
+  }
+
+  function genPassword() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+    return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true); setError('');
+    setLoading(true); setError(''); setResult(null);
+
+    // If adding a new org inline, create it first
+    let orgId = form.org_id;
+    if (addOrg && newOrgName.trim()) {
+      const r = await fetch('/api/admin/orgs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newOrgName.trim() }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        orgId = d.org?.id ?? '';
+        onCreated(); // refresh org list
+      } else {
+        setError('Failed to create organization.');
+        setLoading(false);
+        return;
+      }
+    }
+
+    const res = await fetch('/api/create-facilitator', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-secret': adminSecret(),
+      },
+      body: JSON.stringify({
+        ...form,
+        track: form.role,
+        org_id: orgId || undefined,
+        books_certified: books,
+      }),
+    });
+
+    const data = await res.json();
+    setLoading(false);
+
+    if (res.ok) {
+      setResult({
+        cert_id:      data.facilitator.cert_id,
+        temp_password: form.temp_password,
+        email:        form.email,
+        full_name:    `${form.first_name} ${form.last_name}`,
+      });
+      setForm(empty);
+      setBooks([]);
+      setNewOrgName('');
+      setAddOrg(false);
+      onCreated();
+    } else {
+      setError(data.error ?? 'Unknown error');
+    }
+  }
+
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Add New Facilitator</h2>
+
+      {result && (
+        <div style={{
+          background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 8,
+          padding: '1.25rem', marginBottom: '1.5rem',
+        }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', color: C.navy, margin: '0 0 0.75rem', fontWeight: 700 }}>
+            ✓ Facilitator created — {result.full_name}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.35rem 1rem',
+            fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy }}>
+            <strong>Cert ID:</strong> <code style={{ background: C.white, padding: '2px 6px', borderRadius: 4 }}>{result.cert_id}</code>
+            <strong>Email:</strong>   <span>{result.email}</span>
+            <strong>Temp PW:</strong> <code style={{ background: C.white, padding: '2px 6px', borderRadius: 4 }}>{result.temp_password}</code>
+          </div>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.muted, margin: '0.75rem 0 0' }}>
+            Welcome email sent automatically. Share the temp password with the facilitator — they set a new one on first login.
+          </p>
+          <button onClick={() => setResult(null)} style={{ ...btn(C.navy, '#fff', true), marginTop: '0.75rem' }}>
+            Add another
+          </button>
+        </div>
+      )}
+
+      <form onSubmit={submit}>
+        {/* Name row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <label style={fieldLabel}>First Name *</label>
+            <input style={inp} value={form.first_name} onChange={e => set('first_name', e.target.value)} required />
+          </div>
+          <div>
+            <label style={fieldLabel}>Last Name *</label>
+            <input style={inp} value={form.last_name} onChange={e => set('last_name', e.target.value)} required />
+          </div>
+          <div>
+            <label style={fieldLabel}>Email *</label>
+            <input type="email" style={inp} value={form.email} onChange={e => set('email', e.target.value)} required />
+          </div>
+          <div>
+            <label style={fieldLabel}>Phone</label>
+            <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value)} />
+          </div>
+        </div>
+
+        {/* Role + password row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <label style={fieldLabel}>Role / Track *</label>
+            <select style={inp} value={form.role} onChange={e => set('role', e.target.value)}>
+              {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Temp Password *</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input style={{ ...inp, flex: 1 }} value={form.temp_password}
+                onChange={e => set('temp_password', e.target.value)} required
+                placeholder="Min 8 chars" />
+              <button type="button" onClick={() => set('temp_password', genPassword())}
+                style={{ ...btn(C.border, C.navy, true), whiteSpace: 'nowrap', padding: '0.55rem 0.75rem' }}>
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Organization */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={fieldLabel}>Organization</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            {!addOrg ? (
+              <>
+                <select style={{ ...inp, flex: 1, minWidth: 200 }}
+                  value={form.org_id} onChange={e => set('org_id', e.target.value)}>
+                  <option value="">— None / Individual —</option>
+                  {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                </select>
+                <button type="button" onClick={() => setAddOrg(true)}
+                  style={{ ...btn(C.border, C.navy, true) }}>
+                  + New Org
+                </button>
+              </>
+            ) : (
+              <>
+                <input style={{ ...inp, flex: 1, minWidth: 200 }} placeholder="Organization name"
+                  value={newOrgName} onChange={e => setNewOrgName(e.target.value)} autoFocus />
+                <button type="button" onClick={() => { setAddOrg(false); setNewOrgName(''); }}
+                  style={{ ...btn(C.border, C.navy, true) }}>
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Books certified */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={fieldLabel}>Books Certified to Facilitate</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.5rem', marginTop: 4 }}>
+            {BOOKS.map(b => (
+              <label key={b.id} style={{
+                display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy,
+                padding: '0.5rem 0.75rem', borderRadius: 6,
+                background: books.includes(b.id) ? C.goldLt : C.bg,
+                border: `1px solid ${books.includes(b.id) ? C.gold : C.border}`,
+              }}>
+                <input type="checkbox" checked={books.includes(b.id)}
+                  onChange={() => toggleBook(b.id)}
+                  style={{ accentColor: C.gold, width: 16, height: 16 }} />
+                {b.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ background: C.danger + '12', border: `1px solid ${C.danger}`,
+            borderRadius: 6, padding: '0.75rem 1rem', marginBottom: '1rem',
+            fontSize: '0.875rem', color: C.danger, fontFamily: 'Inter, sans-serif' }}>
+            {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading}
+          style={{ ...btn(loading ? C.muted : C.gold), opacity: loading ? 0.7 : 1 }}>
+          {loading ? 'Creating…' : 'Create Facilitator + Send Welcome Email'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION 2 — Facilitator List
+═════════════════════════════════════════════════════════════*/
+function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
+  f: Facilitator; orgs: Org[];
+  onClose: () => void;
+  onUpdate: () => void;
+}) {
+  const [newPw,      setNewPw]      = useState('');
+  const [pwLoading,  setPwLoading]  = useState(false);
+  const [pwMsg,      setPwMsg]      = useState('');
+  const [tagLoading, setTagLoading] = useState('');
+  const [tagMsg,     setTagMsg]     = useState('');
+  const [deactLoad,  setDeactLoad]  = useState(false);
+
+  const org = orgs.find(o => o.id === f.organization_id);
+
+  async function resetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setPwLoading(true); setPwMsg('');
+    const res = await fetch('/api/admin/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: f.user_id, new_password: newPw }),
+    });
+    setPwLoading(false);
+    if (res.ok) { setPwMsg('Password reset.'); setNewPw(''); }
+    else { const d = await res.json(); setPwMsg('Error: ' + d.error); }
+  }
+
+  async function applyTag(tag_key: string) {
+    setTagLoading(tag_key); setTagMsg('');
+    const res = await fetch('/api/admin/kit-tag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: f.user_id, tag_key }),
+    });
+    setTagLoading('');
+    if (res.ok) setTagMsg('Tag applied + milestone email sent.');
+    else { const d = await res.json(); setTagMsg('Error: ' + d.error); }
+  }
+
+  async function toggleStatus() {
+    setDeactLoad(true);
+    const newStatus = f.cert_status === 'active' ? 'inactive' : 'active';
+    await fetch('/api/admin/facilitators', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: f.user_id, cert_status: newStatus }),
+    });
+    setDeactLoad(false);
+    onUpdate();
+    onClose();
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 999, padding: '1rem',
+    }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{
+        background: C.white, borderRadius: 12, padding: '2rem',
+        width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto',
+        boxShadow: '0 8px 40px rgba(0,0,0,.2)',
+      }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div>
+            <h2 style={{ ...sectionTitle, margin: 0 }}>{f.full_name}</h2>
+            <p style={{ color: C.muted, fontSize: '0.875rem', margin: '4px 0 0', fontFamily: 'Inter, sans-serif' }}>
+              {f.email}{f.phone ? ` · ${f.phone}` : ''}
+            </p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: C.muted }}>×</button>
+        </div>
+
+        {/* Details grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1.5rem',
+          fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+          {[
+            ['Cert ID',    f.cert_id],
+            ['Status',     <StatusBadge key="s" s={f.cert_status} />],
+            ['Role',       f.role],
+            ['Renewal',    f.cert_renewal],
+            ['Issued',     f.cert_issued],
+            ['Last Active', f.last_active ? new Date(f.last_active).toLocaleDateString() : 'Never'],
+            ['Organization', org?.name ?? '—'],
+            ['Books', f.books_certified?.length ? f.books_certified.map(b => `Book ${b}`).join(', ') : 'None'],
+          ].map(([k, v]) => (
+            <div key={String(k)}>
+              <div style={{ color: C.muted, fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>{k}</div>
+              <div style={{ color: C.navy, fontWeight: 500 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
+        {/* Reset Password */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 700, color: C.navy, marginBottom: '0.75rem' }}>
+            Reset Password
+          </h3>
+          <form onSubmit={resetPassword} style={{ display: 'flex', gap: 8 }}>
+            <input style={{ ...inp, flex: 1 }} type="text" placeholder="New password (min 8 chars)"
+              value={newPw} onChange={e => setNewPw(e.target.value)} minLength={8} required />
+            <button type="submit" disabled={pwLoading} style={btn(C.navy, '#fff', true)}>
+              {pwLoading ? '…' : 'Reset'}
+            </button>
+          </form>
+          {pwMsg && <p style={{ fontSize: '0.8rem', color: pwMsg.startsWith('Error') ? C.danger : C.success,
+            margin: '0.4rem 0 0', fontFamily: 'Inter, sans-serif' }}>{pwMsg}</p>}
+        </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
+        {/* Kit milestone tags */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 700, color: C.navy, marginBottom: '0.75rem' }}>
+            Add Kit Milestone Tag
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: C.muted, margin: '0 0 0.75rem', fontFamily: 'Inter, sans-serif' }}>
+            Applies tag in Kit and sends the corresponding milestone email sequence.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button disabled={!!tagLoading}
+              onClick={() => applyTag('facilitator-milestone-first-session')}
+              style={btn(C.info, '#fff', true)}>
+              {tagLoading === 'facilitator-milestone-first-session' ? '…' : 'First Session Complete'}
+            </button>
+            <button disabled={!!tagLoading}
+              onClick={() => applyTag('facilitator-milestone-book1-complete')}
+              style={btn(C.info, '#fff', true)}>
+              {tagLoading === 'facilitator-milestone-book1-complete' ? '…' : 'Book 1 Complete'}
+            </button>
+          </div>
+          {tagMsg && <p style={{ fontSize: '0.8rem', color: tagMsg.startsWith('Error') ? C.danger : C.success,
+            margin: '0.4rem 0 0', fontFamily: 'Inter, sans-serif' }}>{tagMsg}</p>}
+        </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
+        {/* Deactivate */}
+        <button disabled={deactLoad} onClick={toggleStatus}
+          style={btn(f.cert_status === 'active' ? C.danger : C.success)}>
+          {deactLoad ? '…' : f.cert_status === 'active' ? 'Deactivate Facilitator' : 'Reactivate Facilitator'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function FacilitatorList({ orgs, refresh }: { orgs: Org[]; refresh: number }) {
+  const [data,     setData]     = useState<Facilitator[]>([]);
+  const [count,    setCount]    = useState(0);
+  const [pages,    setPages]    = useState(1);
+  const [page,     setPage]     = useState(1);
+  const [q,        setQ]        = useState('');
+  const [statusF,  setStatusF]  = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [selected, setSelected] = useState<Facilitator | null>(null);
+  const [tick,     setTick]     = useState(0);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const p = new URLSearchParams({ page: String(page) });
+    if (q) p.set('q', q);
+    if (statusF) p.set('status', statusF);
+    const res  = await fetch(`/api/admin/facilitators?${p}`);
+    const json = await res.json();
+    setData(json.data ?? []);
+    setCount(json.count ?? 0);
+    setPages(json.pages ?? 1);
+    setLoading(false);
+  }, [page, q, statusF]);
+
+  useEffect(() => { load(); }, [load, refresh, tick]);
+
+  const orgName = (id?: string) => orgs.find(o => o.id === id)?.name ?? '—';
+
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Facilitators{count > 0 ? ` (${count})` : ''}</h2>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <input placeholder="Search name / email / cert ID…" value={q}
+          onChange={e => { setQ(e.target.value); setPage(1); }}
+          style={{ ...inp, flex: '1 1 200px', maxWidth: 320 }} />
+        <select value={statusF} onChange={e => { setStatusF(e.target.value); setPage(1); }}
+          style={{ ...inp, width: 'auto', flex: '0 0 auto' }}>
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="pending_renewal">Pending Renewal</option>
+          <option value="expired">Expired</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button onClick={() => setTick(t => t + 1)} style={btn(C.navy, '#fff', true)}>Refresh</button>
+      </div>
+
+      {loading ? (
+        <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif' }}>Loading…</p>
+      ) : data.length === 0 ? (
+        <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', textAlign: 'center', padding: '2rem 0' }}>
+          No facilitators found.
+        </p>
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div style={{ display: 'none' }} className="mobile-cards">
+            {data.map(f => (
+              <div key={f.user_id} onClick={() => setSelected(f)} style={{
+                border: `1px solid ${C.border}`, borderRadius: 8, padding: '1rem',
+                marginBottom: '0.75rem', cursor: 'pointer', background: C.bg,
+              }}>
+                <div style={{ fontWeight: 700, color: C.navy, fontFamily: 'Inter, sans-serif' }}>{f.full_name}</div>
+                <div style={{ fontSize: '0.8rem', color: C.muted, fontFamily: 'Inter, sans-serif', margin: '2px 0' }}>{f.email}</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <StatusBadge s={f.cert_status} />
+                  <span style={{ fontSize: '0.78rem', color: C.muted, fontFamily: 'monospace' }}>{f.cert_id}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif' }}>
+              <thead>
+                <tr style={{ background: C.bg, borderBottom: `2px solid ${C.border}` }}>
+                  {['Name', 'Organization', 'Cert ID', 'Role', 'Status', 'Renewal', 'Last Active', ''].map(h => (
+                    <th key={h} style={{ padding: '0.6rem 0.75rem', textAlign: 'left',
+                      color: C.navy, fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.78rem',
+                      textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map(f => (
+                  <tr key={f.user_id} style={{ borderBottom: `1px solid ${C.border}` }}
+                    onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    <td style={{ padding: '0.65rem 0.75rem', fontWeight: 600, color: C.navy }}>{f.full_name}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', color: C.muted }}>{orgName(f.organization_id)}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem', color: C.navy }}>{f.cert_id}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', textTransform: 'capitalize', color: C.muted }}>{f.role}</td>
+                    <td style={{ padding: '0.65rem 0.75rem' }}><StatusBadge s={f.cert_status} /></td>
+                    <td style={{ padding: '0.65rem 0.75rem', whiteSpace: 'nowrap', color: C.muted }}>{f.cert_renewal}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', whiteSpace: 'nowrap', color: C.muted }}>
+                      {f.last_active ? new Date(f.last_active).toLocaleDateString() : 'Never'}
+                    </td>
+                    <td style={{ padding: '0.65rem 0.75rem' }}>
+                      <button onClick={() => setSelected(f)} style={btn(C.navy, '#fff', true)}>View</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {pages > 1 && (
+            <div style={{ display: 'flex', gap: 8, marginTop: '1rem', alignItems: 'center', fontFamily: 'Inter, sans-serif' }}>
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} style={btn(C.navy, '#fff', true)}>← Prev</button>
+              <span style={{ fontSize: '0.85rem', color: C.muted }}>Page {page} of {pages}</span>
+              <button disabled={page >= pages} onClick={() => setPage(p => p + 1)} style={btn(C.navy, '#fff', true)}>Next →</button>
+            </div>
+          )}
+        </>
+      )}
+
+      {selected && (
+        <FacilitatorProfile
+          f={selected}
+          orgs={orgs}
+          onClose={() => setSelected(null)}
+          onUpdate={() => setTick(t => t + 1)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION 3 — Organization Management
+═════════════════════════════════════════════════════════════*/
+const ORG_TYPES    = ['Hospital', 'Hospice', 'Church', 'Nonprofit', 'Corporate / EAP', 'Other'];
+const LICENSE_TYPES = ['Standard', 'Enterprise', 'Pilot', 'Complimentary'];
+const LICENSE_STATUSES = ['active', 'pending', 'expired', 'cancelled'];
+
+interface OrgFormState {
+  name: string; type: string; license_type: string; license_status: string;
+  license_start: string; license_renewal: string;
+  contact_name: string; contact_email: string; contact_phone: string;
+  address: string; state: string; notes: string;
+}
+
+const emptyOrg: OrgFormState = {
+  name: '', type: '', license_type: 'Standard', license_status: 'active',
+  license_start: '', license_renewal: '',
+  contact_name: '', contact_email: '', contact_phone: '',
+  address: '', state: '', notes: '',
+};
+
+function OrgManagement({ onOrgsChange }: { onOrgsChange: (orgs: Org[]) => void }) {
+  const [orgs,      setOrgs]      = useState<Org[]>([]);
+  const [loading,   setLoading]   = useState(false);
+  const [form,      setForm]      = useState<OrgFormState>(emptyOrg);
+  const [editId,    setEditId]    = useState<string | null>(null);
+  const [confirm,   setConfirm]   = useState<string | null>(null);
+  const [toast,     setToast]     = useState<{ msg: string; ok: boolean } | null>(null);
+
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const setF = (k: keyof OrgFormState, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  const loadOrgs = useCallback(async () => {
+    setLoading(true);
+    const res  = await fetch('/api/admin/orgs');
+    const json = await res.json();
+    const list = json.data ?? [];
+    setOrgs(list);
+    onOrgsChange(list);
+    setLoading(false);
+  }, [onOrgsChange]);
+
+  useEffect(() => { loadOrgs(); }, [loadOrgs]);
+
+  function startEdit(o: Org) {
+    setEditId(o.id);
+    setForm({
+      name:            o.name ?? '',
+      type:            o.type ?? '',
+      license_type:    o.license_type ?? 'Standard',
+      license_status:  o.license_status ?? 'active',
+      license_start:   o.license_start ?? '',
+      license_renewal: o.license_renewal ?? '',
+      contact_name:    o.contact_name ?? '',
+      contact_email:   o.contact_email ?? '',
+      contact_phone:   o.contact_phone ?? '',
+      address:         o.address ?? '',
+      state:           o.state ?? '',
+      notes:           o.notes ?? '',
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelEdit() { setEditId(null); setForm(emptyOrg); }
+
+  async function submitOrg(e: React.FormEvent) {
+    e.preventDefault();
+    const payload = Object.fromEntries(
+      Object.entries(form).map(([k, v]) => [k, v === '' ? null : v])
+    );
+
+    if (editId) {
+      const res = await fetch(`/api/admin/orgs?id=${editId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) { showToast('Organization updated.'); cancelEdit(); loadOrgs(); }
+      else { const d = await res.json(); showToast(d.error ?? 'Update failed.', false); }
+    } else {
+      const res = await fetch('/api/admin/orgs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) { showToast('Organization created.'); setForm(emptyOrg); loadOrgs(); }
+      else { const d = await res.json(); showToast(d.error ?? 'Create failed.', false); }
+    }
+  }
+
+  async function deleteOrg(id: string) {
+    setConfirm(null);
+    const res = await fetch(`/api/admin/orgs?id=${id}`, { method: 'DELETE' });
+    if (res.ok) { showToast('Organization deleted.'); loadOrgs(); }
+    else { const d = await res.json(); showToast(d.error ?? 'Delete failed.', false); }
+  }
+
+  const fieldRow = (label: string, children: React.ReactNode) => (
+    <div>
+      <label style={fieldLabel}>{label}</label>
+      {children}
+    </div>
+  );
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} ok={toast.ok} />}
+
+      {/* Create / Edit form */}
+      <div style={card}>
+        <h2 style={sectionTitle}>{editId ? 'Edit Organization' : 'Add Organization'}</h2>
+        <form onSubmit={submitOrg}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+            {fieldRow('Organization Name *', <input style={inp} value={form.name} onChange={e => setF('name', e.target.value)} required />)}
+            {fieldRow('Type', (
+              <select style={inp} value={form.type} onChange={e => setF('type', e.target.value)}>
+                <option value="">— Select —</option>
+                {ORG_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            ))}
+            {fieldRow('License Type', (
+              <select style={inp} value={form.license_type} onChange={e => setF('license_type', e.target.value)}>
+                {LICENSE_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            ))}
+            {fieldRow('License Status', (
+              <select style={inp} value={form.license_status} onChange={e => setF('license_status', e.target.value)}>
+                {LICENSE_STATUSES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            ))}
+            {fieldRow('License Start', <input type="date" style={inp} value={form.license_start} onChange={e => setF('license_start', e.target.value)} />)}
+            {fieldRow('License Renewal', <input type="date" style={inp} value={form.license_renewal} onChange={e => setF('license_renewal', e.target.value)} />)}
+            {fieldRow('Contact Name', <input style={inp} value={form.contact_name} onChange={e => setF('contact_name', e.target.value)} />)}
+            {fieldRow('Contact Email', <input type="email" style={inp} value={form.contact_email} onChange={e => setF('contact_email', e.target.value)} />)}
+            {fieldRow('Contact Phone', <input style={inp} value={form.contact_phone} onChange={e => setF('contact_phone', e.target.value)} />)}
+            {fieldRow('Address', <input style={inp} value={form.address} onChange={e => setF('address', e.target.value)} />)}
+            {fieldRow('State', <input style={inp} value={form.state} onChange={e => setF('state', e.target.value)} placeholder="e.g. TX" />)}
+          </div>
+          {fieldRow('Notes', (
+            <textarea style={{ ...inp, height: 80, resize: 'vertical', marginBottom: '1rem' }}
+              value={form.notes} onChange={e => setF('notes', e.target.value)} />
+          ))}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" style={btn(C.gold)}>
+              {editId ? 'Save Changes' : 'Create Organization'}
+            </button>
+            {editId && (
+              <button type="button" onClick={cancelEdit} style={btn(C.border, C.navy)}>
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* Org list */}
+      <div style={card}>
+        <h2 style={sectionTitle}>Organizations{orgs.length > 0 ? ` (${orgs.length})` : ''}</h2>
+        {loading ? (
+          <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif' }}>Loading…</p>
+        ) : orgs.length === 0 ? (
+          <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', textAlign: 'center', padding: '1.5rem 0' }}>
+            No organizations yet.
+          </p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif' }}>
+              <thead>
+                <tr style={{ background: C.bg, borderBottom: `2px solid ${C.border}` }}>
+                  {['Name', 'Type', 'License', 'Status', 'Renewal', 'Contact', 'Facilitators', ''].map(h => (
+                    <th key={h} style={{ padding: '0.6rem 0.75rem', textAlign: 'left',
+                      color: C.navy, fontWeight: 700, whiteSpace: 'nowrap',
+                      fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {orgs.map(o => (
+                  <tr key={o.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: '0.65rem 0.75rem', fontWeight: 600, color: C.navy }}>{o.name}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', color: C.muted }}>{o.type ?? '—'}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', color: C.muted }}>{o.license_type ?? '—'}</td>
+                    <td style={{ padding: '0.65rem 0.75rem' }}>
+                      {o.license_status ? <StatusBadge s={o.license_status} /> : '—'}
+                    </td>
+                    <td style={{ padding: '0.65rem 0.75rem', whiteSpace: 'nowrap', color: C.muted }}>{o.license_renewal ?? '—'}</td>
+                    <td style={{ padding: '0.65rem 0.75rem', color: C.muted }}>
+                      {o.contact_name && <div>{o.contact_name}</div>}
+                      {o.contact_email && <a href={`mailto:${o.contact_email}`} style={{ color: C.navy, fontSize: '0.8rem' }}>{o.contact_email}</a>}
+                      {!o.contact_name && !o.contact_email && '—'}
+                    </td>
+                    <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', color: C.navy, fontWeight: 600 }}>
+                      {o.facilitator_count ?? 0}
+                    </td>
+                    <td style={{ padding: '0.65rem 0.75rem', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button onClick={() => startEdit(o)} style={btn(C.navy, '#fff', true)}>Edit</button>
+                        {confirm === o.id ? (
+                          <>
+                            <button onClick={() => deleteOrg(o.id)} style={btn(C.danger, '#fff', true)}>Confirm</button>
+                            <button onClick={() => setConfirm(null)} style={btn(C.border, C.navy, true)}>Cancel</button>
+                          </>
+                        ) : (
+                          <button onClick={() => setConfirm(o.id)}
+                            disabled={(o.facilitator_count ?? 0) > 0}
+                            title={(o.facilitator_count ?? 0) > 0 ? 'Move facilitators out first' : ''}
+                            style={{ ...btn(C.danger, '#fff', true), opacity: (o.facilitator_count ?? 0) > 0 ? 0.4 : 1 }}>
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   LOGIN GATE
+═════════════════════════════════════════════════════════════*/
+function LoginGate({ onAuth }: { onAuth: () => void }) {
+  const [secret,  setSecret]  = useState('');
+  const [error,   setError]   = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault(); setLoading(true); setError('');
     const res = await fetch('/api/admin/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret }),
     });
     if (res.ok) { onAuth(); }
-    else { setError('Invalid secret.'); setLoading(false); }
+    else { setError('Incorrect secret.'); setLoading(false); }
   }
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex',
-      alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ background: C.white, borderRadius: 8, padding: '2.5rem',
-        width: '100%', maxWidth: 380, boxShadow: '0 2px 12px rgba(0,0,0,.08)' }}>
-        <h1 style={{ fontSize: '1.3rem', color: C.navy, fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center' }}>
-          Admin Access
-        </h1>
+      alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif',
+      padding: '1rem' }}>
+      <div style={{ ...card, width: '100%', maxWidth: 380, marginBottom: 0 }}>
+        <h1 style={{ ...sectionTitle, textAlign: 'center', marginBottom: '1.5rem' }}>Admin Access</h1>
         <form onSubmit={submit}>
-          <label style={label}>Admin Secret</label>
+          <label style={fieldLabel}>Admin Secret</label>
           <input type="password" value={secret} onChange={e => setSecret(e.target.value)}
-            required style={{ ...inp, marginBottom: '1rem' }} />
+            required style={{ ...inp, marginBottom: '1rem' }} autoFocus />
           {error && <p style={{ color: C.danger, fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>}
           <button type="submit" disabled={loading} style={{ ...btn(C.navy), width: '100%' }}>
             {loading ? 'Checking…' : 'Enter'}
@@ -89,373 +891,19 @@ function LoginGate({ onAuth }: { onAuth: () => void }) {
   );
 }
 
-// ── Create Facilitator form ───────────────────────────────────────────────────
-function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: () => void }) {
-  const [form, setForm] = useState({
-    email: '', first_name: '', last_name: '', phone: '',
-    temp_password: '', track: 'community', org_id: '',
-  });
-  const [status, setStatus] = useState<{ ok?: boolean; message?: string; cert_id?: string } | null>(null);
-  const [loading, setLoading] = useState(false);
+/* ════════════════════════════════════════════════════════════
+   ROOT PAGE
+═════════════════════════════════════════════════════════════*/
+type Tab = 'facilitators' | 'orgs';
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true); setStatus(null);
-    const res = await fetch('/api/create-facilitator', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
-    // Re-fetch with admin secret from cookie (middleware already validated)
-    const res2 = await fetch('/api/create-facilitator', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-secret': document.cookie.match(/lg-admin-session=([^;]+)/)?.[1] ?? '',
-      },
-      body: JSON.stringify(form),
-    });
-    const data = await res2.json();
-    setLoading(false);
-    if (res2.ok) {
-      setStatus({ ok: true, message: `Created! Cert ID: ${data.facilitator.cert_id}`, cert_id: data.facilitator.cert_id });
-      setForm({ email: '', first_name: '', last_name: '', phone: '', temp_password: '', track: 'community', org_id: '' });
-      onCreated();
-    } else {
-      setStatus({ ok: false, message: data.error ?? 'Unknown error' });
-    }
-    void res; // suppress unused warning
-  }
-
-  return (
-    <div style={{ background: C.white, borderRadius: 8, padding: '1.5rem', marginBottom: '1.5rem' }}>
-      <h2 style={{ fontSize: '1.1rem', color: C.navy, fontWeight: 700, marginBottom: '1.25rem' }}>
-        Add New Facilitator
-      </h2>
-      <form onSubmit={submit}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-          <div>
-            <label style={label}>First Name *</label>
-            <input style={inp} value={form.first_name} onChange={e => set('first_name', e.target.value)} required />
-          </div>
-          <div>
-            <label style={label}>Last Name *</label>
-            <input style={inp} value={form.last_name} onChange={e => set('last_name', e.target.value)} required />
-          </div>
-          <div>
-            <label style={label}>Email *</label>
-            <input type="email" style={inp} value={form.email} onChange={e => set('email', e.target.value)} required />
-          </div>
-          <div>
-            <label style={label}>Phone</label>
-            <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value)} />
-          </div>
-          <div>
-            <label style={label}>Temp Password *</label>
-            <input type="text" style={inp} value={form.temp_password} onChange={e => set('temp_password', e.target.value)} required
-              placeholder="They change on first login" />
-          </div>
-          <div>
-            <label style={label}>Track</label>
-            <select style={inp} value={form.track} onChange={e => set('track', e.target.value)}>
-              <option value="community">Community</option>
-              <option value="professional">Professional</option>
-              <option value="ministry">Ministry</option>
-              <option value="org_admin">Org Admin</option>
-            </select>
-          </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={label}>Organization (optional)</label>
-            <select style={inp} value={form.org_id} onChange={e => set('org_id', e.target.value)}>
-              <option value="">— None —</option>
-              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {status && (
-          <div style={{ background: status.ok ? C.success + '15' : C.danger + '15',
-            border: `1px solid ${status.ok ? C.success : C.danger}`, borderRadius: 4,
-            padding: '0.75rem', marginBottom: '1rem', fontSize: '0.875rem',
-            color: status.ok ? C.success : C.danger }}>
-            {status.message}
-          </div>
-        )}
-
-        <button type="submit" disabled={loading} style={btn(C.gold)}>
-          {loading ? 'Creating…' : 'Create Facilitator + Send Welcome Email'}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-// ── Facilitator list ──────────────────────────────────────────────────────────
-function FacilitatorList({ refresh }: { refresh: number }) {
-  const [data,    setData]    = useState<Facilitator[]>([]);
-  const [count,   setCount]   = useState(0);
-  const [pages,   setPages]   = useState(1);
-  const [page,    setPage]    = useState(1);
-  const [q,       setQ]       = useState('');
-  const [statusF, setStatusF] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [confirm, setConfirm] = useState<string | null>(null);
-  const [patching, setPatching] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams({ page: String(page) });
-    if (q) params.set('q', q);
-    if (statusF) params.set('status', statusF);
-    const res = await fetch(`/api/admin/facilitators?${params}`);
-    const json = await res.json();
-    setData(json.data ?? []);
-    setCount(json.count ?? 0);
-    setPages(json.pages ?? 1);
-    setLoading(false);
-  }, [page, q, statusF]);
-
-  useEffect(() => { load(); }, [load, refresh]);
-
-  async function patchStatus(user_id: string, cert_status: string) {
-    setPatching(user_id);
-    await fetch('/api/admin/facilitators', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id, cert_status }),
-    });
-    setPatching(null);
-    load();
-  }
-
-  async function deleteFacilitator(user_id: string) {
-    setConfirm(null);
-    await fetch(`/api/admin/facilitators?user_id=${user_id}`, { method: 'DELETE' });
-    load();
-  }
-
-  return (
-    <div style={{ background: C.white, borderRadius: 8, padding: '1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <h2 style={{ fontSize: '1.1rem', color: C.navy, fontWeight: 700, margin: 0 }}>
-          Facilitators ({count})
-        </h2>
-        <input placeholder="Search name / email / cert ID…" value={q}
-          onChange={e => { setQ(e.target.value); setPage(1); }}
-          style={{ ...inp, flex: 1, minWidth: 200, maxWidth: 300 }} />
-        <select value={statusF} onChange={e => { setStatusF(e.target.value); setPage(1); }} style={{ ...inp, width: 'auto' }}>
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="pending_renewal">Pending Renewal</option>
-          <option value="expired">Expired</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <button onClick={load} style={btn(C.navy)}>Refresh</button>
-      </div>
-
-      {loading ? <p style={{ color: C.muted }}>Loading…</p> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ background: C.bg }}>
-                {['Name', 'Email', 'Cert ID', 'Track', 'Status', 'Renewal', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '0.5rem 0.75rem', textAlign: 'left',
-                    color: C.navy, fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.length === 0 && (
-                <tr><td colSpan={7} style={{ padding: '1rem', color: C.muted, textAlign: 'center' }}>No facilitators found.</td></tr>
-              )}
-              {data.map(f => (
-                <tr key={f.user_id} style={{ borderTop: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '0.6rem 0.75rem', fontWeight: 500, color: C.navy }}>{f.full_name}</td>
-                  <td style={{ padding: '0.6rem 0.75rem', color: C.muted }}>{f.email}</td>
-                  <td style={{ padding: '0.6rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}>{f.cert_id}</td>
-                  <td style={{ padding: '0.6rem 0.75rem', textTransform: 'capitalize' }}>{f.role}</td>
-                  <td style={{ padding: '0.6rem 0.75rem' }}><StatusBadge status={f.cert_status} /></td>
-                  <td style={{ padding: '0.6rem 0.75rem', whiteSpace: 'nowrap' }}>{f.cert_renewal}</td>
-                  <td style={{ padding: '0.6rem 0.75rem', whiteSpace: 'nowrap' }}>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {f.cert_status !== 'active' && (
-                        <button disabled={patching === f.user_id}
-                          onClick={() => patchStatus(f.user_id, 'active')}
-                          style={btn(C.success, '#fff')}>
-                          Activate
-                        </button>
-                      )}
-                      {f.cert_status === 'active' && (
-                        <button disabled={patching === f.user_id}
-                          onClick={() => patchStatus(f.user_id, 'expired')}
-                          style={btn(C.warn, '#fff')}>
-                          Expire
-                        </button>
-                      )}
-                      {confirm === f.user_id ? (
-                        <>
-                          <button onClick={() => deleteFacilitator(f.user_id)}
-                            style={btn(C.danger)}>Confirm Delete</button>
-                          <button onClick={() => setConfirm(null)}
-                            style={btn(C.muted)}>Cancel</button>
-                        </>
-                      ) : (
-                        <button onClick={() => setConfirm(f.user_id)}
-                          style={btn(C.danger)}>Delete</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {pages > 1 && (
-        <div style={{ display: 'flex', gap: 8, marginTop: '1rem', alignItems: 'center' }}>
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} style={btn(C.navy)}>← Prev</button>
-          <span style={{ fontSize: '0.85rem', color: C.muted }}>Page {page} of {pages}</span>
-          <button disabled={page >= pages} onClick={() => setPage(p => p + 1)} style={btn(C.navy)}>Next →</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Org management ────────────────────────────────────────────────────────────
-function OrgManagement({ onOrgsChange }: { onOrgsChange: (orgs: Org[]) => void }) {
-  const [orgs,    setOrgs]    = useState<Org[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [form,    setForm]    = useState({ name: '', contact_name: '', contact_email: '' });
-  const [confirm, setConfirm] = useState<string | null>(null);
-  const [msg,     setMsg]     = useState('');
-
-  const loadOrgs = useCallback(async () => {
-    setLoading(true);
-    const res = await fetch('/api/admin/orgs');
-    const json = await res.json();
-    const list = json.data ?? [];
-    setOrgs(list);
-    onOrgsChange(list);
-    setLoading(false);
-  }, [onOrgsChange]);
-
-  useEffect(() => { loadOrgs(); }, [loadOrgs]);
-
-  async function createOrg(e: React.FormEvent) {
-    e.preventDefault();
-    const res = await fetch('/api/admin/orgs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      setMsg('Organization created.');
-      setForm({ name: '', contact_name: '', contact_email: '' });
-      loadOrgs();
-    } else {
-      const d = await res.json();
-      setMsg('Error: ' + d.error);
-    }
-  }
-
-  async function deleteOrg(id: string) {
-    setConfirm(null);
-    await fetch(`/api/admin/orgs?id=${id}`, { method: 'DELETE' });
-    loadOrgs();
-  }
-
-  return (
-    <div>
-      {/* Create org */}
-      <div style={{ background: C.white, borderRadius: 8, padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', color: C.navy, fontWeight: 700, marginBottom: '1.25rem' }}>
-          Add Organization
-        </h2>
-        <form onSubmit={createOrg}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div>
-              <label style={label}>Organization Name *</label>
-              <input style={inp} value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} required />
-            </div>
-            <div>
-              <label style={label}>Contact Name</label>
-              <input style={inp} value={form.contact_name} onChange={e => setForm(f => ({...f, contact_name: e.target.value}))} />
-            </div>
-            <div>
-              <label style={label}>Contact Email</label>
-              <input type="email" style={inp} value={form.contact_email} onChange={e => setForm(f => ({...f, contact_email: e.target.value}))} />
-            </div>
-          </div>
-          {msg && <p style={{ fontSize: '0.85rem', color: msg.startsWith('Error') ? C.danger : C.success, marginBottom: '0.75rem' }}>{msg}</p>}
-          <button type="submit" style={btn(C.gold)}>Add Organization</button>
-        </form>
-      </div>
-
-      {/* Org list */}
-      <div style={{ background: C.white, borderRadius: 8, padding: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', color: C.navy, fontWeight: 700, marginBottom: '1rem' }}>
-          Organizations ({orgs.length})
-        </h2>
-        {loading ? <p style={{ color: C.muted }}>Loading…</p> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ background: C.bg }}>
-                {['Name', 'Contact', 'Facilitators', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: C.navy, fontWeight: 600 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {orgs.length === 0 && (
-                <tr><td colSpan={4} style={{ padding: '1rem', color: C.muted, textAlign: 'center' }}>No organizations yet.</td></tr>
-              )}
-              {orgs.map(o => (
-                <tr key={o.id} style={{ borderTop: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '0.6rem 0.75rem', fontWeight: 500, color: C.navy }}>{o.name}</td>
-                  <td style={{ padding: '0.6rem 0.75rem', color: C.muted }}>
-                    {o.contact_name && <span>{o.contact_name}<br /></span>}
-                    {o.contact_email && <a href={`mailto:${o.contact_email}`} style={{ color: C.navy }}>{o.contact_email}</a>}
-                    {!o.contact_name && !o.contact_email && '—'}
-                  </td>
-                  <td style={{ padding: '0.6rem 0.75rem' }}>{o.facilitator_count}</td>
-                  <td style={{ padding: '0.6rem 0.75rem' }}>
-                    {confirm === o.id ? (
-                      <>
-                        <button onClick={() => deleteOrg(o.id)} style={{ ...btn(C.danger), marginRight: 6 }}>Confirm Delete</button>
-                        <button onClick={() => setConfirm(null)} style={btn(C.muted)}>Cancel</button>
-                      </>
-                    ) : (
-                      <button onClick={() => setConfirm(o.id)} style={btn(C.danger)}
-                        disabled={o.facilitator_count > 0} title={o.facilitator_count > 0 ? 'Remove all facilitators first' : ''}>
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Main admin page ───────────────────────────────────────────────────────────
 export default function AdminFacilitatorsPage() {
   const [authed,  setAuthed]  = useState(false);
-  const [tab,     setTab]     = useState<'facilitators' | 'orgs'>('facilitators');
+  const [tab,     setTab]     = useState<Tab>('facilitators');
   const [orgs,    setOrgs]    = useState<Org[]>([]);
   const [refresh, setRefresh] = useState(0);
 
-  // Check for existing admin cookie on mount
   useEffect(() => {
-    const hasCookie = document.cookie.includes('lg-admin-session=');
-    if (hasCookie) setAuthed(true);
+    if (document.cookie.includes('lg-admin-session=')) setAuthed(true);
   }, []);
 
   async function logout() {
@@ -466,44 +914,61 @@ export default function AdminFacilitatorsPage() {
   if (!authed) return <LoginGate onAuth={() => setAuthed(true)} />;
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, sans-serif' }}>
-      {/* Header */}
-      <div style={{ background: C.navy, padding: '0 2rem', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', height: 56 }}>
-        <span style={{ color: C.gold, fontWeight: 700, fontSize: '1.1rem' }}>
-          Live and Grieve™ — Admin
-        </span>
-        <button onClick={logout} style={{ ...btn('#ffffff20', '#fff'), fontSize: '0.8rem' }}>
-          Log out
-        </button>
-      </div>
+    <>
+      {/* Inject fonts */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link href={FONT_LINK} rel="stylesheet" />
 
-      {/* Tabs */}
-      <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
-        padding: '0 2rem', display: 'flex', gap: 0 }}>
-        {(['facilitators', 'orgs'] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{
-            background: 'none', border: 'none', borderBottom: tab === t ? `2px solid ${C.gold}` : '2px solid transparent',
-            padding: '0.85rem 1.25rem', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer',
-            color: tab === t ? C.navy : C.muted, textTransform: 'capitalize',
-          }}>
-            {t === 'orgs' ? 'Organizations' : 'Facilitators'}
+      <style>{`
+        * { box-sizing: border-box; }
+        @media (max-width: 640px) {
+          .desktop-table { display: none !important; }
+          .mobile-cards  { display: block !important; }
+        }
+      `}</style>
+
+      <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, sans-serif' }}>
+        {/* Topbar */}
+        <div style={{ background: C.navy, height: 58, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', padding: '0 1.5rem', position: 'sticky', top: 0, zIndex: 100 }}>
+          <span style={{ fontFamily: 'Playfair Display, serif', color: C.gold, fontWeight: 700, fontSize: '1.1rem' }}>
+            Live and Grieve™ — Admin
+          </span>
+          <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>
+            Log out
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Content */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '2rem' }}>
-        {tab === 'facilitators' && (
-          <>
-            <CreateFacilitatorForm orgs={orgs} onCreated={() => setRefresh(r => r + 1)} />
-            <FacilitatorList refresh={refresh} />
-          </>
-        )}
-        {tab === 'orgs' && (
-          <OrgManagement onOrgsChange={setOrgs} />
-        )}
+        {/* Tabs */}
+        <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
+          display: 'flex', padding: '0 1.5rem', position: 'sticky', top: 58, zIndex: 99 }}>
+          {(['facilitators', 'orgs'] as Tab[]).map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+              fontWeight: 600, fontSize: '0.9rem', padding: '0.9rem 1.25rem',
+              borderBottom: tab === t ? `3px solid ${C.gold}` : '3px solid transparent',
+              color: tab === t ? C.navy : C.muted,
+            }}>
+              {t === 'orgs' ? 'Organizations' : 'Facilitators'}
+            </button>
+          ))}
+        </div>
+
+        {/* Main */}
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.75rem 1.25rem' }}>
+          {tab === 'facilitators' && (
+            <>
+              <CreateFacilitatorForm orgs={orgs} onCreated={() => setRefresh(r => r + 1)} />
+              <FacilitatorList orgs={orgs} refresh={refresh} />
+            </>
+          )}
+          {tab === 'orgs' && (
+            <OrgManagement onOrgsChange={setOrgs} />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
