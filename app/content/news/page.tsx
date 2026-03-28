@@ -4,14 +4,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "News | Tri-Pillars™",
   description:
-    "Program updates, pilot launches, publishing milestones, and training announcements from Tri-Pillars.",
+    "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
 };
 
 const news = [
   {
     date: "May 2026",
-    title: "Hampshire County Pilot Launch",
-    desc: "The first Live and Grieve pilot program launches at the Hampshire County Community Action Center in West Virginia. This is the first community to run the full 52-week adult program from start to finish.",
+    title: "Hampshire County Program Launch",
+    desc: "Live and Grieve launches at the Hampshire County Community Action Center in West Virginia. The program brings structured grief education to community members through trained facilitators.",
   },
   {
     date: "Spring 2026",
@@ -21,12 +21,12 @@ const news = [
   {
     date: "March 2026",
     title: "KDP Publishing Underway",
-    desc: "All 16 Live and Grieve titles are being published through Amazon KDP between March and April 2026. This includes the 4 quarterly adult workbooks, the youth program materials, and the facilitator guides.",
+    desc: "Live and Grieve titles are being published through Amazon KDP beginning March 2026. This includes the quarterly participant workbooks and facilitator certification manuals.",
   },
   {
     date: "March 2026",
     title: "New Best Practices Guide for School-Based Grief Support",
-    desc: "The National Alliance for Children's Grief (NACG) and the Coalition to Support Grieving Students have released a 30-page guide on best practices for school-based grief support. This aligns closely with the Live and Grieve Youth approach.",
+    desc: "The National Alliance for Children's Grief (NACG) and the Coalition to Support Grieving Students have released a 30-page guide on best practices for school-based grief support groups — covering staffing, session planning, family communication, and facilitator self-care.",
   },
 ];
 
