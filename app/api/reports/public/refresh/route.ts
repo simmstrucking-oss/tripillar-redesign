@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   ] = await Promise.all([
     sb.from('cohorts').select('id').eq('status', 'completed'),
     sb.from('facilitator_profiles').select('id').eq('cert_status', 'active'),
-    sb.from('organizations').select('id').eq('status', 'active'),
+    sb.from('organizations').select('id').eq('license_status', 'active'),
   ]);
 
   const completedIds = (completedCohorts ?? []).map(c => c.id);

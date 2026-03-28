@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
-let memCache: { data: object; expires: number } | null = null;
+const DB_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 async function buildPublicMetrics() {
   const sb = getSupabaseServer();
@@ -15,7 +14,7 @@ async function buildPublicMetrics() {
 
   if (cached && cached.length === 4) {
     const cacheTime = new Date(cached[0].updated_at).getTime();
-    if (Date.now() - cacheTime < CACHE_TTL_MS) {
+    if (Date.now() - cacheTime < DB_CACHE_TTL_MS) {
       const metrics: Record<string, number> = {};
       cached.forEach(c => { metrics[c.key] = Number(c.value) ?? 0; });
       return {
@@ -37,7 +36,7 @@ async function buildPublicMetrics() {
   ] = await Promise.all([
     sb.from('cohorts').select('id').eq('status', 'completed'),
     sb.from('facilitator_profiles').select('id').eq('cert_status', 'active'),
-    sb.from('organizations').select('id').eq('status', 'active'),
+    sb.from('organizations').select('id').eq('license_status', 'active'),
   ]);
 
   // Sum participants_completed from cohort_outcomes for completed cohorts
@@ -74,16 +73,7 @@ async function buildPublicMetrics() {
 
 // GET /api/reports/public — no auth required
 export async function GET(_req: NextRequest) {
-  // In-memory cache layer (avoids DB hit within same server instance)
-  if (memCache && Date.now() < memCache.expires) {
-    return NextResponse.json(memCache.data, {
-      headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'HIT' },
-    });
-  }
-
   const data = await buildPublicMetrics();
-  memCache = { data, expires: Date.now() + CACHE_TTL_MS };
-
   return NextResponse.json(data, {
     headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
   });
