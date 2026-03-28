@@ -48,11 +48,11 @@ async function resolveCallerRole(req: NextRequest) {
   return { role: profile.role as string, profileId: profile.id as string, orgId: profile.organization_id as string | null };
 }
 
-export async function GET(req: NextRequest, { params }: { params: { facilitator_id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ facilitator_id: string }> }) {
   const caller = await resolveCallerRole(req);
   if (!caller) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { facilitator_id } = params;
+  const { facilitator_id } = await params;
   const sb = getSupabaseServer();
 
   // Auth enforcement

@@ -52,11 +52,11 @@ async function resolveCallerRole(req: NextRequest) {
   return { role: profile.role as string, profileId: profile.id as string, orgId: profile.organization_id as string | null };
 }
 
-export async function GET(req: NextRequest, { params }: { params: { org_id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ org_id: string }> }) {
   const caller = await resolveCallerRole(req);
   if (!caller) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { org_id } = params;
+  const { org_id } = await params;
 
   if (caller.role !== 'admin') {
     if (caller.role === 'org_admin') {
