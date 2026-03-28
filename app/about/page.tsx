@@ -1,6 +1,7 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import type { Metadata } from "next";
+import PublicMetricsSection from "@/components/PublicMetricsSection";
 
 export const metadata: Metadata = {
   title: "About Us | Tri-Pillars™",
@@ -177,6 +178,9 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Program Reach — live metrics (SSR + count-up) */}
+      <PublicMetricsSection />
 
       {/* Mission */}
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6 text-center">

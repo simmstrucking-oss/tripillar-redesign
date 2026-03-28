@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
+import PublicMetricsSection from "@/components/PublicMetricsSection";
 
 const differentiators = [
   {
@@ -305,6 +306,9 @@ export default function HomePage() {
           </div>
         </FadeIn>
       </section>
+
+      {/* Program Reach — live metrics (SSR + count-up) */}
+      <PublicMetricsSection />
 
       {/* Founders story */}
       <section className="py-24 bg-section-alt">
