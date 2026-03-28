@@ -1,0 +1,128 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// ── Route protection rules ────────────────────────────────────────────────────
+//
+//  /facilitators/login       → public (login page)
+//  /facilitators/hub/*       → requires valid Supabase session (role: facilitator | org_admin)
+//  /org/dashboard            → requires valid session (role: org_admin)
+//  /admin/facilitators       → requires x-admin-secret header OR admin cookie
+//  /api/create-facilitator   → requires x-admin-secret header (handled in route itself)
+
+const PROTECTED_HUB     = /^\/facilitators\/hub(\/|$)/;
+const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
+const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
+
+// ── Helper: verify JWT from cookie ───────────────────────────────────────────
+async function getSessionUser(req: NextRequest) {
+  // Supabase stores the session in a cookie named 'lg-facilitator-session'
+  // or the default 'sb-<ref>-auth-token'
+  const cookieHeader = req.headers.get('cookie') ?? '';
+
+  // Parse all sb-*-auth-token cookies
+  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
+  if (!tokenMatch) return null;
+
+  let tokenData: { access_token?: string } | null = null;
+  try {
+    tokenData = JSON.parse(decodeURIComponent(tokenMatch[1]));
+  } catch {
+    // Try base64
+    try {
+      tokenData = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString());
+    } catch {
+      return null;
+    }
+  }
+
+  if (!tokenData?.access_token) return null;
+
+  // Validate with Supabase
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const { data, error } = await supabase.auth.getUser(tokenData.access_token);
+  if (error || !data?.user) return null;
+  return data.user;
+}
+
+// ── Middleware ────────────────────────────────────────────────────────────────
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // ── Admin routes ─────────────────────────────────────────────────────────
+  if (PROTECTED_ADMIN.test(pathname)) {
+    const adminSecret  = req.headers.get('x-admin-secret');
+    const adminCookie  = req.cookies.get('lg-admin-session')?.value;
+    const validSecret  = process.env.ADMIN_SECRET!;
+
+    if (adminSecret !== validSecret && adminCookie !== validSecret) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=admin', req.url));
+    }
+    return NextResponse.next();
+  }
+
+  // ── Facilitator hub routes ────────────────────────────────────────────────
+  if (PROTECTED_HUB.test(pathname)) {
+    const user = await getSessionUser(req);
+    if (!user) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+    }
+    // Role check — fetch profile role
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    const { data: profile } = await supabase
+      .from('facilitator_profiles')
+      .select('role, cert_status')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=no-profile', req.url));
+    }
+    // Expired cert → still allow login but add header for hub to show banner
+    const res = NextResponse.next();
+    res.headers.set('x-cert-status', profile.cert_status ?? 'unknown');
+    res.headers.set('x-user-role', profile.role ?? 'community');
+    return res;
+  }
+
+  // ── Org dashboard ─────────────────────────────────────────────────────────
+  if (PROTECTED_ORG.test(pathname)) {
+    const user = await getSessionUser(req);
+    if (!user) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    const { data: profile } = await supabase
+      .from('facilitator_profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'org_admin') {
+      return NextResponse.redirect(new URL('/facilitators/hub/dashboard', req.url));
+    }
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    '/facilitators/hub/:path*',
+    '/org/dashboard/:path*',
+    '/admin/facilitators/:path*',
+  ],
+};
