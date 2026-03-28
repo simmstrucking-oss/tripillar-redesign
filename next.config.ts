@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Keep pdfkit as a true Node require() — don't bundle it through webpack.
+  // This preserves its file-system access to AFM font data.
+  serverExternalPackages: ["pdfkit"],
+
+  // Also ensure Vercel traces pdfkit's data files into the deployment
+  outputFileTracingIncludes: {
+    "/api/reports/generate": ["./node_modules/pdfkit/js/data/**"],
+  },
 };
 
 export default nextConfig;
