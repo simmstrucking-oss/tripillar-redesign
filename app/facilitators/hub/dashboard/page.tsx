@@ -1654,9 +1654,527 @@ function CodesCard({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }
 }
 
 /* ════════════════════════════════════════════════════════════
+   REPORTS TAB  —  Section 1: Impact · Section 2: Cohort PDFs · Section 3: Charts
+═════════════════════════════════════════════════════════════*/
+
+/* ── API shape mirrors /api/reports/facilitator/[id] ── */
+interface FacReportCohort {
+  cohort_id: string;
+  book_number: number;
+  status: string;
+  start_date: string;
+  end_date?: string;
+  sessions_logged: number;
+  sessions_total: number;
+  pre_enrollment: number | null;
+  post_completions: number | null;
+  completion_rate: number | null;
+  avg_outcome_rating: number | null;
+  outcome_ratings: {
+    grief_intensity: number | null;
+    connection: number | null;
+    self_care: number | null;
+    hope: number | null;
+  } | null;
+}
+interface FacReport {
+  profile: { full_name: string; cert_id: string; cert_status: string; org?: { name: string } };
+  totals: {
+    total_participants_served: number;
+    total_cohorts_completed: number;
+    avg_completion_rate: number | null;
+    avg_outcome_rating: number | null;
+  };
+  cohort_summaries: FacReportCohort[];
+}
+
+/* ── Section 1: Impact Tiles ── */
+function ImpactTiles({ totals }: { totals: FacReport['totals'] }) {
+  const tiles = [
+    {
+      icon: '👥',
+      label: 'People You\'ve Served',
+      value: totals.total_participants_served,
+      color: C.navy,
+      note: 'participants who completed your programs',
+    },
+    {
+      icon: '✅',
+      label: 'Cohorts Completed',
+      value: totals.total_cohorts_completed,
+      color: C.success,
+      note: 'full 13-week programs facilitated',
+    },
+    {
+      icon: '📊',
+      label: 'Avg Completion Rate',
+      value: totals.avg_completion_rate != null ? `${totals.avg_completion_rate}%` : '—',
+      color: C.gold,
+      note: 'of participants who enrolled finished the program',
+    },
+    {
+      icon: '⭐',
+      label: 'Avg Outcome Rating',
+      value: totals.avg_outcome_rating != null ? `${totals.avg_outcome_rating}/5` : '—',
+      color: C.navy,
+      note: 'observable improvement across all dimensions',
+    },
+  ];
+
+  return (
+    <div style={{ ...card, borderTop: `3px solid ${C.gold}` }}>
+      <h2 style={sectionTitle}>Your Impact</h2>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '-0.5rem 0 1.25rem', lineHeight: 1.6 }}>
+        This is the record of your work. Every number here represents real people who walked through grief with you as their companion.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }}>
+        {tiles.map(t => (
+          <div key={t.label} style={{
+            background: C.bg, borderRadius: 10, border: `1px solid ${C.border}`,
+            padding: '1.1rem 1rem', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ fontSize: '1.4rem', marginBottom: 4 }}>{t.icon}</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '2rem', fontWeight: 700, color: t.color, lineHeight: 1.1 }}>
+              {t.value ?? '—'}
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.75rem', color: C.navy, margin: '4px 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {t.label}
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', color: C.muted, lineHeight: 1.4 }}>
+              {t.note}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Section 2: Cohort Reports List ── */
+function CohortReportsList({ cohorts, facId }: { cohorts: FacReportCohort[]; facId: string }) {
+  const completed = cohorts.filter(c => c.status === 'completed');
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [urls,        setUrls]       = useState<Record<string, string>>({});
+  const [errs,        setErrs]       = useState<Record<string, string>>({});
+
+  async function getReport(cohortId: string) {
+    setGenerating(cohortId);
+    setErrs(e => { const n = { ...e }; delete n[cohortId]; return n; });
+    try {
+      const r = await fetch('/api/reports/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cohort', entity_id: cohortId }),
+      });
+      const d = await r.json();
+      if (!r.ok || !d.ok) {
+        setErrs(e => ({ ...e, [cohortId]: d.error ?? 'Generation failed' }));
+      } else {
+        setUrls(u => ({ ...u, [cohortId]: d.url }));
+        window.open(d.url, '_blank');
+      }
+    } catch (e) {
+      setErrs(err => ({ ...err, [cohortId]: String(e) }));
+    }
+    setGenerating(null);
+  }
+
+  if (completed.length === 0) {
+    return (
+      <div style={{ ...card }}>
+        <h2 style={sectionTitle}>Cohort Reports</h2>
+        <div style={{ padding: '1.5rem', background: C.bg, borderRadius: 8, textAlign: 'center' as const }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.muted, margin: 0, lineHeight: 1.7 }}>
+            Your Cohort Summary Reports will appear here once you complete a 13-week cohort and submit post-program outcomes.<br />
+            <span style={{ color: C.navy, fontWeight: 600 }}>Each completed cohort generates a personalized PDF summary of your facilitation work.</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ ...card }}>
+      <h2 style={sectionTitle}>Cohort Reports</h2>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '-0.5rem 0 1.25rem', lineHeight: 1.6 }}>
+        Each report is a Tri-Pillars™ PDF summary of your facilitation work for that cohort — yours to keep, share, or include in professional portfolios.
+      </p>
+
+      <div style={{ display: 'grid', gap: '0.875rem' }}>
+        {completed.map(c => {
+          const isGen = generating === c.cohort_id;
+          const url   = urls[c.cohort_id];
+          const err   = errs[c.cohort_id];
+          const avgOutcome = c.avg_outcome_rating;
+
+          return (
+            <div key={c.cohort_id} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+              flexWrap: 'wrap', gap: '0.75rem',
+              padding: '1rem 1.1rem', borderRadius: 8,
+              border: `1px solid ${C.border}`, background: C.bg,
+            }}>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: C.navy, fontSize: '0.9rem', marginBottom: 4 }}>
+                  Book {c.book_number} — {BOOKS_MAP[c.book_number] ?? ''}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+                    {c.start_date}{c.end_date ? ` → ${c.end_date}` : ''}
+                  </span>
+                  {c.pre_enrollment != null && (
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+                      {c.post_completions ?? '?'} of {c.pre_enrollment} completed
+                      {c.completion_rate != null && (
+                        <span style={{ color: c.completion_rate >= 70 ? C.success : c.completion_rate >= 50 ? C.warn : C.danger, fontWeight: 600, marginLeft: 4 }}>
+                          ({c.completion_rate}%)
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  {avgOutcome != null && (
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.gold, fontWeight: 600 }}>
+                      ⭐ {avgOutcome}/5 avg outcome
+                    </span>
+                  )}
+                </div>
+                {err && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.danger, margin: '4px 0 0' }}>{err}</p>}
+              </div>
+
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                {url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer"
+                     style={{ ...btn(C.success, '#fff', true), textDecoration: 'none', display: 'inline-block' }}>
+                    ✅ Open Report
+                  </a>
+                ) : (
+                  <button onClick={() => getReport(c.cohort_id)} disabled={isGen}
+                    style={{ ...btn(isGen ? C.muted : C.navy, '#fff', true), cursor: isGen ? 'not-allowed' : 'pointer' }}>
+                    {isGen ? 'Generating…' : '📄 Download PDF'}
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Section 3: Trend Charts (SVG, no deps) ── */
+interface ChartPoint { label: string; value: number; }
+
+function SparkLine({ points, color = C.gold, height = 80 }: { points: ChartPoint[]; color?: string; height?: number }) {
+  if (points.length < 2) {
+    return (
+      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+        Not enough data yet
+      </div>
+    );
+  }
+  const W = 340;
+  const PAD = { t: 12, b: 28, l: 28, r: 12 };
+  const innerW = W - PAD.l - PAD.r;
+  const innerH = height - PAD.t - PAD.b;
+  const maxV = Math.max(...points.map(p => p.value), 5);
+  const minV = Math.min(...points.map(p => p.value), 0);
+  const range = maxV - minV || 1;
+
+  const xs = points.map((_, i) => PAD.l + (i / (points.length - 1)) * innerW);
+  const ys = points.map(p => PAD.t + innerH - ((p.value - minV) / range) * innerH);
+
+  const pathD = xs.map((x, i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
+  const areaD = `${pathD} L ${xs[xs.length - 1].toFixed(1)} ${(PAD.t + innerH).toFixed(1)} L ${PAD.l.toFixed(1)} ${(PAD.t + innerH).toFixed(1)} Z`;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${height}`} style={{ width: '100%', height }} preserveAspectRatio="xMidYMid meet">
+      {/* Y axis */}
+      <line x1={PAD.l} y1={PAD.t} x2={PAD.l} y2={PAD.t + innerH} stroke={C.border} strokeWidth={1} />
+      {/* area fill */}
+      <path d={areaD} fill={color} fillOpacity={0.08} />
+      {/* line */}
+      <path d={pathD} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+      {/* dots */}
+      {xs.map((x, i) => (
+        <circle key={i} cx={x} cy={ys[i]} r={4} fill={C.white} stroke={color} strokeWidth={2} />
+      ))}
+      {/* x labels */}
+      {points.map((p, i) => (
+        <text key={i} x={xs[i]} y={height - 4} textAnchor="middle"
+          style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fill: C.muted }}>
+          {p.label}
+        </text>
+      ))}
+      {/* y axis ticks */}
+      {[0, 0.5, 1].map(f => {
+        const y = PAD.t + innerH - f * innerH;
+        const v = minV + f * range;
+        return (
+          <g key={f}>
+            <line x1={PAD.l - 3} y1={y} x2={PAD.l} y2={y} stroke={C.border} strokeWidth={1} />
+            <text x={PAD.l - 5} y={y + 4} textAnchor="end"
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fill: C.muted }}>
+              {v.toFixed(1)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function MiniBarChart({ points, color = C.gold, height = 80 }: { points: ChartPoint[]; color?: string; height?: number }) {
+  if (points.length === 0) {
+    return (
+      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+        No completed cohorts yet
+      </div>
+    );
+  }
+  const W = 340;
+  const PAD = { t: 12, b: 28, l: 28, r: 12 };
+  const innerW = W - PAD.l - PAD.r;
+  const innerH = height - PAD.t - PAD.b;
+  const maxV = Math.max(...points.map(p => p.value), 100);
+
+  const barW = Math.min(40, innerW / points.length - 6);
+  const xs   = points.map((_, i) => PAD.l + (i + 0.5) * (innerW / points.length));
+
+  return (
+    <svg viewBox={`0 0 ${W} ${height}`} style={{ width: '100%', height }} preserveAspectRatio="xMidYMid meet">
+      <line x1={PAD.l} y1={PAD.t} x2={PAD.l} y2={PAD.t + innerH} stroke={C.border} strokeWidth={1} />
+      <line x1={PAD.l} y1={PAD.t + innerH} x2={PAD.l + innerW} y2={PAD.t + innerH} stroke={C.border} strokeWidth={1} />
+      {points.map((p, i) => {
+        const barH = (p.value / maxV) * innerH;
+        const y    = PAD.t + innerH - barH;
+        const x    = xs[i] - barW / 2;
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={barW} height={barH} rx={3} fill={color} fillOpacity={0.8} />
+            <text x={xs[i]} y={y - 3} textAnchor="middle"
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fill: color, fontWeight: 700 }}>
+              {p.value}%
+            </text>
+            <text x={xs[i]} y={height - 4} textAnchor="middle"
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fill: C.muted }}>
+              {p.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function DataCharts({ cohorts }: { cohorts: FacReportCohort[] }) {
+  const completed = cohorts
+    .filter(c => c.status === 'completed')
+    .sort((a, b) => (a.start_date > b.start_date ? 1 : -1));
+
+  // Build chart data — label = Book # + short date
+  const makeLabel = (c: FacReportCohort, i: number) =>
+    completed.length <= 6 ? `B${c.book_number}` : `#${i + 1}`;
+
+  // Completion rate bar chart
+  const completionPoints: ChartPoint[] = completed
+    .filter(c => c.completion_rate != null)
+    .map((c, i) => ({ label: makeLabel(c, i), value: c.completion_rate! }));
+
+  // Avg outcome rating trend
+  const outcomePoints: ChartPoint[] = completed
+    .filter(c => c.avg_outcome_rating != null)
+    .map((c, i) => ({ label: makeLabel(c, i), value: c.avg_outcome_rating! }));
+
+  // Per-dimension radar-style breakdown (last completed cohort)
+  const lastWithOutcome = [...completed].reverse().find(c => c.outcome_ratings);
+  const dims = lastWithOutcome?.outcome_ratings
+    ? [
+        { key: 'grief_intensity', label: 'Grief Intensity',   val: lastWithOutcome.outcome_ratings.grief_intensity ?? 0 },
+        { key: 'connection',      label: 'Connection',        val: lastWithOutcome.outcome_ratings.connection      ?? 0 },
+        { key: 'self_care',       label: 'Self-Care',         val: lastWithOutcome.outcome_ratings.self_care        ?? 0 },
+        { key: 'hope',            label: 'Hope',              val: lastWithOutcome.outcome_ratings.hope             ?? 0 },
+      ]
+    : null;
+
+  if (completed.length === 0) {
+    return (
+      <div style={{ ...card }}>
+        <h2 style={sectionTitle}>My Progress Over Time</h2>
+        <div style={{ padding: '1.5rem', background: C.bg, borderRadius: 8, textAlign: 'center' as const }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.muted, margin: 0, lineHeight: 1.7 }}>
+            Your progress charts will appear here after you complete your first cohort.<br />
+            <span style={{ color: C.navy, fontWeight: 600 }}>You&apos;re building something meaningful — keep going.</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ ...card }}>
+      <h2 style={sectionTitle}>My Progress Over Time</h2>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '-0.5rem 0 1.5rem', lineHeight: 1.6 }}>
+        These are your trends across all completed cohorts. Growth isn't always linear — but it's real.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+        {/* Completion Rate */}
+        <div style={{ background: C.bg, borderRadius: 10, border: `1px solid ${C.border}`, padding: '1rem' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: C.navy, fontSize: '0.85rem', marginBottom: 4 }}>
+            Completion Rates by Cohort
+          </div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, marginBottom: 12 }}>
+            % of enrolled participants who completed the full program
+          </div>
+          <MiniBarChart points={completionPoints} color={C.success} height={100} />
+          {completionPoints.length >= 2 && (() => {
+            const first = completionPoints[0].value;
+            const last  = completionPoints[completionPoints.length - 1].value;
+            const diff  = last - first;
+            return (
+              <div style={{ marginTop: 8, fontFamily: 'Inter, sans-serif', fontSize: '0.78rem',
+                color: diff >= 0 ? C.success : C.warn, fontWeight: 600 }}>
+                {diff >= 0 ? `↑ Up ${diff}% from your first cohort` : `↓ ${Math.abs(diff)}% from your first cohort`}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Outcome Rating Trend */}
+        <div style={{ background: C.bg, borderRadius: 10, border: `1px solid ${C.border}`, padding: '1rem' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: C.navy, fontSize: '0.85rem', marginBottom: 4 }}>
+            Average Outcome Rating Trend
+          </div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, marginBottom: 12 }}>
+            Your observed improvement ratings across cohorts (1–5 scale)
+          </div>
+          <SparkLine points={outcomePoints} color={C.gold} height={100} />
+          {outcomePoints.length >= 2 && (() => {
+            const first = outcomePoints[0].value;
+            const last  = outcomePoints[outcomePoints.length - 1].value;
+            const diff  = Math.round((last - first) * 10) / 10;
+            return (
+              <div style={{ marginTop: 8, fontFamily: 'Inter, sans-serif', fontSize: '0.78rem',
+                color: diff >= 0 ? C.gold : C.muted, fontWeight: 600 }}>
+                {diff >= 0
+                  ? `↑ ${diff} points higher than your first cohort`
+                  : `${diff} compared to your first cohort`}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Per-dimension breakdown (most recent cohort) */}
+        {dims && (
+          <div style={{ background: C.bg, borderRadius: 10, border: `1px solid ${C.border}`, padding: '1rem',
+            gridColumn: 'span 1' }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: C.navy, fontSize: '0.85rem', marginBottom: 4 }}>
+              Most Recent Cohort — Outcome Dimensions
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, marginBottom: 16 }}>
+              Your observed improvement in each dimension for your last completed cohort
+            </div>
+            {dims.map(d => (
+              <div key={d.key} style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.navy, fontWeight: 600 }}>
+                    {d.label}
+                  </span>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.gold, fontWeight: 700 }}>
+                    {d.val}/5
+                  </span>
+                </div>
+                <div style={{ background: C.border, borderRadius: 99, height: 8, overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${(d.val / 5) * 100}%`, height: '100%',
+                    background: d.val >= 4 ? C.success : d.val >= 3 ? C.gold : C.warn,
+                    borderRadius: 99, transition: 'width 0.6s ease',
+                  }} />
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop: 8, fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted, lineHeight: 1.5, fontStyle: 'italic' }}>
+              These reflect your facilitated observations — the real transformation you witnessed in your group.
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Encouragement footer */}
+      <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: C.goldLt,
+        borderRadius: 8, border: `1px solid ${C.gold}30` }}>
+        <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.95rem', color: C.navy,
+          margin: 0, lineHeight: 1.7, fontStyle: 'italic' }}>
+          &ldquo;The companion does not set the agenda but is present to the mourner&rsquo;s needs.
+          Your presence is the intervention.&rdquo;
+        </p>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '6px 0 0' }}>
+          — Live and Grieve™ Companioning Framework
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Full Reports Tab shell ── */
+function ReportsTab({ profile }: { profile: Profile }) {
+  const [report,   setReport]  = useState<FacReport | null>(null);
+  const [loading,  setLoading] = useState(true);
+  const [err,      setErr]     = useState('');
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const r = await fetch(`/api/reports/facilitator/${profile.id}`);
+        if (!r.ok) {
+          const d = await r.json().catch(() => ({}));
+          setErr(d.error ?? `Error ${r.status}`);
+          setLoading(false);
+          return;
+        }
+        const d = await r.json();
+        setReport(d);
+      } catch (e) { setErr(String(e)); }
+      setLoading(false);
+    }
+    load();
+  }, [profile.id]);
+
+  if (loading) return (
+    <div style={{ padding: '3rem', textAlign: 'center' as const, fontFamily: 'Inter, sans-serif', color: C.muted }}>
+      Loading your impact data…
+    </div>
+  );
+
+  if (err || !report) return (
+    <div style={{ ...card, borderLeft: `3px solid ${C.danger}` }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', color: C.danger, margin: 0 }}>
+        {err || 'Could not load report data.'}
+      </p>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Section 1 */}
+      <ImpactTiles totals={report.totals} />
+
+      {/* Section 2 */}
+      <CohortReportsList cohorts={report.cohort_summaries} facId={profile.id} />
+
+      {/* Section 3 */}
+      <DataCharts cohorts={report.cohort_summaries} />
+    </>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -1665,7 +2183,13 @@ export default function HubDashboard() {
   const [documents,     setDocuments]     = useState<Document[]>([]);
   const [cohorts,       setCohorts]       = useState<Cohort[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [tab,           setTab]           = useState<Tab>('overview');
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('tab');
+      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes') return p as Tab;
+    }
+    return 'overview';
+  });
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState('');
 
@@ -1718,7 +2242,7 @@ export default function HubDashboard() {
   );
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports',
   };
 
   return (
@@ -1752,7 +2276,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'reports'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -1776,6 +2300,7 @@ export default function HubDashboard() {
           {tab === 'documents' && <DocumentsCard documents={documents} />}
           {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
+          {tab === 'reports'   && <ReportsTab profile={profile} />}
         </div>
       </div>
     </>
