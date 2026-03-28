@@ -344,6 +344,104 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
 /* ════════════════════════════════════════════════════════════
    SECTION 2 — Facilitator List
 ═════════════════════════════════════════════════════════════*/
+/* ── Facilitator codes summary (used inside FacilitatorProfile) ── */
+interface CodeStats { total: number; active: number; redeemed: number; expired: number; revoked: number; }
+interface CodeBatch { id: string; book_number: number; batch_size: number; expires_at: string; notes: string; created_at: string; }
+
+function FacCodesSummary({ facilProfileId }: { facilProfileId: string }) {
+  const [stats,   setStats]   = useState<CodeStats | null>(null);
+  const [batches, setBatches] = useState<CodeBatch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const res  = await fetch(`/api/admin/facilitator-codes/${facilProfileId}`);
+      const json = await res.json();
+      if (json.stats)   setStats(json.stats);
+      if (json.batches) setBatches(json.batches);
+      setLoading(false);
+    })();
+  }, [facilProfileId]);
+
+  if (loading) return <p style={{ color: C.muted, fontSize: '0.85rem', fontFamily: 'Inter, sans-serif' }}>Loading code data…</p>;
+  if (!stats)  return null;
+
+  const statItems = [
+    { label: 'Total Generated', val: stats.total,    color: C.navy },
+    { label: 'Active',          val: stats.active,   color: C.success },
+    { label: 'Redeemed',        val: stats.redeemed, color: C.info },
+    { label: 'Expired',         val: stats.expired,  color: C.muted },
+    { label: 'Revoked',         val: stats.revoked,  color: C.danger },
+  ];
+
+  return (
+    <div>
+      {/* Stat tiles */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: '1rem' }}>
+        {statItems.map(({ label, val, color }) => (
+          <div key={label} style={{
+            background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8,
+            padding: '10px 14px', minWidth: 90, textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.35rem', fontWeight: 700, color, fontFamily: 'Inter, sans-serif' }}>{val}</div>
+            <div style={{ fontSize: '0.7rem', color: C.muted, fontWeight: 600, textTransform: 'uppercase',
+              letterSpacing: '0.04em', fontFamily: 'Inter, sans-serif', marginTop: 2 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Batches toggle */}
+      {batches.length > 0 && (
+        <div>
+          <button onClick={() => setExpanded(e => !e)} style={{
+            background: 'none', border: 'none', cursor: 'pointer', color: C.info,
+            fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600,
+            padding: 0, textDecoration: 'underline', textUnderlineOffset: 2,
+          }}>
+            {expanded ? '▲ Hide batches' : `▼ View ${batches.length} batch${batches.length === 1 ? '' : 'es'}`}
+          </button>
+          {expanded && (
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem',
+              fontFamily: 'Inter, sans-serif', marginTop: '0.6rem' }}>
+              <thead>
+                <tr style={{ background: C.bg }}>
+                  {['Book', 'Size', 'Expires', 'Notes', 'Created'].map(h => (
+                    <th key={h} style={{ padding: '5px 8px', textAlign: 'left', color: C.muted,
+                      fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em',
+                      fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {batches.map(b => (
+                  <tr key={b.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: '5px 8px', color: C.navy }}>Book {b.book_number}</td>
+                    <td style={{ padding: '5px 8px', color: C.navy }}>{b.batch_size}</td>
+                    <td style={{ padding: '5px 8px', color: C.muted, whiteSpace: 'nowrap' }}>
+                      {b.expires_at ? new Date(b.expires_at).toLocaleDateString() : '—'}
+                    </td>
+                    <td style={{ padding: '5px 8px', color: C.muted }}>{b.notes ?? '—'}</td>
+                    <td style={{ padding: '5px 8px', color: C.muted, whiteSpace: 'nowrap' }}>
+                      {new Date(b.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+      {batches.length === 0 && (
+        <p style={{ color: C.muted, fontSize: '0.82rem', fontFamily: 'Inter, sans-serif', margin: 0 }}>
+          No batches generated yet.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
   f: Facilitator; orgs: Org[];
   onClose: () => void;
@@ -484,6 +582,17 @@ function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
 
         <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
 
+        {/* Code activity */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 700,
+            color: C.navy, marginBottom: '0.75rem' }}>
+            Access Codes
+          </h3>
+          <FacCodesSummary facilProfileId={f.id} />
+        </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
         {/* Deactivate */}
         <button disabled={deactLoad} onClick={toggleStatus}
           style={btn(f.cert_status === 'active' ? C.danger : C.success)}>
@@ -494,7 +603,11 @@ function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
   );
 }
 
-function FacilitatorList({ orgs, refresh }: { orgs: Org[]; refresh: number }) {
+function FacilitatorList({ orgs, refresh, onFacilsLoaded }: {
+  orgs: Org[];
+  refresh: number;
+  onFacilsLoaded?: (fs: Facilitator[]) => void;
+}) {
   const [data,     setData]     = useState<Facilitator[]>([]);
   const [count,    setCount]    = useState(0);
   const [pages,    setPages]    = useState(1);
@@ -512,11 +625,13 @@ function FacilitatorList({ orgs, refresh }: { orgs: Org[]; refresh: number }) {
     if (statusF) p.set('status', statusF);
     const res  = await fetch(`/api/admin/facilitators?${p}`);
     const json = await res.json();
-    setData(json.data ?? []);
+    const list = json.data ?? [];
+    setData(list);
     setCount(json.count ?? 0);
     setPages(json.pages ?? 1);
     setLoading(false);
-  }, [page, q, statusF]);
+    if (onFacilsLoaded) onFacilsLoaded(list);
+  }, [page, q, statusF]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load(); }, [load, refresh, tick]);
 
@@ -892,15 +1007,267 @@ function LoginGate({ onAuth }: { onAuth: () => void }) {
 }
 
 /* ════════════════════════════════════════════════════════════
+   GLOBAL CODES TAB
+═════════════════════════════════════════════════════════════*/
+interface CodeRow {
+  id: string; code: string; book_number: number; status: string;
+  expires_at: string; redeemed_at: string | null; redeemed_by_email: string | null;
+  created_at: string; batch_id: string; batch_notes: string | null;
+  facilitator_id: string | null; facilitator_name: string | null; facilitator_email: string | null;
+  organization_id: string | null; organization_name: string | null;
+}
+
+function GlobalCodesTab({ orgs, facilitators }: { orgs: Org[]; facilitators: Facilitator[] }) {
+  const [codes,      setCodes]      = useState<CodeRow[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [orgFilter,  setOrgFilter]  = useState('');
+  const [bookFilter, setBookFilter] = useState('');
+  const [statFilter, setStatFilter] = useState('');
+  const [facFilter,  setFacFilter]  = useState('');
+  const [revoking,   setRevoking]   = useState<string | null>(null);
+  const [toast,      setToast]      = useState<{ msg: string; ok: boolean } | null>(null);
+  const [tick,       setTick]       = useState(0);
+
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const buildQS = useCallback(() => {
+    const p = new URLSearchParams();
+    if (orgFilter)  p.set('org',         orgFilter);
+    if (bookFilter) p.set('book',        bookFilter);
+    if (statFilter) p.set('status',      statFilter);
+    if (facFilter)  p.set('facilitator', facFilter);
+    return p.toString();
+  }, [orgFilter, bookFilter, statFilter, facFilter]);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res  = await fetch(`/api/admin/codes?${buildQS()}`);
+    const json = await res.json();
+    setCodes(json.data ?? []);
+    setLoading(false);
+  }, [buildQS, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { load(); }, [load]);
+
+  async function revokeBatch(batchId: string) {
+    if (!confirm('Revoke all active codes in this batch? This cannot be undone.')) return;
+    setRevoking(batchId);
+    const res = await fetch('/api/admin/codes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ batch_id: batchId, action: 'revoke_batch' }),
+    });
+    setRevoking(null);
+    if (res.ok) { showToast('Batch revoked.'); setTick(t => t + 1); }
+    else { const d = await res.json(); showToast('Error: ' + d.error, false); }
+  }
+
+  function exportCSV() {
+    window.open(`/api/admin/codes?${buildQS()}&format=csv`, '_blank');
+  }
+
+  // Batch-level grouping for revoke action
+  const batchRevokable = (batchId: string) =>
+    codes.some(c => c.batch_id === batchId && c.status === 'active');
+
+  const statusColor = (s: string) => s === 'active' ? C.success : s === 'redeemed' ? C.info :
+    s === 'revoked' ? C.danger : C.muted;
+
+  // Summary stats
+  const stats = {
+    total:    codes.length,
+    active:   codes.filter(c => c.status === 'active').length,
+    redeemed: codes.filter(c => c.status === 'redeemed').length,
+    expired:  codes.filter(c => c.status === 'expired').length,
+    revoked:  codes.filter(c => c.status === 'revoked').length,
+  };
+
+  // Unique batch IDs for display grouping
+  const batchIds = Array.from(new Set(codes.map(c => c.batch_id)));
+
+  return (
+    <div>
+      {toast && (
+        <div style={{
+          position: 'fixed', top: 70, right: 20, zIndex: 9999,
+          background: toast.ok ? C.success : C.danger,
+          color: '#fff', padding: '0.7rem 1.2rem', borderRadius: 8,
+          fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 600,
+          boxShadow: '0 4px 16px rgba(0,0,0,.18)',
+        }}>{toast.msg}</div>
+      )}
+
+      {/* Summary stat tiles */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        {[
+          { label: 'Total',    val: stats.total,    color: C.navy },
+          { label: 'Active',   val: stats.active,   color: C.success },
+          { label: 'Redeemed', val: stats.redeemed, color: C.info },
+          { label: 'Expired',  val: stats.expired,  color: C.muted },
+          { label: 'Revoked',  val: stats.revoked,  color: C.danger },
+        ].map(({ label, val, color }) => (
+          <div key={label} style={{
+            background: C.white, border: `1px solid ${C.border}`, borderRadius: 8,
+            padding: '12px 18px', textAlign: 'center', minWidth: 100,
+            boxShadow: '0 1px 3px rgba(0,0,0,.05)',
+          }}>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, color, fontFamily: 'Inter, sans-serif' }}>{val}</div>
+            <div style={{ fontSize: '0.72rem', color: C.muted, fontWeight: 600,
+              textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: 'Inter, sans-serif', marginTop: 2 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters + export */}
+      <div style={{ ...card, marginBottom: '1.25rem', padding: '1rem 1.25rem' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div>
+            <label style={fieldLabel}>Organization</label>
+            <select style={{ ...inp, width: 160 }} value={orgFilter} onChange={e => setOrgFilter(e.target.value)}>
+              <option value="">All Orgs</option>
+              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Book</label>
+            <select style={{ ...inp, width: 110 }} value={bookFilter} onChange={e => setBookFilter(e.target.value)}>
+              <option value="">All Books</option>
+              {[1,2,3,4].map(n => <option key={n} value={n}>Book {n}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Status</label>
+            <select style={{ ...inp, width: 130 }} value={statFilter} onChange={e => setStatFilter(e.target.value)}>
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="redeemed">Redeemed</option>
+              <option value="expired">Expired</option>
+              <option value="revoked">Revoked</option>
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Facilitator</label>
+            <select style={{ ...inp, width: 180 }} value={facFilter} onChange={e => setFacFilter(e.target.value)}>
+              <option value="">All Facilitators</option>
+              {facilitators.map(f => <option key={f.id} value={f.id}>{f.full_name}</option>)}
+            </select>
+          </div>
+          <button onClick={() => setTick(t => t + 1)} style={btn(C.navy, '#fff', true)}>Apply</button>
+          <button onClick={() => { setOrgFilter(''); setBookFilter(''); setStatFilter(''); setFacFilter(''); setTick(t => t + 1); }}
+            style={btn(C.muted, '#fff', true)}>Clear</button>
+          <button onClick={exportCSV} style={{ ...btn(C.gold, C.navy, true), marginLeft: 'auto' }}>
+            ↓ Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Batch-grouped table */}
+      {loading ? (
+        <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif' }}>Loading…</p>
+      ) : batchIds.length === 0 ? (
+        <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', textAlign: 'center', padding: '2rem 0' }}>
+          No codes found.
+        </p>
+      ) : (
+        batchIds.map(batchId => {
+          const batchCodes = codes.filter(c => c.batch_id === batchId);
+          const first      = batchCodes[0];
+          const canRevoke  = batchRevokable(batchId);
+
+          return (
+            <div key={batchId} style={{ ...card, padding: '1rem 1.25rem', marginBottom: '1rem' }}>
+              {/* Batch header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+                flexWrap: 'wrap', gap: 8, marginBottom: '0.75rem' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span style={{ fontWeight: 700, color: C.navy, fontSize: '0.9rem' }}>
+                    Book {first.book_number} · {first.facilitator_name ?? 'Unknown Facilitator'}
+                  </span>
+                  {first.organization_name && (
+                    <span style={{ color: C.muted, fontSize: '0.82rem', marginLeft: 8 }}>
+                      · {first.organization_name}
+                    </span>
+                  )}
+                  <div style={{ fontSize: '0.75rem', color: C.muted, marginTop: 2 }}>
+                    Batch generated {new Date(first.created_at).toLocaleDateString()}
+                    {first.batch_notes ? ` · ${first.batch_notes}` : ''}
+                    {' · '}
+                    Expires {first.expires_at ? new Date(first.expires_at).toLocaleDateString() : 'N/A'}
+                  </div>
+                </div>
+                {canRevoke && (
+                  <button
+                    disabled={revoking === batchId}
+                    onClick={() => revokeBatch(batchId)}
+                    style={btn(C.danger, '#fff', true)}
+                  >
+                    {revoking === batchId ? '…' : 'Revoke Batch'}
+                  </button>
+                )}
+              </div>
+
+              {/* Codes table */}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', fontFamily: 'Inter, sans-serif' }}>
+                  <thead>
+                    <tr style={{ background: C.bg }}>
+                      {['Code', 'Status', 'Redeemed By', 'Redeemed Date', 'Expires'].map(h => (
+                        <th key={h} style={{ padding: '5px 8px', textAlign: 'left', color: C.muted,
+                          fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em',
+                          fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {batchCodes.map(c => (
+                      <tr key={c.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                        <td style={{ padding: '5px 8px', fontFamily: 'monospace', fontWeight: 600, color: C.navy }}>
+                          {c.code}
+                        </td>
+                        <td style={{ padding: '5px 8px' }}>
+                          <span style={{
+                            background: statusColor(c.status) + '18',
+                            color: statusColor(c.status),
+                            padding: '2px 8px', borderRadius: 4,
+                            fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase',
+                          }}>{c.status}</span>
+                        </td>
+                        <td style={{ padding: '5px 8px', color: C.muted }}>
+                          {c.redeemed_by_email ?? '—'}
+                        </td>
+                        <td style={{ padding: '5px 8px', color: C.muted, whiteSpace: 'nowrap' }}>
+                          {c.redeemed_at ? new Date(c.redeemed_at).toLocaleDateString() : '—'}
+                        </td>
+                        <td style={{ padding: '5px 8px', color: C.muted, whiteSpace: 'nowrap' }}>
+                          {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    ROOT PAGE
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'facilitators' | 'orgs';
+type Tab = 'facilitators' | 'orgs' | 'codes';
 
 export default function AdminFacilitatorsPage() {
-  const [authed,  setAuthed]  = useState(false);
-  const [tab,     setTab]     = useState<Tab>('facilitators');
-  const [orgs,    setOrgs]    = useState<Org[]>([]);
-  const [refresh, setRefresh] = useState(0);
+  const [authed,        setAuthed]        = useState(false);
+  const [tab,           setTab]           = useState<Tab>('facilitators');
+  const [orgs,          setOrgs]          = useState<Org[]>([]);
+  const [allFacils,     setAllFacils]     = useState<Facilitator[]>([]);
+  const [refresh,       setRefresh]       = useState(0);
 
   useEffect(() => {
     if (document.cookie.includes('lg-admin-session=')) setAuthed(true);
@@ -944,14 +1311,18 @@ export default function AdminFacilitatorsPage() {
         {/* Tabs */}
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.5rem', position: 'sticky', top: 58, zIndex: 99 }}>
-          {(['facilitators', 'orgs'] as Tab[]).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{
+          {([
+            { key: 'facilitators', label: 'Facilitators' },
+            { key: 'orgs',         label: 'Organizations' },
+            { key: 'codes',        label: 'Access Codes' },
+          ] as { key: Tab; label: string }[]).map(({ key, label }) => (
+            <button key={key} onClick={() => setTab(key)} style={{
               background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
               fontWeight: 600, fontSize: '0.9rem', padding: '0.9rem 1.25rem',
-              borderBottom: tab === t ? `3px solid ${C.gold}` : '3px solid transparent',
-              color: tab === t ? C.navy : C.muted,
+              borderBottom: tab === key ? `3px solid ${C.gold}` : '3px solid transparent',
+              color: tab === key ? C.navy : C.muted,
             }}>
-              {t === 'orgs' ? 'Organizations' : 'Facilitators'}
+              {label}
             </button>
           ))}
         </div>
@@ -961,11 +1332,14 @@ export default function AdminFacilitatorsPage() {
           {tab === 'facilitators' && (
             <>
               <CreateFacilitatorForm orgs={orgs} onCreated={() => setRefresh(r => r + 1)} />
-              <FacilitatorList orgs={orgs} refresh={refresh} />
+              <FacilitatorList orgs={orgs} refresh={refresh} onFacilsLoaded={setAllFacils} />
             </>
           )}
           {tab === 'orgs' && (
             <OrgManagement onOrgsChange={setOrgs} />
+          )}
+          {tab === 'codes' && (
+            <GlobalCodesTab orgs={orgs} facilitators={allFacils} />
           )}
         </div>
       </div>
