@@ -23,10 +23,13 @@ export interface MailOptions {
 
 export async function sendMail(opts: MailOptions): Promise<void> {
   await transporter.sendMail({
-    from: '"Live and Grieve™" <ember@tripillarstudio.com>',
+    from: '"Live and Grieve™" <wayne@tripillarstudio.com>',
     ...opts,
   });
 }
+
+/** Default recipient for all program reports */
+export const REPORT_RECIPIENT = 'wayne@tripillarstudio.com';
 
 /** Standard branded email wrapper */
 export function brandedHtml(title: string, bodyHtml: string): string {
