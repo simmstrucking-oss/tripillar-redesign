@@ -75,6 +75,6 @@ async function buildPublicMetrics() {
 export async function GET(_req: NextRequest) {
   const data = await buildPublicMetrics();
   return NextResponse.json(data, {
-    headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
+    headers: { 'Cache-Control': 'no-store', 'X-Cache': 'MISS' },
   });
 }
