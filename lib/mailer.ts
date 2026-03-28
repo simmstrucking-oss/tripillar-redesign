@@ -23,7 +23,10 @@ export interface MailOptions {
 
 export async function sendMail(opts: MailOptions): Promise<void> {
   await transporter.sendMail({
-    from: '"Live and Grieve™" <wayne@tripillarstudio.com>',
+    // Namecheap SMTP requires From = authenticated user (ember@).
+    // Display name shows "Live and Grieve™ Reports"; Reply-To routes to Wayne.
+    from: '"Live and Grieve™ Reports" <ember@tripillarstudio.com>',
+    replyTo: 'wayne@tripillarstudio.com',
     ...opts,
   });
 }
