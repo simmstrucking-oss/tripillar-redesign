@@ -332,18 +332,618 @@ function DocumentsCard({ documents }: { documents: Document[] }) {
   );
 }
 
-/* ── Cohorts ── */
+
+/* ════════════════════════════════════════════════════════════
+   COHORTS TAB  —  2A Pre-Program · 2B Session Logs · 2C Post-Program
+═════════════════════════════════════════════════════════════*/
+
+/* ── Types for cohort data ── */
+interface SessionLog {
+  id: string; cohort_id: string; week_number: number; session_date: string;
+  session_duration_minutes?: number; participants_attended: number;
+  group_composition_stable?: boolean; co_facilitated?: boolean;
+  facilitator_confidence_rating?: number; notes?: string; critical_incident?: boolean;
+}
+interface CohortOutcome {
+  id?: string;
+  pre_participant_count?: number; pre_age_ranges?: Record<string, number>;
+  pre_setting_type?: string; pre_community_type?: string;
+  pre_primary_loss_types?: Record<string, number>; pre_time_since_loss?: string;
+  pre_prior_support?: Record<string, number>; pre_submitted_at?: string;
+  post_participant_count?: number; post_grief_intensity_rating?: number;
+  post_connection_rating?: number; post_self_care_rating?: number;
+  post_hope_rating?: number; post_facilitator_observations?: string;
+  post_submitted_at?: string; completion_rate?: number;
+}
+
+/* ── Rating component (1–5) ── */
+function StarRating({ value, onChange, label, hint }: {
+  value: number; onChange: (v: number) => void; label: string; hint?: string;
+}) {
+  const SCALE = [
+    '', '1 — No observable change',
+    '2 — Slight improvement in some',
+    '3 — Moderate improvement in most',
+    '4 — Significant improvement in most',
+    '5 — Remarkable improvement across the group',
+  ];
+  return (
+    <div style={{ marginBottom: '1rem' }}>
+      <label style={{ ...fieldLabel, marginBottom: 6 }}>{label}</label>
+      {hint && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted, margin: '0 0 6px' }}>{hint}</p>}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {[1,2,3,4,5].map(n => (
+          <button key={n} type="button" onClick={() => onChange(n)}
+            style={{
+              ...btn(value === n ? C.navy : C.bg, value === n ? '#fff' : C.navy, true),
+              border: `1px solid ${value === n ? C.navy : C.border}`,
+              minWidth: 36,
+            }}>
+            {n}
+          </button>
+        ))}
+      </div>
+      {value > 0 && (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.76rem', color: C.gold,
+          margin: '4px 0 0', fontStyle: 'italic' }}>{SCALE[value]}</p>
+      )}
+    </div>
+  );
+}
+
+/* ── 2B: Single week log row/modal ── */
+function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
+  cohortId: string; weekNum: number; log?: SessionLog; onSaved: () => void;
+}) {
+  const WEEK_TITLES: Record<number, string> = {
+    1: 'Understanding Our Grief', 2: 'The Landscape of Loss', 3: 'Waves of Emotion',
+    4: 'Carrying the Weight', 5: 'Body and Breath', 6: 'Companions on the Journey',
+    7: 'Memory and Meaning', 8: 'Continuing Bonds', 9: 'Rituals and Remembrance',
+    10: 'Finding Footing', 11: 'Meaning Reconstruction', 12: 'Hope and Renewal',
+    13: 'Living Forward',
+  };
+
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [form, setForm] = useState({
+    session_date: log?.session_date ?? new Date().toISOString().slice(0, 10),
+    session_duration_minutes: String(log?.session_duration_minutes ?? ''),
+    participants_attended: String(log?.participants_attended ?? ''),
+    group_composition_stable: log?.group_composition_stable ?? true,
+    co_facilitated: log?.co_facilitated ?? false,
+    facilitator_confidence_rating: log?.facilitator_confidence_rating ?? 0,
+    notes: log?.notes ?? '',
+    critical_incident: log?.critical_incident ?? false,
+  });
+  const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
+  const status = !log ? 'Not logged'
+    : log.critical_incident ? 'Logged with incident'
+    : 'Logged';
+  const statusColor = !log ? C.muted : log.critical_incident ? C.danger : C.success;
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true); setMsg('');
+    const res = await fetch('/api/hub/session-logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cohort_id: cohortId, week_number: weekNum, ...form,
+        session_duration_minutes: form.session_duration_minutes ? Number(form.session_duration_minutes) : null,
+        participants_attended: Number(form.participants_attended ?? 0),
+        facilitator_confidence_rating: form.facilitator_confidence_rating || null,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) { setMsg('Saved ✓'); setOpen(false); onSaved(); }
+    else { const d = await res.json(); setMsg('Error: ' + d.error); }
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '0.6rem 0.85rem', borderRadius: 7, border: `1px solid ${C.border}`,
+        background: C.bg, marginBottom: 6, gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, fontWeight: 600 }}>
+          Week {weekNum} — {WEEK_TITLES[weekNum]}
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          {log && (
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+              {log.participants_attended} attended
+            </span>
+          )}
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 600, color: statusColor }}>
+            {status}
+          </span>
+          <button onClick={() => setOpen(o => !o)}
+            style={btn(open ? C.border : C.gold, open ? C.navy : '#fff', true)}>
+            {open ? 'Close' : log ? 'Edit' : 'Log Session'}
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <form onSubmit={save} style={{ background: '#FAFAF8', border: `1px solid ${C.border}`,
+          borderRadius: 8, padding: '1rem 1.25rem', marginBottom: 10, marginTop: -4 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <label style={fieldLabel}>Session Date *</label>
+              <input type="date" style={inp} required value={form.session_date}
+                onChange={e => set('session_date', e.target.value)} />
+            </div>
+            <div>
+              <label style={fieldLabel}>Participants Attended</label>
+              <input type="number" min="0" style={inp} value={form.participants_attended}
+                onChange={e => set('participants_attended', e.target.value)} />
+            </div>
+            <div>
+              <label style={fieldLabel}>Duration (minutes)</label>
+              <input type="number" min="1" style={inp} placeholder="e.g. 90"
+                value={form.session_duration_minutes}
+                onChange={e => set('session_duration_minutes', e.target.value)} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <label style={fieldLabel}>Group Composition</label>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                {[true, false].map(v => (
+                  <button key={String(v)} type="button"
+                    onClick={() => set('group_composition_stable', v)}
+                    style={{ ...btn(form.group_composition_stable === v ? C.navy : C.bg,
+                      form.group_composition_stable === v ? '#fff' : C.navy, true),
+                      border: `1px solid ${form.group_composition_stable === v ? C.navy : C.border}`,
+                      flex: 1, textAlign: 'center' as const }}>
+                    {v ? 'Core group consistent' : 'Notable turnover'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={fieldLabel}>Co-facilitated?</label>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                {[false, true].map(v => (
+                  <button key={String(v)} type="button"
+                    onClick={() => set('co_facilitated', v)}
+                    style={{ ...btn(form.co_facilitated === v ? C.navy : C.bg,
+                      form.co_facilitated === v ? '#fff' : C.navy, true),
+                      border: `1px solid ${form.co_facilitated === v ? C.navy : C.border}`,
+                      flex: 1, textAlign: 'center' as const }}>
+                    {v ? 'Yes' : 'No'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>
+              Facilitator Confidence This Week (1–5)
+              <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6, textTransform: 'none', letterSpacing: 0 }}>
+                — Private, only visible to program director
+              </span>
+            </label>
+            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+              {[1,2,3,4,5].map(n => (
+                <button key={n} type="button" onClick={() => set('facilitator_confidence_rating', n)}
+                  style={{ ...btn(form.facilitator_confidence_rating === n ? C.gold : C.bg,
+                    form.facilitator_confidence_rating === n ? '#fff' : C.navy, true),
+                    border: `1px solid ${form.facilitator_confidence_rating === n ? C.gold : C.border}`,
+                    minWidth: 36 }}>
+                  {n}
+                </button>
+              ))}
+              {form.facilitator_confidence_rating > 0 && (
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.76rem', color: C.muted,
+                  alignSelf: 'center', marginLeft: 4 }}>
+                  {['','uncertain','somewhat uncertain','neutral','confident','very confident'][form.facilitator_confidence_rating]}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>Session Notes
+              <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6, textTransform: 'none', letterSpacing: 0 }}>
+                — Private, not shared with participants
+              </span>
+            </label>
+            <textarea style={{ ...inp, height: 70, resize: 'vertical' }}
+              placeholder="Observations, adjustments, what worked…"
+              value={form.notes} onChange={e => set('notes', e.target.value)} />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ ...fieldLabel, display: 'flex', alignItems: 'center', gap: 8,
+              cursor: 'pointer', textTransform: 'none', letterSpacing: 0, fontSize: '0.85rem' }}>
+              <input type="checkbox" checked={form.critical_incident}
+                onChange={e => set('critical_incident', e.target.checked)}
+                style={{ width: 16, height: 16 }} />
+              <span>Critical incident this session?</span>
+              {form.critical_incident && (
+                <span style={{ color: C.danger, fontWeight: 400, fontSize: '0.78rem' }}>
+                  — Please document via your organization&apos;s critical incident reporting process
+                </span>
+              )}
+            </label>
+          </div>
+
+          {msg && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem',
+            color: msg.startsWith('Error') ? C.danger : C.success, margin: '0 0 0.75rem' }}>{msg}</p>}
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" disabled={saving} style={btn(C.navy, '#fff', true)}>
+              {saving ? 'Saving…' : 'Save Session Log'}
+            </button>
+            <button type="button" onClick={() => setOpen(false)} style={btn(C.bg, C.navy, true)}>Cancel</button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+/* ── 2A: Pre-Program form ── */
+function PreProgramForm({ cohortId, existing, onSaved }: {
+  cohortId: string; existing?: CohortOutcome; onSaved: (o: CohortOutcome) => void;
+}) {
+  const AGE_RANGES = ['under_18', '18_35', '36_55', '56_plus'];
+  const AGE_LABELS: Record<string, string> = { under_18: 'Under 18', '18_35': '18–35', '36_55': '36–55', '56_plus': '56+' };
+  const LOSS_TYPES = ['spouse','parent','child','sibling','friend','colleague','pet','other'];
+  const LOSS_LABELS: Record<string, string> = { spouse:'Spouse/Partner', parent:'Parent', child:'Child',
+    sibling:'Sibling', friend:'Friend', colleague:'Colleague', pet:'Pet', other:'Other' };
+  const SUPPORT_TYPES = ['therapy','counseling','grief_group','other_program','none'];
+  const SUPPORT_LABELS: Record<string, string> = { therapy:'Individual therapy', counseling:'Grief counseling',
+    grief_group:'Other grief group', other_program:'Other structured program', none:'None' };
+
+  const initAges = () => Object.fromEntries(AGE_RANGES.map(k => [k, existing?.pre_age_ranges?.[k] ?? 0]));
+  const initLoss = () => Object.fromEntries(LOSS_TYPES.map(k => [k, existing?.pre_primary_loss_types?.[k] ?? 0]));
+  const initSupport = () => Object.fromEntries(SUPPORT_TYPES.map(k => [k, existing?.pre_prior_support?.[k] ?? 0]));
+
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [partCount, setPartCount] = useState(String(existing?.pre_participant_count ?? ''));
+  const [ageRanges, setAgeRanges] = useState<Record<string, number>>(initAges);
+  const [settingType, setSettingType] = useState(existing?.pre_setting_type ?? '');
+  const [communityType, setCommunityType] = useState(existing?.pre_community_type ?? '');
+  const [timeSinceLoss, setTimeSinceLoss] = useState(existing?.pre_time_since_loss ?? '');
+  const [lossTypes, setLossTypes] = useState<Record<string, number>>(initLoss);
+  const [priorSupport, setPriorSupport] = useState<Record<string, number>>(initSupport);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true); setMsg('');
+    const res = await fetch('/api/hub/cohort-outcomes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cohort_id: cohortId, phase: 'pre',
+        pre_participant_count: partCount ? Number(partCount) : null,
+        pre_age_ranges: ageRanges,
+        pre_setting_type: settingType || null,
+        pre_community_type: communityType || null,
+        pre_time_since_loss: timeSinceLoss || null,
+        pre_primary_loss_types: lossTypes,
+        pre_prior_support: priorSupport,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      const d = await res.json();
+      setMsg('Pre-program data saved ✓');
+      onSaved(d.outcome);
+    } else {
+      const d = await res.json();
+      setMsg('Error: ' + d.error);
+    }
+  }
+
+  const saved = !!existing?.pre_submitted_at;
+
+  return (
+    <form onSubmit={submit} style={{ background: '#FAFAF8', border: `1px solid ${C.border}`,
+      borderRadius: 10, padding: '1.25rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', color: C.navy, margin: 0 }}>
+          Pre-Program Data
+        </h3>
+        {saved && !msg && (
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.success, fontWeight: 600 }}>
+            Pre-program data saved ✓
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+        <div>
+          <label style={fieldLabel}>Participants Enrolled</label>
+          <input type="number" min="1" style={inp} value={partCount}
+            onChange={e => setPartCount(e.target.value)} placeholder="e.g. 10" />
+        </div>
+        <div>
+          <label style={fieldLabel}>Setting Type</label>
+          <select style={inp} value={settingType} onChange={e => setSettingType(e.target.value)}>
+            <option value="">— Select —</option>
+            {[['community_center','Community Center'],['faith','Faith Community'],
+              ['healthcare','Healthcare'],['workplace','Workplace'],
+              ['school','School'],['other','Other']].map(([v,l]) => (
+              <option key={v} value={v}>{l}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label style={fieldLabel}>Community Type</label>
+          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            {[['rural','Rural'],['suburban','Suburban'],['urban','Urban']].map(([v,l]) => (
+              <button key={v} type="button" onClick={() => setCommunityType(v)}
+                style={{ ...btn(communityType === v ? C.navy : C.bg,
+                  communityType === v ? '#fff' : C.navy, true),
+                  border: `1px solid ${communityType === v ? C.navy : C.border}`, flex: 1 }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label style={fieldLabel}>Time Since Primary Loss</label>
+          <select style={inp} value={timeSinceLoss} onChange={e => setTimeSinceLoss(e.target.value)}>
+            <option value="">— Select —</option>
+            {[['under_6mo','Under 6 months'],['6_12mo','6–12 months'],
+              ['1_2yr','1–2 years'],['2_5yr','2–5 years'],
+              ['5yr_plus','5+ years'],['mixed','Mixed']].map(([v,l]) => (
+              <option key={v} value={v}>{l}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Age ranges */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Age Ranges (approximate counts)</label>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+          {AGE_RANGES.map(k => (
+            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 6,
+              background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6,
+              padding: '0.4rem 0.75rem', minWidth: 130 }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.navy, flex: 1 }}>
+                {AGE_LABELS[k]}
+              </span>
+              <input type="number" min="0" style={{ ...inp, width: 50, padding: '0.25rem 0.4rem', textAlign: 'center' as const }}
+                value={ageRanges[k]}
+                onChange={e => setAgeRanges(r => ({ ...r, [k]: Number(e.target.value) }))} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Loss types */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Primary Loss Types Represented (select all that apply)</label>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+          {LOSS_TYPES.map(k => {
+            const selected = (lossTypes[k] ?? 0) > 0;
+            return (
+              <button key={k} type="button"
+                onClick={() => setLossTypes(r => ({ ...r, [k]: selected ? 0 : 1 }))}
+                style={{ ...btn(selected ? C.navy : C.bg, selected ? '#fff' : C.navy, true),
+                  border: `1px solid ${selected ? C.navy : C.border}` }}>
+                {LOSS_LABELS[k]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Prior support */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Prior Support History (approximate counts)</label>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+          {SUPPORT_TYPES.map(k => (
+            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 6,
+              background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6,
+              padding: '0.4rem 0.75rem' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.navy }}>
+                {SUPPORT_LABELS[k]}
+              </span>
+              <input type="number" min="0" style={{ ...inp, width: 50, padding: '0.25rem 0.4rem', textAlign: 'center' as const }}
+                value={priorSupport[k]}
+                onChange={e => setPriorSupport(r => ({ ...r, [k]: Number(e.target.value) }))} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {msg && (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
+          color: msg.includes('Error') ? C.danger : C.success, margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
+      )}
+      <button type="submit" disabled={saving} style={btn(C.navy, '#fff')}>
+        {saving ? 'Saving…' : 'Save Pre-Program Data'}
+      </button>
+    </form>
+  );
+}
+
+/* ── 2C: Post-Program form ── */
+function PostProgramForm({ cohortId, preCount, existing, onSaved }: {
+  cohortId: string; preCount: number; existing?: CohortOutcome; onSaved: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [postCount, setPostCount] = useState(String(existing?.post_participant_count ?? ''));
+  const [grief, setGrief] = useState(existing?.post_grief_intensity_rating ?? 0);
+  const [connection, setConnection] = useState(existing?.post_connection_rating ?? 0);
+  const [selfCare, setSelfCare] = useState(existing?.post_self_care_rating ?? 0);
+  const [hope, setHope] = useState(existing?.post_hope_rating ?? 0);
+  const [observations, setObservations] = useState(existing?.post_facilitator_observations ?? '');
+  const [reportReady, setReportReady] = useState(!!existing?.post_submitted_at);
+
+  const completionRate = preCount > 0 && postCount
+    ? Math.round((Number(postCount) / preCount) * 100) : null;
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!grief || !connection || !selfCare || !hope) {
+      setMsg('Please rate all four outcome dimensions before submitting.');
+      return;
+    }
+    setSaving(true); setMsg('Submitting outcomes and generating report…');
+    const res = await fetch('/api/hub/cohort-outcomes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cohort_id: cohortId, phase: 'post',
+        post_participant_count: postCount ? Number(postCount) : null,
+        post_grief_intensity_rating: grief,
+        post_connection_rating: connection,
+        post_self_care_rating: selfCare,
+        post_hope_rating: hope,
+        post_facilitator_observations: observations || null,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      setMsg('');
+      setReportReady(true);
+      onSaved();
+    } else {
+      const d = await res.json();
+      setMsg('Error: ' + d.error);
+    }
+  }
+
+  if (reportReady) {
+    return (
+      <div style={{ background: '#F0FAF4', border: `1px solid #86EFAC`,
+        borderRadius: 10, padding: '1.25rem', marginTop: '1rem' }}>
+        <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem',
+          color: '#166534', margin: '0 0 0.75rem', fontWeight: 700 }}>
+          ✓ Outcomes submitted — Cohort marked complete
+        </p>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: '#166534', margin: '0 0 1rem' }}>
+          Your Cohort Summary Report will be available in the Reports tab once generated.
+          Wayne has been notified.
+        </p>
+        <button
+          onClick={() => window.open('/facilitators/hub/dashboard?tab=reports', '_self')}
+          style={btn(C.success, '#fff')}>
+          View Reports Tab →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} style={{ background: '#FAFAF8', border: `1px solid ${C.border}`,
+      borderRadius: 10, padding: '1.25rem', marginTop: '1rem' }}>
+      <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', color: C.navy, margin: '0 0 1rem' }}>
+        Post-Program Outcomes
+      </h3>
+
+      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-end', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        <div>
+          <label style={fieldLabel}>Participants Who Completed the Full Program</label>
+          <input type="number" min="0" max={preCount || 999} style={{ ...inp, width: 100 }}
+            value={postCount} onChange={e => setPostCount(e.target.value)} />
+        </div>
+        {completionRate !== null && (
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy,
+            fontWeight: 600, paddingBottom: 6 }}>
+            {postCount} of {preCount} participants completed
+            {' '}
+            <span style={{ color: completionRate >= 70 ? C.success : completionRate >= 50 ? C.warn : C.danger }}>
+              ({completionRate}%)
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: '#F5F3EE', borderRadius: 8, padding: '0.85rem 1rem', marginBottom: '1.25rem' }}>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted,
+          margin: '0 0 0.5rem', fontStyle: 'italic' }}>
+          Rate the observable improvement in your group across these four dimensions.
+          These are your facilitated observations — not participant self-reports.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.5rem' }}>
+          <StarRating value={grief} onChange={setGrief}
+            label="Grief Intensity"
+            hint="Did participants demonstrate reduced grief intensity over 13 weeks?" />
+          <StarRating value={connection} onChange={setConnection}
+            label="Connection to Others"
+            hint="Did participants demonstrate increased connection and reduced isolation?" />
+          <StarRating value={selfCare} onChange={setSelfCare}
+            label="Self-Care Practices"
+            hint="Did participants adopt and maintain self-care practices?" />
+          <StarRating value={hope} onChange={setHope}
+            label="Hope"
+            hint="Did participants demonstrate increased hope and engagement with life?" />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Facilitator Observations</label>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted, margin: '0 0 6px' }}>
+          What did you observe in your group over these 13 weeks?
+          This narrative becomes part of your Cohort Summary Report.
+        </p>
+        <textarea style={{ ...inp, height: 120, resize: 'vertical' }}
+          placeholder="Describe what you witnessed — growth, challenges, moments of connection, transformation…"
+          value={observations} onChange={e => setObservations(e.target.value)} />
+      </div>
+
+      {msg && (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
+          color: msg.startsWith('Error') ? C.danger : C.gold, margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
+      )}
+      <button type="submit" disabled={saving} style={btn(C.gold, '#fff')}>
+        {saving ? 'Submitting…' : 'Submit Outcomes & Generate Report'}
+      </button>
+    </form>
+  );
+}
+
+/* ── Main Cohorts Card ── */
 function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => void }) {
-  const [showForm, setShowForm] = useState(false);
-  const [loading,  setLoading]  = useState(false);
-  const [msg,      setMsg]      = useState('');
+  const [showForm,    setShowForm]    = useState(false);
+  const [loading,     setLoading]     = useState(false);
+  const [msg,         setMsg]         = useState('');
+  const [expandedId,  setExpandedId]  = useState<string | null>(null);
+  const [sessionLogs, setSessionLogs] = useState<Record<string, SessionLog[]>>({});
+  const [outcomes,    setOutcomes]    = useState<Record<string, CohortOutcome>>({});
   const [form, setForm] = useState({
     book_number: '', start_date: '', end_date: '',
     participant_count: '', notes: '',
   });
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  async function submit(e: React.FormEvent) {
+  async function loadCohortData(cohortId: string) {
+    const [logsRes, outcomeRes] = await Promise.all([
+      fetch(`/api/hub/session-logs?cohort_id=${cohortId}`),
+      fetch(`/api/hub/cohort-outcomes?cohort_id=${cohortId}`),
+    ]);
+    if (logsRes.ok) {
+      const d = await logsRes.json();
+      setSessionLogs(prev => ({ ...prev, [cohortId]: d.logs ?? [] }));
+    }
+    if (outcomeRes.ok) {
+      const d = await outcomeRes.json();
+      if (d.outcome) setOutcomes(prev => ({ ...prev, [cohortId]: d.outcome }));
+    }
+  }
+
+  function toggleExpand(cohortId: string) {
+    if (expandedId === cohortId) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(cohortId);
+      if (!sessionLogs[cohortId]) loadCohortData(cohortId);
+    }
+  }
+
+  async function submitNewCohort(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setMsg('');
     const res = await fetch('/api/hub/cohorts', {
@@ -352,7 +952,7 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
     });
     setLoading(false);
     if (res.ok) {
-      setMsg('Cohort logged.');
+      setMsg('Cohort created.');
       setForm({ book_number: '', start_date: '', end_date: '', participant_count: '', notes: '' });
       setShowForm(false); onAdded();
     } else {
@@ -369,12 +969,12 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h2 style={{ ...sectionTitle, margin: 0 }}>My Cohorts</h2>
         <button onClick={() => setShowForm(s => !s)} style={btn(C.gold, '#fff', true)}>
-          {showForm ? 'Cancel' : '+ Log Cohort'}
+          {showForm ? 'Cancel' : '+ New Cohort'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={submit} style={{ background: C.bg, borderRadius: 8, padding: '1rem',
+        <form onSubmit={submitNewCohort} style={{ background: C.bg, borderRadius: 8, padding: '1rem',
           marginBottom: '1.25rem', border: `1px solid ${C.border}` }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
             gap: '0.75rem', marginBottom: '0.75rem' }}>
@@ -394,7 +994,7 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
               <input type="date" style={inp} value={form.end_date} onChange={e => set('end_date', e.target.value)} />
             </div>
             <div>
-              <label style={fieldLabel}>Participants</label>
+              <label style={fieldLabel}>Participants (initial estimate)</label>
               <input type="number" min="1" style={inp} value={form.participant_count}
                 onChange={e => set('participant_count', e.target.value)} />
             </div>
@@ -407,31 +1007,47 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
           {msg && <p style={{ fontSize: '0.8rem', color: msg.startsWith('Error') ? C.danger : C.success,
             margin: '0 0 0.5rem', fontFamily: 'Inter, sans-serif' }}>{msg}</p>}
           <button type="submit" disabled={loading} style={btn(C.navy, '#fff', true)}>
-            {loading ? 'Saving…' : 'Save Cohort'}
+            {loading ? 'Saving…' : 'Create Cohort'}
           </button>
         </form>
       )}
 
       {cohorts.length === 0 ? (
         <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', fontSize: '0.875rem' }}>
-          No cohorts logged yet. Use "Log Cohort" to record your first group.
+          No cohorts yet. Use &quot;+ New Cohort&quot; to record your first group.
         </p>
       ) : (
         <>
           {active.length > 0 && (
             <>
               <div style={{ fontSize: '0.72rem', color: C.muted, fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '0.05em',
+                textTransform: 'uppercase' as const, letterSpacing: '0.05em',
                 fontFamily: 'Inter, sans-serif', marginBottom: 8 }}>Active</div>
-              {active.map(c => <CohortRow key={c.id} c={c} />)}
+              {active.map(c => (
+                <CohortExpandRow key={c.id} c={c}
+                  expanded={expandedId === c.id}
+                  onToggle={() => toggleExpand(c.id)}
+                  logs={sessionLogs[c.id] ?? null}
+                  outcome={outcomes[c.id]}
+                  onDataSaved={() => loadCohortData(c.id)}
+                />
+              ))}
             </>
           )}
           {completed.length > 0 && (
             <>
               <div style={{ fontSize: '0.72rem', color: C.muted, fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '0.05em',
+                textTransform: 'uppercase' as const, letterSpacing: '0.05em',
                 fontFamily: 'Inter, sans-serif', margin: '1rem 0 8px' }}>Completed</div>
-              {completed.map(c => <CohortRow key={c.id} c={c} />)}
+              {completed.map(c => (
+                <CohortExpandRow key={c.id} c={c}
+                  expanded={expandedId === c.id}
+                  onToggle={() => toggleExpand(c.id)}
+                  logs={sessionLogs[c.id] ?? null}
+                  outcome={outcomes[c.id]}
+                  onDataSaved={() => loadCohortData(c.id)}
+                />
+              ))}
             </>
           )}
         </>
@@ -440,32 +1056,143 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
   );
 }
 
-function CohortRow({ c }: { c: Cohort }) {
+/* ── Expandable cohort row with all 3 sub-sections ── */
+function CohortExpandRow({ c, expanded, onToggle, logs, outcome, onDataSaved }: {
+  c: Cohort; expanded: boolean; onToggle: () => void;
+  logs: SessionLog[] | null; outcome?: CohortOutcome; onDataSaved: () => void;
+}) {
+  const logsLogged   = (logs ?? []).length;
+  const hasIncident  = (logs ?? []).some(l => l.critical_incident);
+  const allLogged    = logsLogged === 13;
+  const preSubmitted = !!outcome?.pre_submitted_at;
+  const postSubmitted = !!outcome?.post_submitted_at;
+
+  const logMap: Record<number, SessionLog> = {};
+  (logs ?? []).forEach(l => { logMap[l.week_number] = l; });
+
+  // Progress bar
+  const pct = Math.round((logsLogged / 13) * 100);
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap',
-      gap: 8, padding: '0.65rem 0.85rem', borderRadius: 7,
-      border: `1px solid ${C.border}`, background: C.bg, marginBottom: 8 }}>
-      <div>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: C.navy, fontSize: '0.875rem' }}>
-          Book {c.book_number} — {BOOKS_MAP[c.book_number] ?? ''}
-        </span>
-        {c.notes && (
-          <span style={{ fontFamily: 'Inter, sans-serif', color: C.muted, fontSize: '0.8rem', marginLeft: 8 }}>
-            {c.notes}
+    <div style={{ marginBottom: 10 }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap',
+        gap: 8, padding: '0.65rem 0.85rem', borderRadius: expanded ? '7px 7px 0 0' : 7,
+        border: `1px solid ${expanded ? C.gold : C.border}`,
+        background: expanded ? C.goldLt : C.bg,
+        cursor: 'pointer' }} onClick={onToggle}>
+        <div>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: C.navy, fontSize: '0.875rem' }}>
+            Book {c.book_number} — {BOOKS_MAP[c.book_number] ?? ''}
           </span>
-        )}
-      </div>
-      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
-          {c.start_date}{c.end_date ? ` → ${c.end_date}` : ''}
-        </span>
-        {c.participant_count && (
+          {c.notes && (
+            <span style={{ fontFamily: 'Inter, sans-serif', color: C.muted, fontSize: '0.8rem', marginLeft: 8 }}>
+              {c.notes}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
-            {c.participant_count} participants
+            {c.start_date}{c.end_date ? ` → ${c.end_date}` : ''}
           </span>
-        )}
-        <StatusBadge s={c.status} />
+          {c.participant_count && (
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+              {c.participant_count} participants
+            </span>
+          )}
+          <StatusBadge s={c.status} />
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem',
+            color: hasIncident ? C.danger : allLogged ? C.success : C.muted }}>
+            {logsLogged}/13 weeks
+          </span>
+          <span style={{ fontSize: '0.8rem', color: C.gold }}>{expanded ? '▲' : '▼'}</span>
+        </div>
       </div>
+
+      {/* Expanded detail */}
+      {expanded && logs !== null && (
+        <div style={{ border: `1px solid ${C.gold}`, borderTop: 'none', borderRadius: '0 0 7px 7px',
+          padding: '1.25rem', background: C.white }}>
+
+          {/* Progress bar */}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: C.muted }}>
+                Session Logs Progress
+              </span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 600,
+                color: allLogged ? C.success : C.navy }}>
+                {logsLogged} of 13 weeks logged
+              </span>
+            </div>
+            <div style={{ background: C.border, borderRadius: 99, height: 8 }}>
+              <div style={{ background: allLogged ? C.success : C.gold, borderRadius: 99,
+                height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
+            </div>
+          </div>
+
+          {/* 2A — Pre-Program */}
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700,
+            color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em',
+            margin: '0 0 0.75rem' }}>
+            {preSubmitted ? '✓ ' : ''}Pre-Program Setup
+          </h3>
+          <PreProgramForm
+            cohortId={c.id}
+            existing={outcome}
+            onSaved={(updated) => onDataSaved()}
+          />
+
+          {/* 2B — Weekly Logs */}
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700,
+            color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em',
+            margin: '1.25rem 0 0.75rem' }}>
+            Weekly Session Logs
+          </h3>
+          {Array.from({ length: 13 }, (_, i) => i + 1).map(w => (
+            <WeekLogRow key={w} cohortId={c.id} weekNum={w}
+              log={logMap[w]} onSaved={onDataSaved} />
+          ))}
+
+          {/* 2C — Post-Program (unlocks when all 13 logged or completed status) */}
+          {(allLogged || c.status === 'completed') && (
+            <>
+              <div style={{ margin: '1.25rem 0 0.75rem', padding: '0.75rem 1rem',
+                background: allLogged && !postSubmitted ? '#FEF9EE' : C.bg,
+                borderRadius: 8, border: `1px solid ${allLogged && !postSubmitted ? C.gold : C.border}` }}>
+                {!postSubmitted && (
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
+                    color: C.gold, margin: 0, fontWeight: 600 }}>
+                    ✓ All 13 sessions logged — Post-Program Outcomes now available
+                  </p>
+                )}
+                <PostProgramForm
+                  cohortId={c.id}
+                  preCount={outcome?.pre_participant_count ?? c.participant_count ?? 0}
+                  existing={outcome}
+                  onSaved={onDataSaved}
+                />
+              </div>
+            </>
+          )}
+
+          {!allLogged && c.status !== 'completed' && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem 1rem',
+              background: C.bg, borderRadius: 8, border: `1px solid ${C.border}` }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.83rem', color: C.muted, margin: 0 }}>
+                Post-Program Outcomes will unlock once all 13 session logs are submitted.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      {expanded && logs === null && (
+        <div style={{ border: `1px solid ${C.gold}`, borderTop: 'none', borderRadius: '0 0 7px 7px',
+          padding: '1.5rem', textAlign: 'center' as const, color: C.muted,
+          fontFamily: 'Inter, sans-serif', fontSize: '0.85rem' }}>
+          Loading…
+        </div>
+      )}
     </div>
   );
 }
