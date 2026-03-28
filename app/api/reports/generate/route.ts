@@ -18,9 +18,14 @@ import { buildQuarterlyPDF }      from '@/lib/pdf/reports/quarterly';
 import { buildAnnualImpactPDF }   from '@/lib/pdf/reports/annual-impact';
 
 function isAdmin(req: NextRequest) {
-  const cookie = req.cookies.get('lg-admin-session')?.value;
-  const header = req.headers.get('x-admin-secret');
-  return cookie === process.env.ADMIN_SECRET || header === process.env.ADMIN_SECRET;
+  const cookie   = req.cookies.get('lg-admin-session')?.value;
+  const header   = req.headers.get('x-admin-secret');
+  const internal = req.headers.get('x-org-report-internal');
+  return (
+    cookie   === process.env.ADMIN_SECRET ||
+    header   === process.env.ADMIN_SECRET ||
+    (process.env.INTERNAL_SECRET && internal === process.env.INTERNAL_SECRET)
+  );
 }
 
 async function getCallerProfile(req: NextRequest) {
@@ -43,13 +48,31 @@ async function getCallerProfile(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { type, entity_id, force = false, year, quarter } = body as {
+  const {
+    type,
+    // entity_id is the canonical param; org_id is accepted as alias for org reports
+    entity_id: _entity_id,
+    org_id,
+    force = false,
+    year,
+    quarter,
+    date_from,
+    date_to,
+  } = body as {
     type:       string;
     entity_id?: string;
+    org_id?:    string;
     force?:     boolean;
     year?:      number;
     quarter?:   string;
+    date_from?: string;
+    date_to?:   string;
   };
+  // Normalize: 'organization' → 'org'; alias org_id → entity_id
+  const normalizedType = type === 'organization' ? 'org' : type;
+  const entity_id      = _entity_id ?? org_id;
+  void date_from; void date_to; // accepted but not used yet (date-range filtering is future work)
+  const _type = normalizedType;
 
   if (!type) return NextResponse.json({ error: 'type is required' }, { status: 400 });
 
@@ -61,7 +84,7 @@ export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
 
   // ── COHORT SUMMARY ────────────────────────────────────────────────────────
-  if (type === 'cohort') {
+  if (_type === 'cohort') {
     if (!entity_id) return NextResponse.json({ error: 'entity_id (cohort_id) required' }, { status: 400 });
 
     // Auth: facilitator can only generate for their own cohorts
@@ -140,7 +163,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── ORG PROGRAM ──────────────────────────────────────────────────────────
-  if (type === 'org') {
+  if (_type === 'org') {
     if (!entity_id) return NextResponse.json({ error: 'entity_id (org_id) required' }, { status: 400 });
 
     if (!admin) {
@@ -235,7 +258,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── QUARTERLY ────────────────────────────────────────────────────────────
-  if (type === 'quarterly') {
+  if (_type === 'quarterly') {
     if (!admin) return NextResponse.json({ error: 'Forbidden: quarterly reports are admin-only' }, { status: 403 });
     const q       = quarter ?? 'Q?';
     const entityKey = `quarterly-${year ?? new Date().getFullYear()}-${q}`;
@@ -297,7 +320,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── ANNUAL ───────────────────────────────────────────────────────────────
-  if (type === 'annual') {
+  if (_type === 'annual') {
     if (!admin) return NextResponse.json({ error: 'Forbidden: annual reports are admin-only' }, { status: 403 });
     const yr = year ?? new Date().getFullYear() - 1;
     if (force) await invalidateReportCache('annual', String(yr));
