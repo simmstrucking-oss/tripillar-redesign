@@ -1260,7 +1260,7 @@ function GlobalCodesTab({ orgs, facilitators }: { orgs: Org[]; facilitators: Fac
 /* ════════════════════════════════════════════════════════════
    ROOT PAGE
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'facilitators' | 'orgs' | 'codes';
+type Tab = 'facilitators' | 'orgs' | 'codes' | 'documents';
 
 export default function AdminFacilitatorsPage() {
   const [authed,        setAuthed]        = useState(false);
@@ -1315,6 +1315,7 @@ export default function AdminFacilitatorsPage() {
             { key: 'facilitators', label: 'Facilitators' },
             { key: 'orgs',         label: 'Organizations' },
             { key: 'codes',        label: 'Access Codes' },
+            { key: 'documents',    label: 'Documents' },
           ] as { key: Tab; label: string }[]).map(({ key, label }) => (
             <button key={key} onClick={() => setTab(key)} style={{
               background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
@@ -1340,6 +1341,17 @@ export default function AdminFacilitatorsPage() {
           )}
           {tab === 'codes' && (
             <GlobalCodesTab orgs={orgs} facilitators={allFacils} />
+          )}
+          {tab === 'documents' && (
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #DDD9D0', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#2D3142', fontWeight: 700, margin: '0 0 0.75rem' }}>Document Library</h2>
+              <p style={{ fontFamily: 'Inter, sans-serif', color: '#6B7280', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                View and download all 109 documents across 3 storage buckets (facilitator-documents, admin-documents, restricted-documents).
+              </p>
+              <a href="/admin/documents" style={{ display: 'inline-block', background: '#2D3142', color: '#fff', borderRadius: 6, padding: '0.6rem 1.25rem', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', textDecoration: 'none' }}>
+                Open Document Library →
+              </a>
+            </div>
           )}
         </div>
       </div>

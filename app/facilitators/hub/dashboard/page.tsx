@@ -60,10 +60,6 @@ interface Profile {
   kit_subscriber_id?: string; organization_id?: string;
   organizations?: { name: string; type?: string; license_status?: string };
 }
-interface Document {
-  id: string; title: string; description?: string; category?: string;
-  book_number?: number; file_size?: string; signed_url: string | null; sort_order?: number;
-}
 interface Cohort {
   id: string; book_number: number; start_date: string; end_date?: string;
   participant_count?: number; status: string; notes?: string;
@@ -234,99 +230,123 @@ function AnnouncementsCard({ announcements }: { announcements: Announcement[] })
   );
 }
 
-/* ── Documents ── */
-function DocumentsCard({ documents }: { documents: Document[] }) {
-  const [catFilter, setCatFilter] = useState('All');
-  const [bookFilter, setBookFilter] = useState(0);
+/* ── Documents Library ── */
+interface DocLibDoc {
+  name: string; bucket: string; path: string; url: string | null;
+  locked: boolean; lockReason: string | null;
+}
+interface DocLibSection {
+  title: string; program_type: string; documents: DocLibDoc[];
+}
 
-  const filtered = documents.filter(d => {
-    if (catFilter !== 'All' && d.category !== catFilter) return false;
-    if (bookFilter > 0 && d.book_number !== bookFilter) return false;
-    return true;
-  });
+function DocumentsLibrary({ profile }: { profile: Profile | null }) {
+  const [sections, setSections]   = useState<DocLibSection[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [search, setSearch]       = useState('');
+  const [downloading, setDownloading] = useState<string | null>(null);
 
-  const categories = ['All', ...Array.from(new Set(documents.map(d => d.category).filter(Boolean))) as string[]];
-  const books = Array.from(new Set(documents.map(d => d.book_number).filter(Boolean))).sort() as number[];
+  useEffect(() => {
+    if (!profile) return;
+    fetch('/api/hub/documents', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => { setSections(data.sections ?? []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [profile]);
 
-  async function download(doc: Document) {
-    const res  = await fetch('/api/hub/documents');
+  async function download(doc: DocLibDoc) {
+    if (doc.locked || !doc.url) return;
+    setDownloading(doc.path);
+    // Re-fetch fresh signed URL
+    const res = await fetch('/api/hub/documents', { credentials: 'include' });
     const data = await res.json();
-    const fresh = (data.documents ?? []).find((d: Document) => d.id === doc.id);
-    const url  = fresh?.signed_url;
-    if (url) window.open(url, '_blank');
+    const freshSections: DocLibSection[] = data.sections ?? [];
+    let freshUrl: string | null = null;
+    for (const s of freshSections) {
+      const found = s.documents.find(d => d.path === doc.path);
+      if (found?.url) { freshUrl = found.url; break; }
+    }
+    if (freshUrl) window.open(freshUrl, '_blank');
     else alert('Download link unavailable. Please refresh and try again.');
+    setDownloading(null);
   }
+
+  const filtered = search
+    ? sections.map(s => ({
+        ...s,
+        documents: s.documents.filter(d => d.name.toLowerCase().includes(search.toLowerCase())),
+      })).filter(s => s.documents.length > 0)
+    : sections;
 
   return (
     <div style={card}>
-      <h2 style={sectionTitle}>Documents & Resources</h2>
-      {documents.length === 0 ? (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
+        <h2 style={{ ...sectionTitle, margin: 0 }}>Document Library</h2>
+        <input
+          type="text" placeholder="Search documents..." value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ ...inp, width: 220, fontSize: '0.8rem', padding: '0.4rem 0.65rem' }}
+        />
+      </div>
+
+      {loading ? (
+        <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem' }}>Loading documents...</p>
+      ) : filtered.length === 0 ? (
         <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem' }}>
-          No documents available yet. Check back soon.
+          {search ? 'No documents match your search.' : 'No documents available yet.'}
         </p>
       ) : (
-        <>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1rem' }}>
-            {categories.map(c => (
-              <button key={c} onClick={() => setCatFilter(c)} style={{
-                ...btn(catFilter === c ? C.navy : C.bg, catFilter === c ? '#fff' : C.muted, true),
-                border: `1px solid ${catFilter === c ? C.navy : C.border}`,
-              }}>{c}</button>
-            ))}
-            {books.length > 0 && (
-              <select value={bookFilter} onChange={e => setBookFilter(Number(e.target.value))}
-                style={{ ...inp, width: 'auto', fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}>
-                <option value={0}>All Books</option>
-                {books.map(b => <option key={b} value={b}>Book {b}</option>)}
-              </select>
-            )}
-          </div>
-          {filtered.length === 0 ? (
-            <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', fontSize: '0.875rem' }}>
-              No documents match that filter.
-            </p>
-          ) : (
-            <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {filtered.map(doc => (
-                <div key={doc.id} style={{ display: 'flex', alignItems: 'center',
-                  justifyContent: 'space-between', padding: '0.85rem 1rem', borderRadius: 8,
-                  border: `1px solid ${C.border}`, background: C.bg, gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600,
-                      color: C.navy, fontSize: '0.9rem', marginBottom: 2 }}>{doc.title}</div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                      {doc.category && (
-                        <span style={{ fontSize: '0.72rem', color: C.muted, fontFamily: 'Inter, sans-serif',
-                          background: C.border, borderRadius: 10, padding: '1px 8px' }}>{doc.category}</span>
+        <div style={{ display: 'grid', gap: '1.25rem' }}>
+          {filtered.map(section => (
+            <div key={section.title}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: C.navy,
+                fontSize: '0.9rem', marginBottom: '0.5rem', paddingBottom: '0.35rem',
+                borderBottom: `2px solid ${C.goldLt}` }}>
+                {section.title}
+              </div>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                {section.documents.map(doc => (
+                  <div key={doc.path} style={{ display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between', padding: '0.7rem 0.85rem', borderRadius: 8,
+                    border: `1px solid ${doc.locked ? '#E5E7EB' : C.border}`,
+                    background: doc.locked ? '#FAFAFA' : C.bg, gap: 10, flexWrap: 'wrap',
+                    opacity: doc.locked ? 0.7 : 1 }}>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {doc.locked && (
+                        <span style={{ fontSize: '1rem', flexShrink: 0 }} title="Locked">🔒</span>
                       )}
-                      {doc.book_number && (
-                        <span style={{ fontSize: '0.72rem', color: C.gold, fontFamily: 'Inter, sans-serif',
-                          background: C.goldLt, borderRadius: 10, padding: '1px 8px', fontWeight: 600 }}>
-                          Book {doc.book_number}
-                        </span>
-                      )}
-                      {doc.description && (
-                        <span style={{ fontSize: '0.8rem', color: C.muted, fontFamily: 'Inter, sans-serif' }}>
-                          {doc.description}
-                        </span>
+                      <div>
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600,
+                          color: doc.locked ? C.muted : C.navy, fontSize: '0.85rem' }}>
+                          {doc.name.replace(/\.docx$/, '').replace(/^LG_/, '').replace(/_/g, ' ')}
+                        </div>
+                        {doc.locked && doc.lockReason && (
+                          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem',
+                            color: C.warn, marginTop: 2 }}>
+                            {doc.lockReason}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      {doc.locked ? (
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem',
+                          color: C.muted, fontWeight: 600, padding: '0.3rem 0.75rem',
+                          background: '#F3F4F6', borderRadius: 6 }}>Locked</span>
+                      ) : (
+                        <button onClick={() => download(doc)}
+                          disabled={downloading === doc.path}
+                          style={{ ...btn(C.navy, '#fff', true),
+                            opacity: downloading === doc.path ? 0.6 : 1 }}>
+                          {downloading === doc.path ? '...' : '↓ Download'}
+                        </button>
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {doc.file_size && (
-                      <span style={{ fontSize: '0.75rem', color: C.muted, fontFamily: 'Inter, sans-serif' }}>
-                        {doc.file_size}
-                      </span>
-                    )}
-                    <button onClick={() => download(doc)} disabled={!doc.signed_url}
-                      style={{ ...btn(doc.signed_url ? C.navy : C.muted, '#fff', true),
-                        opacity: doc.signed_url ? 1 : 0.5 }}>↓ Download</button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -3106,7 +3126,6 @@ export default function HubDashboard() {
   const router = useRouter();
 
   const [profile,       setProfile]       = useState<Profile | null>(null);
-  const [documents,     setDocuments]     = useState<Document[]>([]);
   const [cohorts,       setCohorts]       = useState<Cohort[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [tab, setTab] = useState<Tab>(() => {
@@ -3120,21 +3139,19 @@ export default function HubDashboard() {
   const [error,         setError]         = useState('');
 
   const loadHub = useCallback(async () => {
-    const [profRes, docsRes, cohortsRes] = await Promise.all([
+    const [profRes, cohortsRes] = await Promise.all([
       fetch('/api/hub/profile'),
-      fetch('/api/hub/documents'),
       fetch('/api/hub/cohorts'),
     ]);
 
     if (profRes.status === 401) { router.replace('/facilitators/login?reason=session'); return; }
 
-    const [profData, docsData, cohortData] = await Promise.all([
-      profRes.json(), docsRes.json(), cohortsRes.json(),
+    const [profData, cohortData] = await Promise.all([
+      profRes.json(), cohortsRes.json(),
     ]);
 
     if (profData.profile)           setProfile(profData.profile);
     else                            setError(profData.error ?? 'Failed to load profile');
-    if (docsData.documents)         setDocuments(docsData.documents);
     if (cohortData.cohorts)         setCohorts(cohortData.cohorts);
     if (cohortData.announcements)   setAnnouncements(cohortData.announcements);
 
@@ -3228,7 +3245,7 @@ export default function HubDashboard() {
               <CertCard profile={profile} />
             </>
           )}
-          {tab === 'documents' && <DocumentsCard documents={documents} />}
+          {tab === 'documents' && <DocumentsLibrary profile={profile} />}
           {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} profile={profile} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
           {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}
