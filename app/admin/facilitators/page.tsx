@@ -1359,6 +1359,15 @@ export default function AdminFacilitatorsPage() {
               {label}
             </button>
           ))}
+          {/* Trainer Events link */}
+          <a href="/admin/trainers" style={{
+            textDecoration: 'none', fontFamily: 'Inter, sans-serif',
+            fontWeight: 600, fontSize: '0.9rem', padding: '0.9rem 1.25rem',
+            borderBottom: '3px solid transparent', color: C.muted,
+            display: 'inline-flex', alignItems: 'center',
+          }}>
+            Trainer Events ↗
+          </a>
         </div>
 
         {/* Main */}

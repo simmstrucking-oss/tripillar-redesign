@@ -3,10 +3,11 @@ import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 // ── Route protection rules ────────────────────────────────────────────────────
-const PROTECTED_HUB     = /^\/facilitators\/hub(\/|$)/;
-const PROTECTED_ORG_HUB = /^\/org\/(hub|onboarding)(\/|$)/;
-const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
-const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
+const PROTECTED_HUB         = /^\/facilitators\/hub(\/|$)/;
+const PROTECTED_TRAINER_HUB = /^\/trainers\/hub(\/|$)/;
+const PROTECTED_ORG_HUB     = /^\/org\/(hub|onboarding)(\/|$)/;
+const PROTECTED_ORG         = /^\/org\/dashboard(\/|$)/;
+const PROTECTED_ADMIN       = /^\/admin\/(facilitators|trainers)(\/|$)/;
 
 // ── Owner emails (hard-coded, immutable) ─────────────────────────────────────
 const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
@@ -89,6 +90,33 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  // ── Trainer hub routes ────────────────────────────────────────────────────
+  if (PROTECTED_TRAINER_HUB.test(pathname)) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+    }
+    const sb = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    const { data: profile } = await sb
+      .from('facilitator_profiles')
+      .select('role, cert_status, trainer_status')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.redirect(new URL('/facilitators/login?reason=no-profile', req.url));
+    }
+    if (profile.role !== 'trainer' && profile.role !== 'super_admin') {
+      return NextResponse.redirect(new URL('/facilitators/hub/dashboard', req.url));
+    }
+    res.headers.set('x-cert-status', profile.cert_status ?? 'unknown');
+    res.headers.set('x-user-role', profile.role ?? 'trainer');
+    return res;
+  }
+
   // ── Org hub / onboarding ─────────────────────────────────────────────────
   if (PROTECTED_ORG_HUB.test(pathname)) {
     if (!user) {
@@ -127,9 +155,11 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/facilitators/hub/:path*',
+    '/trainers/hub/:path*',
     '/org/hub/:path*',
     '/org/onboarding/:path*',
     '/org/dashboard/:path*',
     '/admin/facilitators/:path*',
+    '/admin/trainers/:path*',
   ],
 };

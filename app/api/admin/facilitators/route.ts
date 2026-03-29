@@ -38,13 +38,15 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { user_id, cert_status, role } = await req.json().catch(() => ({}));
+  const body = await req.json().catch(() => ({}));
+  const { user_id, cert_status, role, is_publicly_listed } = body;
   if (!user_id) return NextResponse.json({ error: 'user_id required' }, { status: 400 });
 
   const supabase = getSupabaseServer();
-  const updates: Record<string, string> = {};
-  if (cert_status) updates.cert_status = cert_status;
-  if (role) updates.role = role;
+  const updates: Record<string, string | boolean> = {};
+  if (cert_status !== undefined) updates.cert_status = cert_status;
+  if (role !== undefined) updates.role = role;
+  if (is_publicly_listed !== undefined) updates.is_publicly_listed = is_publicly_listed;
 
   const { error } = await supabase.from('facilitator_profiles').update(updates).eq('user_id', user_id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
