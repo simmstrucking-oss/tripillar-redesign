@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,8 +26,8 @@ function LoginForm() {
     setError('');
     setLoading(true);
     try {
-      // Fresh client — never use singleton on login page (stale state causes hang)
-      const supabase = createBrowserClient(
+      // Use plain supabase-js client (not SSR variant) — SSR createBrowserClient hangs in browser context
+      const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
