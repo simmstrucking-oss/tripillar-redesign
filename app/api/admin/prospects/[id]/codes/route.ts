@@ -50,14 +50,14 @@ async function generateUniqueProspectCode(): Promise<string> {
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const secret = await getAdminSecret();
   if (!secret || !verifyAdminSecret(secret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
   const body = await req.json();
   const { expiry_days } = body;
 

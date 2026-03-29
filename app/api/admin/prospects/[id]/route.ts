@@ -20,13 +20,13 @@ async function getAdminSecret(): Promise<string | null> {
   return session?.value ?? null;
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const secret = await getAdminSecret();
   if (!secret || !verifyAdminSecret(secret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   // Get prospect
   const { data: prospect, error: prospectErr } = await supabase
@@ -66,13 +66,13 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   );
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const secret = await getAdminSecret();
   if (!secret || !verifyAdminSecret(secret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
   const body = await req.json();
   const { org_name, contact_name, contact_email, contact_phone, sector, notes, status } = body;
 
