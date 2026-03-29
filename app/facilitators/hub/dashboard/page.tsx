@@ -2353,9 +2353,183 @@ function ReportsTab({ profile }: { profile: Profile }) {
 }
 
 /* ════════════════════════════════════════════════════════════
+   INCIDENT TAB
+═════════════════════════════════════════════════════════════*/
+const PARTICIPANT_STATUSES = ['Stable', 'Referred to professional', 'Unknown', '911 called'] as const;
+
+function IncidentTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted]   = useState(false);
+  const [error, setError]           = useState('');
+  const [form, setForm]             = useState({
+    incident_date: '',
+    session_number: '',
+    cohort_id: '',
+    description: '',
+    action_taken: '',
+    followup_planned: '',
+    participant_status: '',
+  });
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (!form.incident_date)       { setError('Date of incident is required.'); return; }
+    if (!form.description.trim())  { setError('Please provide a brief description.'); return; }
+    if (!form.participant_status)  { setError('Participant status is required.'); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/hub/incidents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facilitator_id: profile.id,
+          facilitator_name: profile.full_name,
+          cert_id: profile.cert_id,
+          cohort_id: form.cohort_id || null,
+          incident_date: form.incident_date,
+          session_number: form.session_number ? Number(form.session_number) : null,
+          description: form.description,
+          action_taken: form.action_taken || null,
+          followup_planned: form.followup_planned || null,
+          participant_status: form.participant_status,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Something went wrong. Please try again.'); return; }
+      setSubmitted(true);
+      setForm({ incident_date: '', session_number: '', cohort_id: '', description: '', action_taken: '', followup_planned: '', participant_status: '' });
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const activeCohorts = cohorts.filter(c => c.status === 'active' || c.status === 'in_progress');
+
+  return (
+    <div>
+      <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12,
+        padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem',
+          color: C.navy, marginBottom: '0.25rem' }}>Critical Incident Report</h3>
+        <p style={{ color: C.muted, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          Use this form to report any critical incident that occurred during a session. Wayne will be notified immediately.
+        </p>
+
+        {submitted ? (
+          <div style={{ background: '#F0F7F0', border: '1px solid #B8D8B8', borderRadius: 8,
+            padding: '1rem', color: '#2E5D2E', fontSize: '0.9rem' }}>
+            Your report has been submitted and Wayne has been notified. Keep a printed copy for your records.
+            <button onClick={() => setSubmitted(false)}
+              style={{ display: 'block', marginTop: '0.75rem', background: 'none', border: 'none',
+                color: C.gold, cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}>
+              Submit another report
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            {/* Date of Incident */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={fieldLabel}>Date of Incident *</label>
+              <input type="date" value={form.incident_date}
+                onChange={e => setForm(f => ({ ...f, incident_date: e.target.value }))}
+                disabled={submitting} style={inp} required />
+            </div>
+
+            {/* Session Number */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={fieldLabel}>Session Number</label>
+              <input type="number" min={1} max={52} placeholder="e.g. 3"
+                value={form.session_number}
+                onChange={e => setForm(f => ({ ...f, session_number: e.target.value }))}
+                disabled={submitting} style={inp} />
+            </div>
+
+            {/* Cohort */}
+            {activeCohorts.length > 0 && (
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={fieldLabel}>Cohort</label>
+                <select value={form.cohort_id}
+                  onChange={e => setForm(f => ({ ...f, cohort_id: e.target.value }))}
+                  disabled={submitting}
+                  style={{ ...inp, appearance: 'auto', color: form.cohort_id ? C.navy : C.muted }}>
+                  <option value="">— Select cohort (optional) —</option>
+                  {activeCohorts.map(c => (
+                    <option key={c.id} value={c.id}>
+                      Book {c.book_number} — Started {c.start_date}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Description */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={fieldLabel}>Brief Description * <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: C.muted }}>({form.description.length}/1000)</span></label>
+              <textarea value={form.description} maxLength={1000} rows={4}
+                placeholder="Describe the incident briefly…"
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                disabled={submitting}
+                style={{ ...inp, resize: 'vertical' as const, minHeight: 90 }} required />
+            </div>
+
+            {/* Action Taken */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={fieldLabel}>Action Taken During Session</label>
+              <textarea value={form.action_taken} rows={3}
+                placeholder="What steps were taken during the session?"
+                onChange={e => setForm(f => ({ ...f, action_taken: e.target.value }))}
+                disabled={submitting}
+                style={{ ...inp, resize: 'vertical' as const, minHeight: 70 }} />
+            </div>
+
+            {/* Follow-up Planned */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={fieldLabel}>Follow-up Action Planned</label>
+              <textarea value={form.followup_planned} rows={3}
+                placeholder="What follow-up is planned?"
+                onChange={e => setForm(f => ({ ...f, followup_planned: e.target.value }))}
+                disabled={submitting}
+                style={{ ...inp, resize: 'vertical' as const, minHeight: 70 }} />
+            </div>
+
+            {/* Participant Status */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={fieldLabel}>Participant Status *</label>
+              <select value={form.participant_status}
+                onChange={e => setForm(f => ({ ...f, participant_status: e.target.value }))}
+                disabled={submitting}
+                style={{ ...inp, appearance: 'auto', color: form.participant_status ? C.navy : C.muted }} required>
+                <option value="">— Select status —</option>
+                {PARTICIPANT_STATUSES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            {error && (
+              <div style={{ background: '#FEE', border: '1px solid #E8B0B0', borderRadius: 8,
+                padding: '0.75rem', color: C.danger, fontSize: '0.85rem', marginBottom: '1rem' }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={submitting} style={btn(C.danger)}>
+              {submitting ? 'Submitting…' : 'Submit Critical Incident Report'}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports' | 'support';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports' | 'support' | 'incident';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -2367,7 +2541,7 @@ export default function HubDashboard() {
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab');
-      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'support') return p as Tab;
+      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'support' || p === 'incident') return p as Tab;
     }
     return 'overview';
   });
@@ -2423,7 +2597,7 @@ export default function HubDashboard() {
   );
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports', support: 'Get Support',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident',
   };
 
   return (
@@ -2462,7 +2636,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes', 'reports', 'support'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'reports', 'support', 'incident'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -2488,6 +2662,7 @@ export default function HubDashboard() {
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
           {tab === 'reports'   && <ReportsTab profile={profile} />}
           {tab === 'support'  && <SupportTab />}
+          {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
         </div>
       </div>
     </>

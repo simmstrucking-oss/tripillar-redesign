@@ -31,6 +31,7 @@ interface ProgramMetrics {
   completion_rate:        number | null;
   avg_outcome_rating:     number | null;
   critical_incidents:     number;
+  critical_incident_reports: number;
   // Solo Companion
   solo_users:             number;
   solo_completions:       number;
@@ -176,6 +177,12 @@ export default function AdminDashboard() {
       const rm = await fetch('/api/reports/public', { credentials: 'include' }).catch(() => null);
       const pub = rm?.ok ? await rm.json() : null;
 
+      // Pull critical incident reports count
+      const adminCookie = document.cookie.split('; ').find(c => c.startsWith(ADMIN_SECRET_COOKIE + '='));
+      const adminToken = adminCookie?.split('=')[1] ?? '';
+      const ri = await fetch('/api/hub/incidents', { headers: { 'Authorization': `Bearer ${adminToken}` } }).catch(() => null);
+      const inc = ri?.ok ? await ri.json() : null;
+
       setMetrics({
         participants_served:    d.program_overview?.participants_completed  ?? pub?.participants_served ?? 0,
         participants_enrolled:  d.program_overview?.participants_enrolled  ?? 0,
@@ -188,6 +195,7 @@ export default function AdminDashboard() {
         completion_rate:        d.program_overview?.overall_completion_rate ?? null,
         avg_outcome_rating:     d.program_overview?.avg_outcome_rating     ?? null,
         critical_incidents:     d.program_overview?.total_critical_incidents ?? 0,
+        critical_incident_reports: inc?.count ?? 0,
         solo_users:             d.solo_companion?.total_users              ?? 0,
         solo_completions:       d.solo_companion?.completed_program        ?? 0,
         solo_completion_rate:   d.solo_companion?.completion_rate          ?? null,
@@ -339,7 +347,8 @@ export default function AdminDashboard() {
                     <div style={{ color:C.slate,fontSize:11,fontWeight:600,textTransform:'uppercase',marginBottom:6 }}>Avg Outcome Rating</div>
                     <RatingBar value={m.avg_outcome_rating} />
                   </div>
-                  <div style={{ color:C.slate,fontSize:12 }}>Critical Incidents: <strong style={{color:m.critical_incidents>0?C.red:C.green}}>{m.critical_incidents}</strong></div>
+                  <div style={{ color:C.slate,fontSize:12 }}>Critical Incidents (session logs): <strong style={{color:m.critical_incidents>0?C.red:C.green}}>{m.critical_incidents}</strong></div>
+                  <div style={{ color:C.slate,fontSize:12, marginTop:6 }}>Critical Incident Reports (formal): <strong style={{color:m.critical_incident_reports>0?C.red:C.green}}>{m.critical_incident_reports}</strong></div>
                 </div>
               </>
             )}
