@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     headers: {
       'Content-Type': 'application/json',
       // Pass through service auth so generate endpoint allows the request
-      'x-org-report-internal': process.env.INTERNAL_SECRET ?? 'org-report-internal',
+      'x-org-report-internal': process.env.INTERNAL_SECRET ?? '',
       cookie: req.headers.get('cookie') ?? '',
     },
     body: JSON.stringify({
