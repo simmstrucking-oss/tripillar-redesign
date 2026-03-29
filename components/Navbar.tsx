@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/about", label: "About" },
   { href: "/our-approach", label: "Our Approach" },
   { href: "/program", label: "Programs" },
+  { href: "https://solo.tripillarstudio.com", label: "Solo Companion", external: true },
   { href: "/facilitators", label: "Facilitators" },
   { href: "/institutions", label: "Institutions" },
   { href: "/memorial-wall", label: "Memorial Wall" },
@@ -112,18 +113,38 @@ export default function Navbar() {
         <ul className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                  pathname === link.href
-                    ? "text-gold font-medium"
-                    : "text-muted hover:text-navy"
-                }`}
-              >
-                {link.label}
-              </Link>
+              {link.external ? (
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 text-sm rounded-md transition-colors text-muted hover:text-navy"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  href={link.href}
+                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                    pathname === link.href
+                      ? "text-gold font-medium"
+                      : "text-muted hover:text-navy"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
+          <li className="ml-2">
+            <Link
+              href="/facilitators/login"
+              className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+              style={{ background: '#A0843A', color: '#F8F4EE', letterSpacing: '0.04em' }}
+            >
+              Facilitator Login
+            </Link>
+          </li>
         </ul>
 
         {/* Hamburger / X button */}
@@ -203,25 +224,54 @@ export default function Navbar() {
                   willChange: "opacity, transform",
                 }}
               >
-                <Link
-                  href={link.href}
-                  className={`block py-3 text-lg border-b border-card-border/60 transition-colors duration-200 ${
-                    pathname === link.href
-                      ? "text-gold font-medium"
-                      : "text-navy hover:text-gold"
-                  }`}
-                >
-                  {link.label}
-                </Link>
+                {link.external ? (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block py-3 text-lg border-b border-card-border/60 transition-colors duration-200 text-navy hover:text-gold"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className={`block py-3 text-lg border-b border-card-border/60 transition-colors duration-200 ${
+                      pathname === link.href
+                        ? "text-gold font-medium"
+                        : "text-navy hover:text-gold"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
+          <div
+            className="mt-6"
+            style={{
+              opacity: open ? 1 : 0,
+              transform: open ? "translate3d(0,0,0)" : "translate3d(0,16px,0)",
+              transition: open
+                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + navLinks.length * 40}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${100 + navLinks.length * 40}ms`
+                : "opacity 150ms ease-in, transform 150ms ease-in",
+            }}
+          >
+            <Link
+              href="/facilitators/login"
+              className="block w-full text-center py-3 text-base font-semibold rounded-md transition-colors"
+              style={{ background: '#A0843A', color: '#F8F4EE', letterSpacing: '0.04em' }}
+            >
+              Facilitator Login
+            </Link>
+          </div>
           <p
             className="text-muted/50 text-xs text-center mt-auto pt-8 pb-4"
             style={{
               opacity: open ? 1 : 0,
               transition: open
-                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + navLinks.length * 40}ms`
+                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + (navLinks.length + 1) * 40}ms`
                 : "opacity 150ms ease-in",
             }}
           >
