@@ -1,4 +1,5 @@
 import FadeIn from "@/components/FadeIn";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -201,15 +202,15 @@ export default function ContactPage() {
             </h2>
             <p className="text-muted mb-6 leading-relaxed">
               Download our free guide, <em>&ldquo;What Grief Research Actually
-              Says, And Why It Changes Everything&rdquo;</em>, and see the
-              evidence behind our approach. Just send us an email and ask.
+              Says&rdquo;</em> — a plain-language summary of the research behind
+              our approach. No email required to download.
             </p>
-            <a
-              href="mailto:wayne@tripillarstudio.com?subject=Free%20Guide%20Request"
+            <Link
+              href="/free-guide"
               className="inline-block bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
             >
-              Request the Free Guide
-            </a>
+              Get the Free Guide
+            </Link>
           </FadeIn>
         </div>
       </section>

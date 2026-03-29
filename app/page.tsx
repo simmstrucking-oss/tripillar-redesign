@@ -78,7 +78,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/our-approach"
+              href="/free-guide"
               className="bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
             >
               Download the Free Guide
@@ -376,7 +376,7 @@ export default function HomePage() {
                 people through loss.
               </p>
               <Link
-                href="/contact"
+                href="/free-guide"
                 className="inline-block bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
               >
                 Get the Free Guide
