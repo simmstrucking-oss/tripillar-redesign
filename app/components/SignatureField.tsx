@@ -79,6 +79,9 @@ export default function SignatureField({ documentName, documentVersion, onSucces
 
   return (
     <form onSubmit={submit} style={{ fontFamily: 'Inter, sans-serif' }}>
+      <p style={{ fontSize: '0.75rem', color: C.muted, margin: '0 0 8px', lineHeight: 1.5 }}>
+        By signing, you confirm this is your legal signature. Your name, timestamp, and IP address will be recorded for verification purposes.
+      </p>
       <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: C.navy,
         marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
         Type your full legal name as your digital signature
