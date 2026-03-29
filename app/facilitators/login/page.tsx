@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +13,6 @@ const REASON_MESSAGES: Record<string, string> = {
 };
 
 function LoginForm() {
-  const router       = useRouter();
   const searchParams = useSearchParams();
   const reason       = searchParams.get('reason') ?? '';
 
@@ -22,29 +21,27 @@ function LoginForm() {
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
 
-  useEffect(() => {
-    const supabase = getSupabaseBrowser();
-    supabase.auth.getSession().then(({ data }: { data: { session: unknown } }) => {
-      if (data.session) router.replace('/facilitators/hub/dashboard');
-    });
-  }, [router]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
       const supabase = getSupabaseBrowser();
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) {
         setError(authError.message);
         setLoading(false);
         return;
       }
-      // Hard redirect — ensures cookies are committed before server sees request
+      if (!data?.session) {
+        setError('Login failed — no session returned. Please try again.');
+        setLoading(false);
+        return;
+      }
+      // Hard redirect — full page load ensures cookie is flushed before server reads it
       window.location.href = '/facilitators/hub/dashboard';
     } catch (err) {
-      setError('Unexpected error. Please try again.');
+      setError('Unexpected error signing in. Please try again.');
       setLoading(false);
     }
   }
