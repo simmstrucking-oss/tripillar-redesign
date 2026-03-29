@@ -4,31 +4,26 @@ import { useEffect, useState } from 'react'
 
 interface Cohort {
   id: string
-  book: string
-  facilitator: string
-  startDate: string
-  status: string
-  enrolled: number
-  completionRate: number
-}
-
-interface CohortDetail {
-  id: string
   book_module: string
+  facilitator_name: string | null
   start_date: string
   status: string
   total_enrolled: number
   total_completed: number
-  feedbackStats?: {
-    avgScore?: number
-    feedbackCount?: number
+}
+
+interface CohortDetail extends Cohort {
+  feedback_stats?: {
+    avg_rating: number | null
+    count: number
   }
 }
 
 export default function CohortsTab() {
   const [cohorts, setCohorts] = useState<Cohort[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCohort, setSelectedCohort] = useState<CohortDetail | null>(null)
+  const [detail, setDetail] = useState<CohortDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   useEffect(() => {
     fetchCohorts()
@@ -39,7 +34,7 @@ export default function CohortsTab() {
       const res = await fetch('/api/org/cohorts')
       if (res.ok) {
         const data = await res.json()
-        setCohorts(data)
+        setCohorts(data.cohorts ?? (Array.isArray(data) ? data : []))
       }
     } catch (err) {
       console.error('Failed to fetch cohorts:', err)
@@ -48,139 +43,89 @@ export default function CohortsTab() {
     }
   }
 
-  const handleRowClick = async (cohortId: string) => {
+  const openDetail = async (id: string) => {
+    setDetailLoading(true)
     try {
-      const res = await fetch(`/api/org/cohorts/${cohortId}`)
-      if (res.ok) {
-        const detail = await res.json()
-        setSelectedCohort(detail)
-      }
-    } catch (err) {
-      console.error('Failed to fetch cohort detail:', err)
+      const res = await fetch(`/api/org/cohorts/${id}`)
+      if (res.ok) setDetail(await res.json())
+    } finally {
+      setDetailLoading(false)
     }
   }
 
   if (loading) return <div>Loading cohorts...</div>
 
-  if (selectedCohort) {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => setSelectedCohort(null)}
-          className="px-4 py-2 rounded text-sm font-medium"
-          style={{ backgroundColor: '#E2DDD7', color: '#2D3142' }}
-        >
-          ← Back to Cohorts
-        </button>
-
-        <div className="p-6 rounded border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2DDD7' }}>
-          <h3 className="text-2xl font-bold mb-4" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
-            {selectedCohort.book_module}
-          </h3>
-
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>Status</p>
-              <p className="text-lg font-semibold" style={{ color: '#2D3142' }}>
-                {selectedCohort.status}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>Start Date</p>
-              <p className="text-lg font-semibold" style={{ color: '#2D3142' }}>
-                {new Date(selectedCohort.start_date).toLocaleDateString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>Enrolled</p>
-              <p className="text-lg font-semibold" style={{ color: '#2D3142' }}>
-                {selectedCohort.total_enrolled}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>Completion Rate</p>
-              <p className="text-lg font-semibold" style={{ color: '#2D3142' }}>
-                {selectedCohort.total_enrolled > 0
-                  ? Math.round((selectedCohort.total_completed / selectedCohort.total_enrolled) * 100)
-                  : 0
-                }%
-              </p>
-            </div>
-          </div>
-
-          {selectedCohort.feedbackStats?.feedbackCount && (
-            <div className="p-4 rounded mt-6" style={{ backgroundColor: '#FDF8EE' }}>
-              <p className="text-sm font-medium mb-2" style={{ color: '#2D3142' }}>
-                Participant Feedback
-              </p>
-              <p className="text-lg font-semibold" style={{ color: '#B8942F' }}>
-                {selectedCohort.feedbackStats.avgScore} / 5.0
-              </p>
-              <p className="text-xs mt-1" style={{ color: '#7A7264' }}>
-                Based on {selectedCohort.feedbackStats.feedbackCount} responses
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
   if (cohorts.length === 0) {
     return (
       <div className="p-6 rounded border text-center" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2DDD7' }}>
-        <p style={{ color: '#7A7264' }}>
-          No cohorts yet. Your first cohort will appear here once launched.
-        </p>
+        <p style={{ color: '#7A7264' }}>No cohorts found.</p>
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm cursor-pointer">
-        <thead>
-          <tr style={{ borderBottom: '2px solid #E2DDD7' }}>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Book</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Facilitator</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Start Date</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Status</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Enrolled</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Completion</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cohorts.map(c => (
-            <tr
-              key={c.id}
-              onClick={() => handleRowClick(c.id)}
-              style={{ borderBottom: '1px solid #E2DDD7' }}
-              className="hover:bg-gray-50 transition"
-            >
-              <td className="p-3 font-medium" style={{ color: '#2D3142' }}>{c.book}</td>
-              <td className="p-3" style={{ color: '#2D3142' }}>{c.facilitator}</td>
-              <td className="p-3" style={{ color: '#2D3142' }}>
-                {new Date(c.startDate).toLocaleDateString()}
-              </td>
-              <td className="p-3">
-                <span
-                  className="px-2 py-1 rounded text-xs font-medium"
-                  style={{
-                    backgroundColor: c.status === 'active' ? '#E8F5E9' : '#FFF3CD',
-                    color: c.status === 'active' ? '#2E7D50' : '#856404'
-                  }}
-                >
-                  {c.status}
-                </span>
-              </td>
-              <td className="p-3" style={{ color: '#2D3142' }}>{c.enrolled}</td>
-              <td className="p-3 font-semibold" style={{ color: '#2D3142' }}>
-                {c.completionRate}%
-              </td>
+    <div className="space-y-6">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ borderBottom: '2px solid #E2DDD7' }}>
+              {['Book', 'Facilitator', 'Start Date', 'Status', 'Enrolled', 'Completion'].map(h => (
+                <th key={h} className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>{h}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cohorts.map(c => {
+              const rate = c.total_enrolled > 0
+                ? Math.round((c.total_completed / c.total_enrolled) * 100) + '%'
+                : '\u2014'
+              return (
+                <tr
+                  key={c.id}
+                  onClick={() => openDetail(c.id)}
+                  className="cursor-pointer hover:bg-gray-50"
+                  style={{ borderBottom: '1px solid #E2DDD7' }}
+                >
+                  <td className="p-3" style={{ color: '#2D3142' }}>{c.book_module || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#2D3142' }}>{c.facilitator_name || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#2D3142' }}>{c.start_date ? new Date(c.start_date).toLocaleDateString() : '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#2D3142' }}>{c.status || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#2D3142' }}>{c.total_enrolled ?? 0}</td>
+                  <td className="p-3" style={{ color: '#2D3142' }}>{rate}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {detailLoading && <p style={{ color: '#7A7264' }}>Loading detail...</p>}
+
+      {detail && !detailLoading && (
+        <div className="p-6 rounded border" style={{ backgroundColor: '#FDF8EE', borderColor: '#B8942F' }}>
+          <div className="flex justify-between items-start mb-4">
+            <h4 className="font-bold" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
+              {detail.book_module} — Detail
+            </h4>
+            <button onClick={() => setDetail(null)} className="text-lg" style={{ color: '#7A7264' }}>&times;</button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div><strong>Status:</strong> {detail.status}</div>
+            <div><strong>Enrolled:</strong> {detail.total_enrolled}</div>
+            <div><strong>Completed:</strong> {detail.total_completed}</div>
+            <div>
+              <strong>Completion Rate:</strong>{' '}
+              {detail.total_enrolled ? Math.round((detail.total_completed / detail.total_enrolled) * 100) : 0}%
+            </div>
+            {detail.feedback_stats?.avg_rating != null && (
+              <div><strong>Avg Feedback Score:</strong> {detail.feedback_stats.avg_rating.toFixed(1)}</div>
+            )}
+            {detail.feedback_stats && (
+              <div><strong>Feedback Count:</strong> {detail.feedback_stats.count}</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

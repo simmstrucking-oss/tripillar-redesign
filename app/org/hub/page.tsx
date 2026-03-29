@@ -49,6 +49,7 @@ export default function OrgHub() {
     try {
       await fetch('/api/org/onboarding', {
         method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dismissed_orientation: true })
       })
       setDismissed(true)

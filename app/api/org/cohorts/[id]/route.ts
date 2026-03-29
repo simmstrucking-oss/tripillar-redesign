@@ -4,8 +4,10 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +21,6 @@ export async function GET(
   }
 
   const orgId = user.user_metadata?.org_id as string
-  const cohortId = params.id
 
   const { data: cohort, error } = await supabase
     .from('cohorts')
@@ -27,7 +28,7 @@ export async function GET(
       *,
       facilitator_profiles (name)
     `)
-    .eq('id', cohortId)
+    .eq('id', id)
     .eq('org_id', orgId)
     .single()
 
@@ -43,7 +44,7 @@ export async function GET(
   const { data: feedback } = await supabase
     .from('session_feedback')
     .select('score')
-    .eq('cohort_id', cohortId)
+    .eq('cohort_id', id)
 
   const stats: any = {}
   if (feedback && feedback.length > 0) {

@@ -1,75 +1,115 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import PDFDocument from 'pdfkit'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import PDFDocument from 'pdfkit';
 
-export async function POST(request: Request) {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
-  )
+async function getOrgUser(req: NextRequest) {
+  const cookieHeader = req.headers.get('cookie') ?? '';
+  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
+  if (!tokenMatch) return null;
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.user_metadata?.role !== 'org_contact') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  let token: string | undefined;
+  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch {}
+  if (!token) {
+    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch {}
   }
+  if (!token) return null;
 
-  const orgId = user.user_metadata?.org_id as string
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+  const { data, error } = await sb.auth.getUser(token);
+  if (error || !data?.user) return null;
+  if (data.user.user_metadata?.role !== 'org_contact') return null;
+  return data.user;
+}
 
-  // Fetch org data
+function sb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
+
+export async function POST(req: NextRequest) {
+  const user = await getOrgUser(req);
+  if (!user) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const orgId = user.user_metadata?.org_id as string;
+  const supabase = sb();
+
   const { data: org } = await supabase
     .from('organizations')
     .select('name')
     .eq('id', orgId)
-    .single()
+    .single();
 
-  // Fetch cohorts data
-  const { data: cohorts } = await supabase
-    .from('cohorts')
-    .select('total_enrolled, total_completed, book_module')
-    .eq('org_id', orgId)
+  const { data: facilitators } = await supabase
+    .from('facilitator_profiles')
+    .select('id')
+    .eq('organization_id', orgId);
 
-  // Calculate stats
-  const totalParticipants = (cohorts || []).reduce((sum, c) => sum + c.total_enrolled, 0)
-  const totalCompleted = (cohorts || []).reduce((sum, c) => sum + c.total_completed, 0)
-  const avgCompletionRate = cohorts && cohorts.length > 0 
+  const facIds = (facilitators ?? []).map(f => f.id);
+
+  let cohorts: Array<{ book_module?: string; total_enrolled?: number; total_completed?: number }> = [];
+  if (facIds.length > 0) {
+    const { data } = await supabase
+      .from('cohorts')
+      .select('book_module, total_enrolled, total_completed')
+      .in('facilitator_id', facIds);
+    cohorts = data ?? [];
+  }
+
+  const totalParticipants = cohorts.reduce((s, c) => s + (c.total_enrolled ?? 0), 0);
+  const totalCompleted = cohorts.reduce((s, c) => s + (c.total_completed ?? 0), 0);
+  const avgCompletion = totalParticipants > 0
     ? Math.round((totalCompleted / totalParticipants) * 100)
-    : 0
-  const cohortsCount = cohorts?.length || 0
-  const booksCovered = new Set((cohorts || []).map(c => c.book_module)).size
+    : 0;
+  const books = [...new Set(cohorts.map(c => c.book_module).filter(Boolean))];
 
-  // Create PDF
-  const doc = new PDFDocument()
-  const buffers: Buffer[] = []
+  const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
+  const chunks: Buffer[] = [];
+  doc.on('data', (chunk: Buffer) => chunks.push(chunk));
 
-  doc.on('data', (chunk: Buffer) => buffers.push(chunk))
-  doc.on('end', () => {})
+  const pdfDone = new Promise<Buffer>((resolve) => {
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+  });
 
-  doc.fontSize(24).font('Helvetica-Bold').text(`${org?.name || 'Organization'} Impact Report`, 50, 50)
-  doc.fontSize(12).font('Helvetica').text(`Report Date: ${new Date().toLocaleDateString()}`, 50, 90)
+  doc.fontSize(22).fillColor('#2D3142')
+    .text('Live and Grieve Impact Report', { align: 'center' });
+  doc.moveDown(0.5);
+  doc.fontSize(14).fillColor('#B8942F')
+    .text(org?.name ?? 'Organization', { align: 'center' });
+  doc.moveDown(0.3);
+  doc.fontSize(10).fillColor('#7A7264')
+    .text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'center' });
 
-  doc.fontSize(14).font('Helvetica-Bold').text('Impact Summary', 50, 130)
-  doc.fontSize(12).font('Helvetica')
-  doc.text(`Total Participants Served: ${totalParticipants}`, 50, 160)
-  doc.text(`Average Completion Rate: ${avgCompletionRate}%`, 50, 180)
-  doc.text(`Cohorts Run: ${cohortsCount}`, 50, 200)
-  doc.text(`Books Covered: ${booksCovered}`, 50, 220)
+  doc.moveDown(1);
+  doc.moveTo(60, doc.y).lineTo(552, doc.y).strokeColor('#B8942F').lineWidth(1).stroke();
+  doc.moveDown(1);
 
-  doc.end()
+  doc.fontSize(13).fillColor('#2D3142').text('Program Summary', { underline: true });
+  doc.moveDown(0.5);
+  doc.fontSize(11).fillColor('#3d4155');
+  doc.text(`Total Participants Served: ${totalParticipants}`);
+  doc.text(`Average Completion Rate: ${avgCompletion}%`);
+  doc.text(`Cohorts Run: ${cohorts.length}`);
+  doc.text(`Books Covered: ${books.length > 0 ? books.join(', ') : 'None yet'}`);
 
-  return new Promise((resolve) => {
-    doc.on('finish', () => {
-      const buffer = Buffer.concat(buffers)
-      resolve(
-        new NextResponse(buffer, {
-          headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename="impact-report.pdf"'
-          }
-        })
-      )
-    })
-  })
+  doc.moveDown(1.5);
+  doc.fontSize(9).fillColor('#7A7264')
+    .text('This report was generated from the Live and Grieve Partner Hub.', { align: 'center' });
+
+  doc.end();
+  const pdfBuffer = await pdfDone;
+
+  return new NextResponse(pdfBuffer as unknown as BodyInit, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="impact-report-${Date.now()}.pdf"`,
+    },
+  });
 }

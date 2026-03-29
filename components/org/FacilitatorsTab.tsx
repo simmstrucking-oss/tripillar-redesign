@@ -24,7 +24,7 @@ export default function FacilitatorsTab() {
       const res = await fetch('/api/org/facilitators')
       if (res.ok) {
         const data = await res.json()
-        setFacilitators(data)
+        setFacilitators(data.facilitators ?? data)
       }
     } catch (err) {
       console.error('Failed to fetch facilitators:', err)

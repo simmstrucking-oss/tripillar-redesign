@@ -1,35 +1,47 @@
-import { createServerClient } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-export async function GET() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
-  )
+async function getOrgUser(req: NextRequest) {
+  const cookieHeader = req.headers.get('cookie') ?? '';
+  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
+  if (!tokenMatch) return null;
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.user_metadata?.role !== 'org_contact') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  let token: string | undefined;
+  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch {}
+  if (!token) {
+    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch {}
   }
+  if (!token) return null;
 
-  const orgId = user.user_metadata?.org_id as string
   const sb = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+  );
+  const { data, error } = await sb.auth.getUser(token);
+  if (error || !data?.user) return null;
+  if (data.user.user_metadata?.role !== 'org_contact') return null;
+  return data.user;
+}
 
-  const { data, error } = await sb
+export async function GET(req: NextRequest) {
+  const user = await getOrgUser(req);
+  if (!user) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const orgId = user.user_metadata?.org_id as string;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const { data, error } = await supabase
     .from('facilitator_profiles')
     .select('id, full_name, cert_track, cert_status, cert_expiry, books_certified')
     .eq('organization_id', orgId)
-    .order('full_name')
+    .order('full_name');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const facilitators = (data ?? []).map(f => ({
     id: f.id,
@@ -38,7 +50,7 @@ export async function GET() {
     cert_status: f.cert_status,
     cert_expiry: f.cert_expiry,
     books_certified: f.books_certified,
-  }))
+  }));
 
-  return NextResponse.json({ facilitators })
+  return NextResponse.json({ facilitators });
 }
