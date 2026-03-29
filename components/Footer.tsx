@@ -121,6 +121,7 @@ export default function Footer() {
               <li><Link href="/program/youth" className="hover:text-gold-light transition-colors">Youth Program</Link></li>
               <li><Link href="/our-approach" className="hover:text-gold-light transition-colors">Our Approach</Link></li>
               <li><Link href="/institutions" className="hover:text-gold-light transition-colors">For Institutions</Link></li>
+              <li><a href="https://solo.tripillarstudio.com" target="_blank" rel="noopener noreferrer" className="hover:text-gold-light transition-colors">Start the Solo Companion</a></li>
             </ul>
           </div>
 
@@ -131,6 +132,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-white/60">
               <li><Link href="/facilitators/login" className="hover:text-gold-light transition-colors">Facilitator Login</Link></li>
               <li><Link href="/facilitators" className="hover:text-gold-light transition-colors">Become a Facilitator</Link></li>
+              <li><Link href="/facilitators/hub" className="hover:text-gold-light transition-colors">Facilitator Hub</Link></li>
             </ul>
           </div>
 

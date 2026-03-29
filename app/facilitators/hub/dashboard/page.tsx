@@ -2448,9 +2448,14 @@ export default function HubDashboard() {
               {profile.full_name}
             </span>
           </div>
-          <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>
-            Log out
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <a href="https://tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
+              ← tripillarstudio.com
+            </a>
+            <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>
+              Log out
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
