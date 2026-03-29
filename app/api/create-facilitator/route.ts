@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-
-// ── Sequence IDs (Part 5) ─────────────────────────────────────────────────────
-const KIT_SEQUENCES = {
-  facilitatorWelcome:        2701285,
-  firstSessionMilestone:     2701289,
-  weeklyCheckIn:             2701291,
-  monthlyCheckIn:            2701292,
-  quarterlyDataRequest:      2701294,
-  book1CohortCompletion:     2701295,
-  renewalReminder60:         2701296,
-  renewalReminder30:         2701298,
-  renewalFinalNotice7:       2701299,
-  oneYearAnniversary:        2701300,
-};
+import { KIT_SEQUENCES } from '@/lib/kit-sequences';
 
 // ── Kit tag IDs ───────────────────────────────────────────────────────────────
 const KIT_TAGS = {
@@ -196,7 +183,7 @@ export async function POST(req: NextRequest) {
   let kitSubscriberId: string | undefined;
   {
     const result = await kitSubscribeToSequence(
-      KIT_SEQUENCES.facilitatorWelcome,
+      KIT_SEQUENCES.FACILITATOR_WELCOME,
       email,
       first_name,
       {
@@ -212,7 +199,7 @@ export async function POST(req: NextRequest) {
       steps.kit_sequence = { status: 'warning', detail: 'Kit enrollment failed — retry manually' };
     } else {
       kitSubscriberId = result.subscriberId;
-      steps.kit_sequence = { status: 'ok', sequence_id: KIT_SEQUENCES.facilitatorWelcome, subscriber_id: kitSubscriberId };
+      steps.kit_sequence = { status: 'ok', sequence_id: KIT_SEQUENCES.FACILITATOR_WELCOME, subscriber_id: kitSubscriberId };
 
       // Store Kit subscriber ID back on the profile (best effort)
       if (kitSubscriberId) {
@@ -247,6 +234,35 @@ export async function POST(req: NextRequest) {
     }
 
     steps.kit_tags = { status: 'ok', tags: tagResults };
+  }
+
+  // ── Sub-step 6: Trainer-specific Kit enrollment ────────────────────────────
+  if (track === 'trainer' && KIT_SEQUENCES.TRAINER_WELCOME > 0) {
+    const trainerFields: Record<string, string> = {
+      trainer_cert_id:       certId,
+      trainer_cert_renewal:  renewalDate,
+      books_authorized:      (books_authorized_to_train ?? []).map((b: number) => `Book ${b}`).join(', '),
+    };
+
+    const trainerResult = await kitSubscribeToSequence(
+      KIT_SEQUENCES.TRAINER_WELCOME,
+      email,
+      first_name,
+      trainerFields,
+    );
+
+    if (!trainerResult.ok) {
+      steps.trainer_kit_sequence = { status: 'warning', detail: 'Trainer Kit enrollment failed — retry manually' };
+    } else {
+      steps.trainer_kit_sequence = { status: 'ok', sequence_id: KIT_SEQUENCES.TRAINER_WELCOME };
+    }
+
+    // Tag: trainer-active
+    const trainerTagId = await getOrCreateKitTag('trainer-active');
+    if (trainerTagId) {
+      const ok = await kitTagSubscriber(trainerTagId, email, first_name);
+      steps.trainer_kit_tag = { status: ok ? 'ok' : 'failed' };
+    }
   }
 
   // ── Done ─────────────────────────────────────────────────────────────────────
