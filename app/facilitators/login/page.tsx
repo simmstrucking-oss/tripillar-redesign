@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getSupabaseBrowser } from '@/lib/supabase-browser';
+import { createBrowserClient } from '@supabase/ssr';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,7 +26,11 @@ function LoginForm() {
     setError('');
     setLoading(true);
     try {
-      const supabase = getSupabaseBrowser();
+      // Fresh client — never use singleton on login page (stale state causes hang)
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) {
         setError(authError.message);
