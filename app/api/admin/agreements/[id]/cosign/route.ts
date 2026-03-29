@@ -20,7 +20,7 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 function verifyAdminAuth(req: NextRequest): boolean {
   const header = req.headers.get('x-admin-secret');
-  const cookie = req.cookies.get('admin-secret')?.value;
+  const cookie = req.cookies.get('lg-admin-session')?.value;
   return header === adminSecret || cookie === adminSecret;
 }
 
