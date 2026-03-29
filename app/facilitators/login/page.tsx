@@ -2,7 +2,6 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,23 +25,21 @@ function LoginForm() {
     setError('');
     setLoading(true);
     try {
-      // Use plain supabase-js client (not SSR variant) — SSR createBrowserClient hangs in browser context
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) {
-        setError(authError.message);
+      // POST to server-side API route — signs in via @supabase/ssr createServerClient,
+      // which writes session as HTTP cookies (not localStorage).
+      // Middleware reads cookies, so the session persists across navigation.
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? 'Login failed. Please try again.');
         setLoading(false);
         return;
       }
-      if (!data?.session) {
-        setError('Login failed — no session returned. Please try again.');
-        setLoading(false);
-        return;
-      }
-      // Hard redirect — full page load ensures cookie is flushed before server reads it
+      // Hard redirect — ensures middleware reads fresh cookies on next server request
       window.location.href = '/facilitators/hub/dashboard';
     } catch (err) {
       setError('Unexpected error signing in. Please try again.');
