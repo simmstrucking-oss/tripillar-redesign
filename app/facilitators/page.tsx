@@ -66,13 +66,18 @@ export default function FacilitatorsPage() {
           <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
             Adult facilitator certification.
           </h2>
-          <p className="text-muted mb-2">
-            <span className="text-navy font-medium">$450</span> per facilitator
-            &nbsp;·&nbsp; <span className="text-navy font-medium">$150</span> annual renewal
-          </p>
-          <p className="text-muted text-sm mb-10">
+          <p className="text-muted text-sm mb-4">
             Includes 2-day training, all materials, and ongoing support.
           </p>
+          <p className="text-muted text-sm mb-4">
+            Certification pricing available on inquiry. Contact us to discuss rates for your organization.
+          </p>
+          <Link
+            href="/contact"
+            className="inline-block border border-card-border text-muted hover:text-navy hover:border-navy/30 px-5 py-2.5 rounded-md text-sm transition-colors mb-10"
+          >
+            Contact Us →
+          </Link>
         </FadeIn>
 
         <div className="grid md:grid-cols-3 gap-6">
