@@ -43,4 +43,5 @@ export interface ILAData {
   wayne_signature?: string;
   wayne_date?: string;
   agreement_token: string;
+  renewalNote?: string;
 }

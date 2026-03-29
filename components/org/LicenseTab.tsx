@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { SCHEDULE_A } from '@/lib/ila-template'
 
 interface LicenseData {
   license_type: string
@@ -17,6 +18,10 @@ export default function LicenseTab() {
   const [loading, setLoading] = useState(true)
   const [showRenewalBanner, setShowRenewalBanner] = useState(false)
   const [bannerType, setBannerType] = useState<'warning' | 'danger'>('warning')
+  const [daysUntilRenewal, setDaysUntilRenewal] = useState<number>(0)
+  const [renewalFee, setRenewalFee] = useState<string | null>(null)
+  const [requestingRenewal, setRequestingRenewal] = useState(false)
+  const [renewalMessage, setRenewalMessage] = useState<string | null>(null)
 
   useEffect(() => {
     fetchLicense()
@@ -33,12 +38,24 @@ export default function LicenseTab() {
         if (licenseData.license_renewal) {
           const renewalDate = new Date(licenseData.license_renewal)
           const today = new Date()
-          const daysUntilRenewal = Math.floor((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+          const days = Math.floor((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+          setDaysUntilRenewal(days)
 
-          if (daysUntilRenewal < 0) {
+          // Map license_type to SCHEDULE_A key
+          let scheduleKey = licenseData.license_type
+          if (licenseData.license_type === 'Community') {
+            scheduleKey = 'Community Tier'
+          } else if (licenseData.license_type === 'Standard') {
+            scheduleKey = 'Standard Organization'
+          }
+
+          const fee = SCHEDULE_A[scheduleKey]?.fee
+          setRenewalFee(fee ? `$${fee}.00` : 'Contact Wayne for pricing')
+
+          if (days < 0) {
             setShowRenewalBanner(true)
             setBannerType('danger')
-          } else if (daysUntilRenewal < 60) {
+          } else if (days <= 60 && days >= 0) {
             setShowRenewalBanner(true)
             setBannerType('warning')
           }
@@ -48,6 +65,31 @@ export default function LicenseTab() {
       console.error('Failed to fetch license:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRequestRenewal = async () => {
+    if (!data) return
+    setRequestingRenewal(true)
+    try {
+      const res = await fetch('/api/org/consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request_type: 'License renewal request',
+          description: `Renewal request for ${data.contact_name}'s organization — renewal date ${new Date(data.license_renewal).toLocaleDateString()}`
+        })
+      })
+      if (res.ok) {
+        setRenewalMessage('Renewal request sent. Wayne will be in touch.')
+      } else {
+        setRenewalMessage('Failed to send renewal request. Please try again.')
+      }
+    } catch (err) {
+      console.error('Failed to request renewal:', err)
+      setRenewalMessage('Error sending renewal request.')
+    } finally {
+      setRequestingRenewal(false)
     }
   }
 
@@ -68,12 +110,38 @@ export default function LicenseTab() {
             borderLeft: `4px solid ${bannerType === 'danger' ? '#C0392B' : '#C07D2F'}`
           }}
         >
-          <p style={{ color: bannerType === 'danger' ? '#C0392B' : '#C07D2F' }}>
-            {bannerType === 'danger'
-              ? `Your license expired on ${renewalDate}. Please contact Wayne to renew.`
-              : `Your license renews on ${renewalDate}. Wayne will be in touch.`
-            }
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ color: bannerType === 'danger' ? '#C0392B' : '#C07D2F', margin: 0 }}>
+              {bannerType === 'danger'
+                ? `Your license expired on ${renewalDate}. Please contact Wayne to renew.`
+                : `Your license renews on ${renewalDate}. Your renewal fee is ${renewalFee}. Wayne will be in touch to confirm renewal.`
+              }
+            </p>
+            {bannerType === 'warning' && daysUntilRenewal > 0 && (
+              <button
+                onClick={handleRequestRenewal}
+                disabled={requestingRenewal}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#C07D2F',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: requestingRenewal ? 'not-allowed' : 'pointer',
+                  opacity: requestingRenewal ? 0.6 : 1,
+                  whiteSpace: 'nowrap',
+                  marginLeft: '16px'
+                }}
+              >
+                {requestingRenewal ? 'Sending...' : 'Request Renewal'}
+              </button>
+            )}
+          </div>
+          {renewalMessage && (
+            <p style={{ color: bannerType === 'danger' ? '#C0392B' : '#C07D2F', marginTop: '8px', marginBottom: 0, fontSize: '14px' }}>
+              {renewalMessage}
+            </p>
+          )}
         </div>
       )}
 

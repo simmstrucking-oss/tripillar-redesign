@@ -150,22 +150,40 @@ export async function POST(
       if (agreement.org_id) {
         const { data: orgData } = await supabase
           .from('organizations')
-          .select('id')
+          .select('*')
           .eq('id', agreement.org_id)
           .single();
         org = orgData;
       }
 
       if (org && org.id) {
+        // Prepare base update
+        const updateData: any = {
+          license_status: 'active',
+          license_start: agreement.license_start_date,
+          license_renewal: agreement.license_renewal_date,
+          onboarding_complete: false,
+        };
+
+        // If this is a renewal agreement, increment renewal count and add to history
+        if (agreement.is_renewal) {
+          const newRenewalCount = (org.license_renewed_count || 0) + 1;
+          const renewalHistory = org.renewal_history || [];
+          renewalHistory.push({
+            year: newRenewalCount,
+            executed_at: new Date().toISOString(),
+            tier: agreement.license_tier,
+            fee: agreement.license_fee,
+          });
+
+          updateData.license_renewed_count = newRenewalCount;
+          updateData.renewal_history = renewalHistory;
+        }
+
         // Update org license status
         await supabase
           .from('organizations')
-          .update({
-            license_status: 'active',
-            license_start: agreement.license_start_date,
-            license_renewal: agreement.license_renewal_date,
-            onboarding_complete: false,
-          })
+          .update(updateData)
           .eq('id', org.id);
       }
 

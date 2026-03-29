@@ -184,6 +184,13 @@ Agreement Reference: ${data.agreement_token}`;
     doc.text('Tri-Pillars™ LLC', { align: 'center', width: TEXT_WIDTH });
     doc.moveDown(0.5);
 
+    // Renewal note if present
+    if (data.renewalNote) {
+      setSubheading();
+      doc.text(data.renewalNote, { align: 'center', width: TEXT_WIDTH });
+      doc.moveDown(0.5);
+    }
+
     // Body text
     setBody();
 
