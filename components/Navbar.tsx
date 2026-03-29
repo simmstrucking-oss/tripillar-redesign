@@ -5,61 +5,167 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Primary nav — visible at all times on desktop
-const primaryLinks = [
+// ─── Nav structure ────────────────────────────────────────────────────────────
+const programsLinks = [
+  { href: "/program",                          label: "Adult Program" },
+  { href: "https://solo.tripillarstudio.com",  label: "Solo Companion", external: true },
+  { href: "/memorial-wall",                    label: "Memorial Wall" },
+];
+
+const resourcesLinks = [
+  { href: "/content",    label: "Content" },
+  { href: "/support",    label: "Support" },
+  { href: "/free-guide", label: "Free Guide" },
+];
+
+// Simple links that need no dropdown
+const simpleLinks = [
   { href: "/about",        label: "About" },
-  { href: "/program",      label: "Programs" },
+  { href: "/our-approach", label: "Our Approach" },
   { href: "/facilitators", label: "Facilitators" },
   { href: "/institutions", label: "Institutions" },
-  { href: "https://solo.tripillarstudio.com", label: "Solo Companion", external: true },
   { href: "/contact",      label: "Contact" },
 ];
 
-// Secondary nav — collapsed into "More" dropdown on desktop, shown in mobile menu
-const moreLinks = [
-  { href: "/our-approach",   label: "Our Approach" },
-  { href: "/memorial-wall",  label: "Memorial Wall" },
-  { href: "/content",        label: "Content" },
-  { href: "/support",        label: "Support" },
+// Full mobile list (flat, no dropdowns)
+const mobileLinks = [
+  { href: "/about",                           label: "About" },
+  { href: "/our-approach",                    label: "Our Approach" },
+  { href: "/program",                         label: "Programs — Adult Program" },
+  { href: "https://solo.tripillarstudio.com", label: "Programs — Solo Companion", external: true },
+  { href: "/memorial-wall",                   label: "Programs — Memorial Wall" },
+  { href: "/facilitators",                    label: "Facilitators" },
+  { href: "/institutions",                    label: "Institutions" },
+  { href: "/content",                         label: "Content" },
+  { href: "/support",                         label: "Support" },
+  { href: "/free-guide",                      label: "Free Guide" },
+  { href: "/contact",                         label: "Contact" },
 ];
 
-export default function Navbar() {
-  const [open, setOpen]         = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const pathname                = usePathname();
-  const touchedRef              = useRef(false);
-  const moreRef                 = useRef<HTMLLIElement>(null);
+// ─── Chevron icon ─────────────────────────────────────────────────────────────
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      className="w-3 h-3 flex-shrink-0"
+      style={{
+        transform: open ? "rotate(180deg)" : "rotate(0deg)",
+        transition: "transform 200ms ease",
+      }}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+}
 
-  const toggle = useCallback(() => setOpen((p) => !p), []);
+// ─── Desktop dropdown ─────────────────────────────────────────────────────────
+function DesktopDropdown({
+  label,
+  links,
+  isActive,
+}: {
+  label: string;
+  links: { href: string; label: string; external?: boolean }[];
+  isActive: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLLIElement>(null);
+  const pathname = usePathname();
 
-  // Close mobile menu on navigation
-  useEffect(() => { setOpen(false); setMoreOpen(false); }, [pathname]);
-
+  // Close on outside click
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close "More" dropdown on outside click
-  useEffect(() => {
-    if (!moreOpen) return;
+    if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [moreOpen]);
+  }, [open]);
 
-  // Prevent background scroll when mobile menu is open
+  // Close on navigation
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  return (
+    <li className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className={`flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap select-none ${
+          isActive || open ? "text-gold font-medium" : "text-muted hover:text-navy"
+        }`}
+      >
+        {label}
+        <Chevron open={open} />
+      </button>
+
+      <div
+        className="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-lg border border-card-border py-1.5 z-50"
+        style={{
+          opacity: open ? 1 : 0,
+          transform: open ? "translateY(0)" : "translateY(-6px)",
+          transition: "opacity 180ms ease, transform 180ms ease",
+          pointerEvents: open ? "auto" : "none",
+        }}
+      >
+        {links.map((link) =>
+          link.external ? (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted hover:text-navy hover:bg-stone-50 transition-colors"
+            >
+              {link.label}
+              <svg className="w-3 h-3 opacity-40 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          ) : (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className={`block px-4 py-2.5 text-sm transition-colors ${
+                pathname === link.href
+                  ? "text-gold font-medium bg-stone-50"
+                  : "text-muted hover:text-navy hover:bg-stone-50"
+              }`}
+            >
+              {link.label}
+            </Link>
+          )
+        )}
+      </div>
+    </li>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function Navbar() {
+  const [open, setOpen]     = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname            = usePathname();
+  const touchedRef          = useRef(false);
+
+  const toggle = useCallback(() => setOpen((p) => !p), []);
+
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const prevent = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("[data-menu-scroll]")) return;
+      const t = e.target as HTMLElement;
+      if (t.closest("[data-menu-scroll]")) return;
       e.preventDefault();
     };
     document.addEventListener("touchmove", prevent, { passive: false });
@@ -78,8 +184,8 @@ export default function Navbar() {
     toggle();
   }, [toggle]);
 
-  const allMobileLinks = [...primaryLinks, ...moreLinks];
-  const moreActive = moreLinks.some(l => l.href === pathname);
+  const programsActive = programsLinks.some((l) => l.href === pathname);
+  const resourcesActive = resourcesLinks.some((l) => l.href === pathname);
 
   return (
     <header
@@ -94,7 +200,7 @@ export default function Navbar() {
     >
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
 
-        {/* Logo */}
+        {/* ── Logo ── */}
         <Link
           href="/"
           onClick={(e) => {
@@ -108,86 +214,133 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-0.5">
-          {primaryLinks.map((link) => (
-            <li key={link.href}>
-              {link.external ? (
-                <a href={link.href} target="_blank" rel="noopener noreferrer"
-                  className="px-3 py-2 text-sm rounded-md transition-colors text-muted hover:text-navy whitespace-nowrap">
-                  {link.label}
-                </a>
-              ) : (
-                <Link href={link.href}
-                  className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                    pathname === link.href ? "text-gold font-medium" : "text-muted hover:text-navy"
-                  }`}>
-                  {link.label}
-                </Link>
-              )}
-            </li>
-          ))}
+        {/* ── Desktop nav ── */}
+        <ul className="hidden md:flex items-center gap-0.5 flex-shrink-0">
 
-          {/* More dropdown */}
-          <li className="relative" ref={moreRef as React.RefObject<HTMLLIElement>}>
-            <button
-              onClick={() => setMoreOpen(p => !p)}
-              className={`flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                moreActive ? "text-gold font-medium" : "text-muted hover:text-navy"
+          {/* About */}
+          <li>
+            <Link
+              href="/about"
+              className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
+                pathname === "/about" ? "text-gold font-medium" : "text-muted hover:text-navy"
               }`}
             >
-              More
-              <svg className={`w-3.5 h-3.5 transition-transform ${moreOpen ? "rotate-180" : ""}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {moreOpen && (
-              <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-lg shadow-lg border border-card-border py-1 z-50">
-                {moreLinks.map(link => (
-                  <Link key={link.href} href={link.href}
-                    onClick={() => setMoreOpen(false)}
-                    className={`block px-4 py-2 text-sm transition-colors ${
-                      pathname === link.href ? "text-gold font-medium" : "text-muted hover:text-navy hover:bg-stone-50"
-                    }`}>
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            )}
+              About
+            </Link>
           </li>
 
-          {/* Facilitator Login CTA */}
-          <li className="ml-2">
-            <Link href="/facilitators/login"
-              className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap"
-              style={{ background: '#A0843A', color: '#F8F4EE', letterSpacing: '0.04em' }}>
+          {/* Our Approach */}
+          <li>
+            <Link
+              href="/our-approach"
+              className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
+                pathname === "/our-approach" ? "text-gold font-medium" : "text-muted hover:text-navy"
+              }`}
+            >
+              Our Approach
+            </Link>
+          </li>
+
+          {/* Programs dropdown */}
+          <DesktopDropdown label="Programs" links={programsLinks} isActive={programsActive} />
+
+          {/* Resources dropdown */}
+          <DesktopDropdown label="Resources" links={resourcesLinks} isActive={resourcesActive} />
+
+          {/* Facilitators */}
+          <li>
+            <Link
+              href="/facilitators"
+              className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
+                pathname === "/facilitators" ? "text-gold font-medium" : "text-muted hover:text-navy"
+              }`}
+            >
+              Facilitators
+            </Link>
+          </li>
+
+          {/* Institutions */}
+          <li>
+            <Link
+              href="/institutions"
+              className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
+                pathname === "/institutions" ? "text-gold font-medium" : "text-muted hover:text-navy"
+              }`}
+            >
+              Institutions
+            </Link>
+          </li>
+
+          {/* Contact */}
+          <li>
+            <Link
+              href="/contact"
+              className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
+                pathname === "/contact" ? "text-gold font-medium" : "text-muted hover:text-navy"
+              }`}
+            >
+              Contact
+            </Link>
+          </li>
+
+          {/* Facilitator Login CTA — never wraps */}
+          <li className="ml-3">
+            <Link
+              href="/facilitators/login"
+              className="inline-flex items-center justify-center rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
+              style={{
+                background: "#B8942F",
+                color: "#F8F4EE",
+                paddingTop: "9px",
+                paddingBottom: "9px",
+                paddingLeft: "16px",
+                paddingRight: "16px",
+                minHeight: "40px",
+                letterSpacing: "0.02em",
+                boxShadow: "0 1px 3px rgba(184,148,47,0.35)",
+              }}
+            >
               Facilitator Login
             </Link>
           </li>
         </ul>
 
-        {/* Hamburger */}
-        <button type="button" onClick={handleClick} onTouchEnd={handleTouchEnd}
-          aria-label="Toggle menu" aria-expanded={open}
+        {/* ── Hamburger ── */}
+        <button
+          type="button"
+          onClick={handleClick}
+          onTouchEnd={handleTouchEnd}
+          aria-label="Toggle menu"
+          aria-expanded={open}
           className="md:hidden relative z-[60] flex items-center justify-center w-12 h-12 -mr-2 rounded-md text-navy"
-          style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
+          style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+        >
           <span className="pointer-events-none relative w-5 h-5">
             <span className="absolute left-0 block w-5 h-[2px] bg-current"
-              style={{ top: open ? "9px" : "3px", transform: open ? "rotate(45deg)" : "rotate(0)",
-                transition: "top 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1) 50ms" }} />
+              style={{
+                top: open ? "9px" : "3px",
+                transform: open ? "rotate(45deg)" : "rotate(0)",
+                transition: "top 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1) 50ms",
+              }} />
             <span className="absolute left-0 top-[9px] block w-5 h-[2px] bg-current"
-              style={{ opacity: open ? 0 : 1, transform: open ? "scaleX(0)" : "scaleX(1)",
-                transition: "opacity 200ms ease, transform 200ms ease" }} />
+              style={{
+                opacity: open ? 0 : 1,
+                transform: open ? "scaleX(0)" : "scaleX(1)",
+                transition: "opacity 200ms ease, transform 200ms ease",
+              }} />
             <span className="absolute left-0 block w-5 h-[2px] bg-current"
-              style={{ top: open ? "9px" : "15px", transform: open ? "rotate(-45deg)" : "rotate(0)",
-                transition: "top 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1) 50ms" }} />
+              style={{
+                top: open ? "9px" : "15px",
+                transform: open ? "rotate(-45deg)" : "rotate(0)",
+                transition: "top 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1) 50ms",
+              }} />
           </span>
         </button>
       </nav>
 
-      {/* Mobile overlay */}
-      <div className="md:hidden fixed inset-0 top-16 z-40 bg-white"
+      {/* ── Mobile overlay ── */}
+      <div
+        className="md:hidden fixed inset-0 top-16 z-40 bg-white"
         style={{
           opacity: open ? 1 : 0,
           transform: open ? "translate3d(0,0,0)" : "translate3d(0,-12px,0)",
@@ -196,56 +349,80 @@ export default function Navbar() {
             : "opacity 250ms ease-in, transform 250ms ease-in",
           pointerEvents: open ? "auto" : "none",
           willChange: "opacity, transform",
-        }}>
-        <div data-menu-scroll className="border-t border-card-border h-full flex flex-col justify-center px-6 py-8 overflow-y-auto">
-          <ul className="flex flex-col gap-0.5">
-            {allMobileLinks.map((link, i) => (
-              <li key={link.href}
+        }}
+      >
+        <div data-menu-scroll className="border-t border-card-border h-full flex flex-col px-6 py-6 overflow-y-auto">
+          <ul className="flex flex-col gap-0.5 flex-1">
+            {mobileLinks.map((link, i) => (
+              <li
+                key={link.href + link.label}
                 style={{
                   opacity: open ? 1 : 0,
                   transform: open ? "translate3d(0,0,0)" : "translate3d(0,16px,0)",
                   transition: open
-                    ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + i * 35}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${100 + i * 35}ms`
+                    ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 30}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 30}ms`
                     : "opacity 150ms ease-in, transform 150ms ease-in",
                   willChange: "opacity, transform",
-                }}>
-                {(link as any).external ? (
-                  <a href={link.href} target="_blank" rel="noopener noreferrer"
-                    className="block py-3 text-lg border-b border-card-border/60 transition-colors duration-200 text-navy hover:text-gold">
+                }}
+              >
+                {(link as { external?: boolean }).external ? (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block py-3 text-base border-b border-card-border/60 transition-colors text-navy hover:text-gold"
+                  >
                     {link.label}
                   </a>
                 ) : (
-                  <Link href={link.href}
-                    className={`block py-3 text-lg border-b border-card-border/60 transition-colors duration-200 ${
+                  <Link
+                    href={link.href}
+                    className={`block py-3 text-base border-b border-card-border/60 transition-colors ${
                       pathname === link.href ? "text-gold font-medium" : "text-navy hover:text-gold"
-                    }`}>
+                    }`}
+                  >
                     {link.label}
                   </Link>
                 )}
               </li>
             ))}
           </ul>
-          <div className="mt-6"
+
+          {/* Mobile Facilitator Login — full-width, gold, single line, 48px min height */}
+          <div
+            className="mt-6 pb-2"
             style={{
               opacity: open ? 1 : 0,
               transform: open ? "translate3d(0,0,0)" : "translate3d(0,16px,0)",
               transition: open
-                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + allMobileLinks.length * 35}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${100 + allMobileLinks.length * 35}ms`
+                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${80 + mobileLinks.length * 30}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${80 + mobileLinks.length * 30}ms`
                 : "opacity 150ms ease-in, transform 150ms ease-in",
-            }}>
-            <Link href="/facilitators/login"
-              className="block w-full text-center py-3 text-base font-semibold rounded-md transition-colors"
-              style={{ background: '#A0843A', color: '#F8F4EE', letterSpacing: '0.04em' }}>
+            }}
+          >
+            <Link
+              href="/facilitators/login"
+              className="flex items-center justify-center w-full rounded-xl font-semibold text-base whitespace-nowrap"
+              style={{
+                background: "#B8942F",
+                color: "#F8F4EE",
+                minHeight: "48px",
+                letterSpacing: "0.02em",
+                boxShadow: "0 2px 6px rgba(184,148,47,0.3)",
+              }}
+            >
               Facilitator Login
             </Link>
           </div>
-          <p className="text-muted/50 text-xs text-center mt-auto pt-8 pb-4"
+
+          <p
+            className="text-muted/40 text-xs text-center pt-4 pb-2"
             style={{
               opacity: open ? 1 : 0,
               transition: open
-                ? `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${100 + (allMobileLinks.length + 1) * 35}ms`
+                ? `opacity 400ms ease ${80 + (mobileLinks.length + 1) * 30}ms`
                 : "opacity 150ms ease-in",
-            }}>
+            }}
+          >
             Tri-Pillars Studio™ · Live and Grieve™
           </p>
         </div>
