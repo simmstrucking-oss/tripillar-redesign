@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('facilitator_profiles')
-    .select('id, full_name, cert_track, cert_status, cert_expiry, books_certified')
+    .select('id, full_name, cert_status, cert_issued, cert_renewal, books_certified, role')
     .eq('organization_id', orgId)
     .order('full_name');
 
@@ -46,10 +46,10 @@ export async function GET(req: NextRequest) {
   const facilitators = (data ?? []).map(f => ({
     id: f.id,
     name: f.full_name,
-    cert_track: f.cert_track,
+    cert_track: f.role ?? 'Community',
     cert_status: f.cert_status,
-    cert_expiry: f.cert_expiry,
-    books_certified: f.books_certified,
+    cert_expiry: f.cert_renewal,
+    books_certified: f.books_certified ?? [],
   }));
 
   return NextResponse.json({ facilitators });

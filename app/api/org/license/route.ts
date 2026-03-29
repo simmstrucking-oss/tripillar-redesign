@@ -43,17 +43,16 @@ export async function GET(req: NextRequest) {
 
   if (error || !org) return NextResponse.json({ error: 'Org not found' }, { status: 404 });
 
-  const { data: files } = await supabase.storage
-    .from('admin-documents')
-    .list('', { limit: 100 });
-
   let ilaUrl = null;
-  if (files) {
-    const ilaFile = files.find(f => f.name.includes('License_Agreement') || f.name.includes('ILA'));
+  const { data: legalFiles } = await supabase.storage
+    .from('admin-documents')
+    .list('05_LEGAL', { limit: 50 });
+  if (legalFiles) {
+    const ilaFile = legalFiles.find(f => f.name.includes('License_Agreement') || f.name.includes('ILA'));
     if (ilaFile) {
       const { data: signed } = await supabase.storage
         .from('admin-documents')
-        .createSignedUrl(ilaFile.name, 60);
+        .createSignedUrl(`05_LEGAL/${ilaFile.name}`, 60);
       ilaUrl = signed?.signedUrl ?? null;
     }
   }

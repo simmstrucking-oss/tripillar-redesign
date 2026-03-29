@@ -26,10 +26,10 @@ export async function GET(
     .from('cohorts')
     .select(`
       *,
-      facilitator_profiles (name)
+      facilitator_profiles (full_name)
     `)
     .eq('id', id)
-    .eq('org_id', orgId)
+    .eq('organization_id', orgId)
     .single()
 
   if (error) {
@@ -55,7 +55,7 @@ export async function GET(
 
   return NextResponse.json({
     ...cohort,
-    facilitator: (cohort.facilitator_profiles as any)?.name || 'Unknown',
+    facilitator: (cohort.facilitator_profiles as any)?.full_name || 'Unknown',
     feedbackStats: stats
   })
 }

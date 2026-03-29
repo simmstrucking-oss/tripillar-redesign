@@ -53,21 +53,21 @@ export async function POST(req: NextRequest) {
 
   const facIds = (facilitators ?? []).map(f => f.id);
 
-  let cohorts: Array<{ book_module?: string; total_enrolled?: number; total_completed?: number }> = [];
-  if (facIds.length > 0) {
+  let cohorts: Array<{ book_number?: number; total_enrolled?: number; total_completed?: number; participant_count?: number }> = [];
+  if (facIds.length >= 0) {
     const { data } = await supabase
       .from('cohorts')
-      .select('book_module, total_enrolled, total_completed')
-      .in('facilitator_id', facIds);
+      .select('book_number, total_enrolled, total_completed, participant_count')
+      .eq('organization_id', orgId);
     cohorts = data ?? [];
   }
 
-  const totalParticipants = cohorts.reduce((s, c) => s + (c.total_enrolled ?? 0), 0);
+  const totalParticipants = cohorts.reduce((s, c) => s + (c.total_enrolled ?? c.participant_count ?? 0), 0);
   const totalCompleted = cohorts.reduce((s, c) => s + (c.total_completed ?? 0), 0);
   const avgCompletion = totalParticipants > 0
     ? Math.round((totalCompleted / totalParticipants) * 100)
     : 0;
-  const books = [...new Set(cohorts.map(c => c.book_module).filter(Boolean))];
+  const books = [...new Set(cohorts.map((c: any) => c.book_number ? `Book ${c.book_number}` : null).filter(Boolean))];
 
   const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
   const chunks: Buffer[] = [];

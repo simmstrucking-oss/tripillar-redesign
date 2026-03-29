@@ -56,17 +56,20 @@ export async function GET(req: NextRequest) {
 
   const { data: cohorts, error } = await supabase
     .from('cohorts')
-    .select('id, facilitator_id, book_module, start_date, status, total_enrolled, total_completed')
-    .in('facilitator_id', facIds)
+    .select('id, facilitator_id, book_number, start_date, end_date, status, total_enrolled, total_completed, participant_count')
+    .eq('organization_id', orgId)
     .order('start_date', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const result = (cohorts ?? []).map(c => ({
     ...c,
+    book_module: c.book_number ? `Book ${c.book_number}` : 'Unknown',
     facilitator_name: facMap[c.facilitator_id] ?? 'Unknown',
-    completion_rate: c.total_enrolled > 0
-      ? Math.round((c.total_completed / c.total_enrolled) * 100)
+    enrolled: c.total_enrolled ?? c.participant_count ?? 0,
+    completed: c.total_completed ?? 0,
+    completion_rate: (c.total_enrolled ?? c.participant_count ?? 0) > 0
+      ? Math.round(((c.total_completed ?? 0) / (c.total_enrolled ?? c.participant_count ?? 1)) * 100)
       : 0,
   }));
 
