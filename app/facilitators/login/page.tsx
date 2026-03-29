@@ -24,7 +24,7 @@ function LoginForm() {
 
   useEffect(() => {
     const supabase = getSupabaseBrowser();
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: unknown } }) => {
       if (data.session) router.replace('/facilitators/hub/dashboard');
     });
   }, [router]);

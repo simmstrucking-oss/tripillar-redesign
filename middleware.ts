@@ -14,59 +14,57 @@ const PROTECTED_ORG_HUB = /^\/org\/(hub|onboarding)(\/|$)/;
 const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
 const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
 
+// ── Helper: decode @supabase/ssr base64url cookie value ──────────────────────
+// createBrowserClient encodes cookie values as "base64-<base64url JSON>"
+function decodeSupabaseCookieValue(raw: string): string {
+  const PREFIX = 'base64-';
+  if (raw.startsWith(PREFIX)) {
+    const b64 = raw.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/');
+    return Buffer.from(b64, 'base64').toString('utf-8');
+  }
+  try { return decodeURIComponent(raw); } catch { return raw; }
+}
+
 // ── Helper: verify JWT from cookie ───────────────────────────────────────────
-// Supabase JS v2 stores tokens in chunked cookies:
-//   sb-<ref>-auth-token.0=<chunk0>
-//   sb-<ref>-auth-token.1=<chunk1>
-// or as a single cookie sb-<ref>-auth-token=<value>
-// We must reassemble chunks before parsing.
 async function getSessionUser(req: NextRequest) {
   const cookieHeader = req.headers.get('cookie') ?? '';
 
-  // Collect all cookie key=value pairs
   const cookies: Record<string, string> = {};
   for (const part of cookieHeader.split(';')) {
     const idx = part.indexOf('=');
     if (idx === -1) continue;
-    const key = part.slice(0, idx).trim();
-    const val = part.slice(idx + 1).trim();
-    cookies[key] = val;
+    cookies[part.slice(0, idx).trim()] = part.slice(idx + 1).trim();
   }
 
-  // Find the base token cookie name (e.g. "sb-wuwgbdjgsgtsmuctuhpt-auth-token")
-  let rawToken: string | null = null;
+  let rawJoined: string | null = null;
 
   // Try single-cookie format first
-  const singleMatch = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token$/.test(k));
-  if (singleMatch) {
-    rawToken = decodeURIComponent(cookies[singleMatch]);
+  const singleKey = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token$/.test(k));
+  if (singleKey && cookies[singleKey]) {
+    rawJoined = cookies[singleKey];
   } else {
     // Try chunked format — reassemble ordered chunks
-    const chunkBase = Object.keys(cookies)
-      .find(k => /^sb-[^.]+?-auth-token\.0$/.test(k))
-      ?.replace(/\.0$/, '');
-    if (chunkBase) {
+    const chunkZeroKey = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token\.0$/.test(k));
+    if (chunkZeroKey) {
+      const chunkBase = chunkZeroKey.slice(0, -2); // strip ".0"
       let assembled = '';
       let i = 0;
       while (cookies[`${chunkBase}.${i}`] !== undefined) {
-        assembled += decodeURIComponent(cookies[`${chunkBase}.${i}`]);
+        assembled += cookies[`${chunkBase}.${i}`];
         i++;
       }
-      rawToken = assembled;
+      rawJoined = assembled;
     }
   }
 
-  if (!rawToken) return null;
+  if (!rawJoined) return null;
 
   let tokenData: { access_token?: string } | null = null;
   try {
-    tokenData = JSON.parse(rawToken);
+    const decoded = decodeSupabaseCookieValue(rawJoined);
+    tokenData = JSON.parse(decoded);
   } catch {
-    try {
-      tokenData = JSON.parse(Buffer.from(rawToken, 'base64').toString());
-    } catch {
-      return null;
-    }
+    return null;
   }
 
   if (!tokenData?.access_token) return null;
