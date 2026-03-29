@@ -29,6 +29,21 @@ const sections = [
   },
 ];
 
+// First 8 lesson videos for the grid
+const lessonVideos = [
+  { id: "47mlI5PAHEU", lesson: "1.01", title: "Understanding Grief — Lesson 1" },
+  { id: "2t_RE1J6luc", lesson: "1.02", title: "Understanding Grief — Lesson 2" },
+  { id: "8zrm_p7u1R8", lesson: "1.03", title: "Understanding Grief — Lesson 3" },
+  { id: "d1LoHh29_Bs", lesson: "1.04", title: "Understanding Grief — Lesson 4" },
+  { id: "e3SszONVfTQ", lesson: "1.05", title: "Understanding Grief — Lesson 5" },
+  { id: "9FvP1XCE8EA", lesson: "1.06", title: "Understanding Grief — Lesson 6" },
+  { id: "SnbhtN__n50", lesson: "1.07", title: "Understanding Grief — Lesson 7" },
+  { id: "nQxVj95tbOM", lesson: "1.08", title: "Understanding Grief — Lesson 8" },
+];
+
+const CHANNEL_URL = "https://www.youtube.com/@liveandgrieve_3";
+const INTRO_VIDEO_ID = "H-zcSdzm9jg";
+
 export default function ContentPage() {
   return (
     <>
@@ -52,29 +67,144 @@ export default function ContentPage() {
         </div>
       </section>
 
-      {/* Three sections */}
-      <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid md:grid-cols-3 gap-8">
-          {sections.map((s, i) => (
-            <FadeIn key={i} delay={i * 100}>
-              <Link href={s.href} className="block group h-full">
-                <div className="bg-card-bg border border-card-border shadow-sm rounded-2xl p-8 h-full flex flex-col card-hover">
-                  <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-                    {s.label}
-                  </p>
-                  <h2 className="font-serif text-2xl text-navy mb-4 group-hover:text-gold transition-colors">
-                    {s.title}
-                  </h2>
-                  <p className="text-muted text-sm leading-relaxed flex-1">
-                    {s.desc}
-                  </p>
-                  <p className="text-gold text-sm font-medium mt-6">
-                    Read more →
-                  </p>
+      {/* YouTube Hero Embed */}
+      <section className="py-16 bg-navy">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="text-center mb-8">
+              <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">
+                From the Founders
+              </p>
+              <h2 className="font-serif text-2xl sm:text-3xl text-white mb-2">
+                An introduction to Live and Grieve™
+              </h2>
+              <p className="text-white/60 text-sm">
+                Jamie Simms, co-founder
+              </p>
+            </div>
+
+            {/* 16:9 responsive embed */}
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                 style={{ paddingBottom: "56.25%" }}>
+              <iframe
+                src={`https://www.youtube.com/embed/${INTRO_VIDEO_ID}?rel=0&modestbranding=1`}
+                title="An introduction to Live and Grieve™ — Jamie Simms"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+
+            <div className="text-center mt-6">
+              <a
+                href={CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 px-6 py-2.5 rounded-md text-sm transition-colors"
+              >
+                <span>▶</span> View all 60 lessons on YouTube →
+              </a>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* Lesson Video Grid */}
+      <section className="py-20 max-w-6xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <div className="text-center mb-12">
+            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+              Video Library
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-3">
+              Module 1 — Understanding Grief
+            </h2>
+            <p className="text-muted text-sm max-w-lg mx-auto">
+              A preview of the curriculum. The full 60-lesson resource library is available on our YouTube channel.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {lessonVideos.map((video, i) => (
+            <FadeIn key={video.id} delay={i * 60}>
+              <a
+                href={`https://www.youtube.com/watch?v=${video.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block group rounded-xl overflow-hidden border border-card-border bg-card-bg shadow-sm card-hover"
+              >
+                {/* Thumbnail */}
+                <div className="relative w-full bg-navy/5" style={{ paddingBottom: "56.25%" }}>
+                  <img
+                    src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
+                    alt={video.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/20 transition-colors flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gold/80 group-hover:bg-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                      <span className="text-white text-sm ml-0.5">▶</span>
+                    </div>
+                  </div>
                 </div>
-              </Link>
+                <div className="p-4">
+                  <p className="text-gold text-xs font-semibold mb-1">Lesson {video.lesson}</p>
+                  <p className="text-navy text-sm font-medium leading-snug">{video.title}</p>
+                </div>
+              </a>
             </FadeIn>
           ))}
+        </div>
+
+        <FadeIn delay={200}>
+          <div className="text-center mt-10">
+            <a
+              href={CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
+            >
+              Watch All 60 Lessons on YouTube →
+            </a>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* Three sections */}
+      <section className="py-24 bg-section-alt">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="text-center mb-12">
+              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+                Explore
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-navy">
+                News, writing, and resources.
+              </h2>
+            </div>
+          </FadeIn>
+          <div className="grid md:grid-cols-3 gap-8">
+            {sections.map((s, i) => (
+              <FadeIn key={i} delay={i * 100}>
+                <Link href={s.href} className="block group h-full">
+                  <div className="bg-card-bg border border-card-border shadow-sm rounded-2xl p-8 h-full flex flex-col card-hover">
+                    <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+                      {s.label}
+                    </p>
+                    <h2 className="font-serif text-2xl text-navy mb-4 group-hover:text-gold transition-colors">
+                      {s.title}
+                    </h2>
+                    <p className="text-muted text-sm leading-relaxed flex-1">
+                      {s.desc}
+                    </p>
+                    <p className="text-gold text-sm font-medium mt-6">
+                      Read more →
+                    </p>
+                  </div>
+                </Link>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
     </>

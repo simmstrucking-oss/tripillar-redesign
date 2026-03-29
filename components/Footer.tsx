@@ -101,7 +101,7 @@ export default function Footer() {
 
       {/* Main footer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <span className="font-serif text-lg font-bold text-white">
               Tri&#8209;Pillars<sup className="text-xs text-gold-light">™</sup> Studio
@@ -121,6 +121,16 @@ export default function Footer() {
               <li><Link href="/program/youth" className="hover:text-gold-light transition-colors">Youth Program</Link></li>
               <li><Link href="/our-approach" className="hover:text-gold-light transition-colors">Our Approach</Link></li>
               <li><Link href="/institutions" className="hover:text-gold-light transition-colors">For Institutions</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white text-sm font-semibold mb-3 uppercase tracking-wider">
+              For Facilitators
+            </h4>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li><Link href="/facilitators/login" className="hover:text-gold-light transition-colors">Facilitator Login</Link></li>
+              <li><Link href="/facilitators" className="hover:text-gold-light transition-colors">Become a Facilitator</Link></li>
             </ul>
           </div>
 

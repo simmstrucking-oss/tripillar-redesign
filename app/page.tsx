@@ -302,6 +302,59 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Solo Companion feature */}
+      <section className="py-24 bg-navy">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="text-center mb-12">
+              <p className="text-gold text-xs uppercase tracking-widest mb-5 font-medium">
+                The Solo Companion
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                Grief doesn&apos;t wait for a group to form.
+              </h2>
+              <p className="text-white/70 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+                The Solo Companion brings the full Live and Grieve™ Book 1 experience to your phone, your pace, your time.
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={100}>
+            <div className="grid sm:grid-cols-3 gap-6 mb-12">
+              {[
+                { icon: "📖", text: "13 weeks of structured grief curriculum" },
+                { icon: "✍️", text: "Journal, tracker, and weekly reflections" },
+                { icon: "🤝", text: "Crisis resources always one tap away" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-4 bg-white/5 border border-white/10 rounded-xl p-6">
+                  <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                  <p className="text-white/80 text-sm leading-relaxed">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={200}>
+            <div className="text-center">
+              <p className="text-gold font-semibold text-lg mb-6">
+                Start for $24.99 — or three payments of $9.99.
+              </p>
+              <a
+                href="https://solo.tripillarstudio.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-gold text-white font-bold px-10 py-4 rounded-md hover:bg-gold-light transition-colors text-base mb-6"
+              >
+                Begin Book 1 Today
+              </a>
+              <p className="text-white/50 text-sm">
+                In a facilitated group? Ask your facilitator for your access code.
+              </p>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* Partner organizations */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn>
