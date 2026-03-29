@@ -1,26 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 export const runtime = 'edge';
 
-async function getUser(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch   = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* ignore */ }
-  if (!token) {
-    try { token = JSON.parse(atob(tokenMatch[1]))?.access_token; } catch { /* ignore */ }
-  }
-  if (!token) return null;
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-  const { data, error } = await sb.auth.getUser(token);
-  return (error || !data?.user) ? null : data.user;
-}
+const getUser = (req: NextRequest) => getUserFromRequest(req);
 
 function svc() {
   return createClient(

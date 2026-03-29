@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 function sb() {
   return createClient(
@@ -13,19 +14,7 @@ function sb() {
   );
 }
 
-async function getUser(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* */ }
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch { /* */ }
-  }
-  if (!token) return null;
-  const { data, error } = await sb().auth.getUser(token);
-  return (error || !data?.user) ? null : data.user;
-}
+const getUser = (req: NextRequest) => getUserFromRequest(req);
 
 const CHECKLIST_COUNT = 7;
 

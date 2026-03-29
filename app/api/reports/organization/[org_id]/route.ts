@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 interface Outcome {
   cohort_id: string;
@@ -29,27 +30,15 @@ interface Cohort {
 }
 
 async function resolveCallerRole(req: NextRequest) {
+  const user = await getUserFromRequest(req);
+  if (!user) return null;
   const sb = getSupabaseServer();
-  const cookie = req.cookies.get('lg-admin-session')?.value;
-  const header = req.headers.get('x-admin-secret');
-  if (cookie === process.env.ADMIN_SECRET || header === process.env.ADMIN_SECRET) {
-    return { role: 'admin' as const, profileId: null as string | null, orgId: null as string | null };
+  const { data } = await sb.from('facilitator_profiles').select('id, role, organization_id').eq('user_id', user.id).single();
+  if (!data) return null;
+  if (user.email === 'wayne@tripillarstudio.com' || user.email === 'jamie@tripillarstudio.com') {
+    return { ...data, role: 'admin', orgId: data.organization_id };
   }
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch   = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* */ }
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch { /* */ }
-  }
-  if (!token) return null;
-  const { data, error } = await sb.auth.getUser(token);
-  if (error || !data?.user) return null;
-  const { data: profile } = await sb.from('facilitator_profiles')
-    .select('id, organization_id, role').eq('user_id', data.user.id).single();
-  if (!profile) return null;
-  return { role: profile.role as string, profileId: profile.id as string, orgId: profile.organization_id as string | null };
+  return { ...data, orgId: data.organization_id };
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ org_id: string }> }) {

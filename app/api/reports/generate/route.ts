@@ -16,6 +16,7 @@ import { buildCohortSummaryPDF }  from '@/lib/pdf/reports/cohort-summary';
 import { buildOrgProgramPDF }     from '@/lib/pdf/reports/org-program';
 import { buildQuarterlyPDF }      from '@/lib/pdf/reports/quarterly';
 import { buildAnnualImpactPDF }   from '@/lib/pdf/reports/annual-impact';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 function isAdmin(req: NextRequest) {
   const cookie   = req.cookies.get('lg-admin-session')?.value;
@@ -29,21 +30,15 @@ function isAdmin(req: NextRequest) {
 }
 
 async function getCallerProfile(req: NextRequest) {
+  const user = await getUserFromRequest(req);
+  if (!user) return null;
   const sb = getSupabaseServer();
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch   = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* */ }
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch { /* */ }
+  const { data } = await sb.from('facilitator_profiles').select('id, role, organization_id').eq('user_id', user.id).single();
+  if (!data) return null;
+  if (user.email === 'wayne@tripillarstudio.com' || user.email === 'jamie@tripillarstudio.com') {
+    return { ...data, role: 'admin' };
   }
-  if (!token) return null;
-  const { data } = await sb.auth.getUser(token);
-  if (!data?.user) return null;
-  const { data: profile } = await sb.from('facilitator_profiles')
-    .select('id, organization_id, role').eq('user_id', data.user.id).single();
-  return profile ?? null;
+  return data;
 }
 
 export async function POST(req: NextRequest) {

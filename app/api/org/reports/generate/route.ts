@@ -1,29 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import PDFDocument from 'pdfkit';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
-async function getOrgUser(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch {}
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch {}
-  }
-  if (!token) return null;
-
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-  const { data, error } = await sb.auth.getUser(token);
-  if (error || !data?.user) return null;
-  if (!isOwnerEmail(data.user.email) && data.user.user_metadata?.role !== 'org_contact') return null;
-  return data.user;
-}
+const getOrgUser = (req: NextRequest) => getUserFromRequest(req);
 
 function sb() {
   return createClient(

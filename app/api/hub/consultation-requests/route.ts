@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 const WAYNE_EMAIL = 'wayne@tripillarstudio.com';
@@ -16,37 +17,20 @@ function getServiceClient() {
   );
 }
 
-async function getAuthenticatedFacilitator(req: NextRequest) {
-  const sb = getServiceClient();
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* */ }
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch { /* */ }
-  }
-  if (!token) return null;
-  const { data, error } = await sb.auth.getUser(token);
-  if (error || !data?.user) return null;
-  const { data: profile } = await sb
-    .from('facilitator_profiles')
-    .select('id, full_name, email, cert_status')
-    .eq('user_id', data.user.id)
-    .single();
-  if (!profile || profile.cert_status === 'expired') return null;
-  return profile;
-}
+const getAuthenticatedFacilitator = (req: NextRequest) => getUserFromRequest(req);
 
 export async function GET(req: NextRequest) {
-  const profile = await getAuthenticatedFacilitator(req);
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await getAuthenticatedFacilitator(req);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const sb = getServiceClient();
+  const { data: fp } = await sb.from('facilitator_profiles').select('id').eq('user_id', user.id).single();
+  if (!fp) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+
   const { data, error } = await sb
     .from('consultation_requests')
     .select('id, request_type, description, week_number, status, created_at')
-    .eq('facilitator_id', profile.id)
+    .eq('facilitator_id', fp.id)
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: 'Failed to fetch requests' }, { status: 500 });
@@ -54,8 +38,16 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const profile = await getAuthenticatedFacilitator(req);
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await getAuthenticatedFacilitator(req);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const sb = getServiceClient();
+  const { data: profile } = await sb
+    .from('facilitator_profiles')
+    .select('id, full_name, email')
+    .eq('user_id', user.id)
+    .single();
+  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
 
   const body = await req.json().catch(() => ({}));
   const { request_type, description, week_number } = body;
@@ -78,11 +70,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Description must be 500 characters or fewer' }, { status: 400 });
   }
 
-  const sb = getServiceClient();
   const { data: inserted, error: insertError } = await sb
     .from('consultation_requests')
     .insert({
-      facilitator_id: profile.id,
+      facilitator_id: profile.id as string,
       request_type,
       description: description.trim(),
       week_number: week_number?.trim() || null,

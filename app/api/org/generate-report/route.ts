@@ -7,27 +7,14 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 async function getCallerOrgId(req: NextRequest): Promise<string | null> {
+  const user = await getUserFromRequest(req);
+  if (!user) return null;
   const sb = getSupabaseServer();
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch   = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* */ }
-  if (!token) {
-    try { token = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString())?.access_token; } catch { /* */ }
-  }
-  if (!token) return null;
-  const { data, error } = await sb.auth.getUser(token);
-  if (error || !data?.user) return null;
-  const { data: profile } = await sb
-    .from('facilitator_profiles')
-    .select('organization_id, role')
-    .eq('user_id', data.user.id)
-    .single();
-  if (!profile || profile.role !== 'org_admin') return null;
-  return profile.organization_id ?? null;
+  const { data } = await sb.from('facilitator_profiles').select('organization_id').eq('user_id', user.id).single();
+  return data?.organization_id ?? null;
 }
 
 

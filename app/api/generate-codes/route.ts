@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 export const runtime = 'edge';
 
@@ -13,22 +14,7 @@ const DEFAULT_WEEKS = 19;       // 13-week program + 6-week buffer
 const COHORT_BUFFER_WEEKS = 6;
 
 // ── Auth helper (same pattern as hub routes) ─────────────────────────────────
-async function getUser(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie') ?? '';
-  const tokenMatch   = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
-
-  let token: string | undefined;
-  try { token = JSON.parse(decodeURIComponent(tokenMatch[1]))?.access_token; } catch { /* ignore */ }
-  if (!token) {
-    try { token = JSON.parse(atob(tokenMatch[1]))?.access_token; } catch { /* ignore */ }
-  }
-  if (!token) return null;
-
-  const sb = getServiceClient();
-  const { data, error } = await sb.auth.getUser(token);
-  return (error || !data?.user) ? null : data.user;
-}
+const getUser = (req: NextRequest) => getUserFromRequest(req);
 
 function getServiceClient() {
   return createClient(
