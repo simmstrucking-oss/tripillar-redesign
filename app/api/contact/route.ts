@@ -130,20 +130,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 3. Kit subscribe + tag (fire-and-forget)
+  // 3. Kit subscribe + tag
   try {
     const sequenceId = isInstitution ? INSTITUTION_SEQUENCE_ID : GENERAL_CONTACT_SEQUENCE_ID;
     const tagId = isInstitution ? INSTITUTION_TAG_ID : CONTACT_FORM_TAG_ID;
-    await fetch(`${KIT_BASE}/courses/${sequenceId}/subscribe`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_secret: KIT_API_SECRET, email, first_name: name.split(" ")[0] }),
-    });
-    fetch(`${KIT_BASE}/tags/${tagId}/subscribe`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_secret: KIT_API_SECRET, email, first_name: name.split(" ")[0] }),
-    }).catch(() => {});
+    const kitPayload = JSON.stringify({ api_secret: KIT_API_SECRET, email, first_name: name.split(" ")[0] });
+    const headers = { "Content-Type": "application/json" };
+    await fetch(`${KIT_BASE}/courses/${sequenceId}/subscribe`, { method: "POST", headers, body: kitPayload });
+    await fetch(`${KIT_BASE}/tags/${tagId}/subscribe`, { method: "POST", headers, body: kitPayload });
   } catch { /* non-fatal */ }
 
   return NextResponse.json({ status: "sent" });
