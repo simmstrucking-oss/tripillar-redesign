@@ -33,15 +33,20 @@ function LoginForm() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const supabase = getSupabaseBrowser();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
-      setError(authError.message);
+    try {
+      const supabase = getSupabaseBrowser();
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+      // Hard redirect — ensures cookies are committed before server sees request
+      window.location.href = '/facilitators/hub/dashboard';
+    } catch (err) {
+      setError('Unexpected error. Please try again.');
       setLoading(false);
-      return;
     }
-    router.refresh();
-    router.replace('/facilitators/hub/dashboard');
   }
 
   return (
