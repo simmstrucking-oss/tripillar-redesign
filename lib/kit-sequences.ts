@@ -21,7 +21,7 @@ export const KIT_SEQUENCES = {
   ONE_YEAR_ANNIVERSARY:       2701300,
 
   // ── Trainer sequences (create in Kit dashboard, then update IDs) ──
-  TRAINER_WELCOME:            0,  // TODO: update after Kit dashboard creation
+  TRAINER_WELCOME:            2702325,
   TRAINER_RENEWAL_60:         0,  // TODO: update after Kit dashboard creation
   TRAINER_RENEWAL_30:         0,  // TODO: update after Kit dashboard creation
   TRAINER_FEE_REMINDER:       0,  // TODO: update after Kit dashboard creation
