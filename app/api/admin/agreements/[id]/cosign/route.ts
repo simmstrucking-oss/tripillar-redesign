@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateILAPdf } from '@/lib/generate-ila-pdf';
-import { Resend } from 'resend';
+
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -10,9 +10,18 @@ const resendKey = process.env.RESEND_API_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceRole);
 
+async function sendEmail(to: string, subject: string, html: string) {
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: 'Ember <ember@tripillarstudio.com>', to, subject, html }),
+  });
+}
+
 function verifyAdminAuth(req: NextRequest): boolean {
   const header = req.headers.get('x-admin-secret');
-  return header === adminSecret;
+  const cookie = req.cookies.get('admin-secret')?.value;
+  return header === adminSecret || cookie === adminSecret;
 }
 
 function getClientIp(req: NextRequest): string {
@@ -182,30 +191,22 @@ export async function POST(
 
         if (!authError) {
           // Send hub credentials email
-          const { Resend } = require('resend');
-          const resendInstance = new Resend(process.env.RESEND_API_KEY);
-          await resendInstance.emails.send({
-            from: 'Ember <ember@tripillarstudio.com>',
-            to: agreement.contact_email,
-            subject: 'Your Live and Grieve™ Hub Credentials',
-            html: `
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          await sendEmail(agreement.contact_email,
+            'Your Live and Grieve™ Hub Credentials',
+            `<html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
     <h2>Welcome to the Live and Grieve™ Hub</h2>
     <p>Dear ${agreement.contact_name},</p>
-    <p>Your account has been created. You can now log in to manage your organization's Live and Grieve™ facilitators and cohorts.</p>
-    <div style="background: #F4F1EC; padding: 20px; border-radius: 4px; margin: 20px 0;">
+    <p>Your account has been created. You can now log in to manage your organization's Live and Grieve™ program.</p>
+    <div style="background:#F4F1EC;padding:20px;border-radius:4px;margin:20px 0;">
       <p><strong>Email:</strong> ${agreement.contact_email}</p>
       <p><strong>Temporary Password:</strong> ${randomPwd}</p>
-      <p style="margin-top: 20px;"><a href="https://tripillarstudio.com/org/login" style="background: #B8942F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Log In to Hub</a></p>
+      <p style="margin-top:20px;"><a href="https://tripillarstudio.com/org/login" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Log In to Hub</a></p>
     </div>
-    <p><strong>Important:</strong> Please change your password on your first login.</p>
-    <p>If you have any questions, contact wayne@tripillarstudio.com.</p>
+    <p><strong>Important:</strong> Please change your password on first login.</p>
+    <p>Questions? Contact wayne@tripillarstudio.com.</p>
     <p>Best regards,<br>Tri-Pillars LLC</p>
-  </body>
-</html>
-            `,
-          });
+    </body></html>`
+          );
         }
       } catch (e) {
         console.error('Auth provision error:', e);
@@ -219,36 +220,26 @@ export async function POST(
       .createSignedUrl(executedPath, 3600 * 24 * 7);
 
     if (signedUrlData?.signedUrl) {
-      const resend = new Resend(resendKey);
-      await resend.emails.send({
-        from: 'Ember <ember@tripillarstudio.com>',
-        to: agreement.contact_email,
-        subject: 'Your Executed License Agreement',
-        html: `
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      await sendEmail(agreement.contact_email,
+        'Your Executed License Agreement',
+        `<html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
     <h2>License Agreement Executed</h2>
     <p>Dear ${agreement.contact_name},</p>
-    <p>Your Institutional License Agreement for Live and Grieve™ has been fully executed by Wayne Simms, Co-Founder of Tri-Pillars LLC.</p>
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="${signedUrlData.signedUrl}" style="background: #B8942F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Download Signed Agreement</a>
+    <p>Your Institutional License Agreement for Live and Grieve™ has been fully executed.</p>
+    <p style="text-align:center;margin:30px 0;">
+      <a href="${signedUrlData.signedUrl}" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Download Signed Agreement</a>
     </p>
-    <p>Your organization is now licensed to use the Live and Grieve™ program for the period ${agreement.license_start_date} through ${agreement.license_renewal_date}.</p>
+    <p>Your organization is licensed for the period ${agreement.license_start_date} through ${agreement.license_renewal_date}.</p>
     <p>Best regards,<br>Wayne Simms<br>Co-Founder, Tri-Pillars LLC</p>
-  </body>
-</html>
-        `,
-      });
+    </body></html>`
+      );
     }
 
     // Notify Wayne
-    const resend = new Resend(resendKey);
-    await resend.emails.send({
-      from: 'Ember <ember@tripillarstudio.com>',
-      to: 'wayne@tripillarstudio.com',
-      subject: `AGREEMENT EXECUTED — ${agreement.org_name} — ${agreement.license_tier}`,
-      html: `<p>Agreement fully executed. Org: <strong>${agreement.org_name}</strong> (${agreement.license_tier}). Auto-provisioning complete.</p>`,
-    });
+    await sendEmail('wayne@tripillarstudio.com',
+      `AGREEMENT EXECUTED — ${agreement.org_name} — ${agreement.license_tier}`,
+      `<p>Agreement fully executed. Org: <strong>${agreement.org_name}</strong> (${agreement.license_tier}). Auto-provisioning complete.</p>`
+    );
 
     return NextResponse.json({ ok: true, agreement: updated });
   } catch (err) {

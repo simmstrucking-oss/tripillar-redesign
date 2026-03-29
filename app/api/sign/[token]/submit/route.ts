@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateILAPdf } from '@/lib/generate-ila-pdf';
-import { Resend } from 'resend';
+
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -126,22 +126,21 @@ export async function POST(
 
     // Notify Wayne
     const signedDate = new Date(now).toLocaleDateString();
-    const resend = new Resend(resendKey);
-    await resend.emails.send({
-      from: 'Ember <ember@tripillarstudio.com>',
-      to: 'wayne@tripillarstudio.com',
-      subject: `AGREEMENT SIGNED — ${agreement.org_name} — ${agreement.license_tier} — ${signedDate}`,
-      html: `
-<html>
-  <body style="font-family: Arial, sans-serif;">
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Ember <ember@tripillarstudio.com>',
+        to: 'wayne@tripillarstudio.com',
+        subject: `AGREEMENT SIGNED — ${agreement.org_name} — ${agreement.license_tier} — ${signedDate}`,
+        html: `<html><body style="font-family:Arial,sans-serif;">
     <p>Organization: <strong>${agreement.org_name}</strong></p>
     <p>Tier: <strong>${agreement.license_tier}</strong></p>
     <p>Signer: <strong>${signer_name}</strong></p>
     <p>Signed: ${signedDate}</p>
-    <p style="margin-top: 20px;"><a href="https://tripillarstudio.com/admin/agreements" style="background: #B8942F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Review in Admin</a></p>
-  </body>
-</html>
-      `,
+    <p style="margin-top:20px;"><a href="https://tripillarstudio.com/admin/agreements" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Review in Admin</a></p>
+    </body></html>`,
+      }),
     });
 
     return NextResponse.json({ ok: true });

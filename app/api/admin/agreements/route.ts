@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateILAPdf } from '@/lib/generate-ila-pdf';
 import { SCHEDULE_A, type ILAData } from '@/lib/ila-template';
-import { Resend } from 'resend';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -11,9 +10,18 @@ const resendKey = process.env.RESEND_API_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceRole);
 
+async function sendEmail(to: string, subject: string, html: string) {
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: 'Ember <ember@tripillarstudio.com>', to, subject, html }),
+  });
+}
+
 function verifyAdminAuth(req: NextRequest): boolean {
   const header = req.headers.get('x-admin-secret');
-  return header === adminSecret;
+  const cookie = req.cookies.get('admin-secret')?.value;
+  return header === adminSecret || cookie === adminSecret;
 }
 
 export async function GET(req: NextRequest) {
@@ -182,42 +190,32 @@ export async function POST(req: NextRequest) {
 
     // Send email to contact
     const signLink = `https://tripillarstudio.com/sign/${agreement_token}`;
-    const resend = new Resend(resendKey);
-    await resend.emails.send({
-      from: 'Ember <ember@tripillarstudio.com>',
-      to: contact_email,
-      subject:
-        'Your Live and Grieve™ License Agreement is ready for review and signature',
-      html: `
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    await sendEmail(contact_email,
+      'Your Live and Grieve™ License Agreement is ready for review and signature',
+      `<html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
     <h2>Live and Grieve™ Institutional License Agreement</h2>
     <p>Dear ${contact_name},</p>
     <p>We are pleased to present your Institutional License Agreement for the Live and Grieve™ grief education program.</p>
-    <div style="background: #F4F1EC; padding: 20px; border-radius: 4px; margin: 20px 0;">
+    <div style="background:#F4F1EC;padding:20px;border-radius:4px;margin:20px 0;">
       <p><strong>Organization:</strong> ${org_name}</p>
       <p><strong>License Tier:</strong> ${license_tier}</p>
       <p><strong>Annual License Fee:</strong> $${license_fee}.00 USD</p>
       <p><strong>License Period:</strong> ${license_start_date} to ${license_renewal_date}</p>
     </div>
-    <p>Please review the attached agreement carefully. When ready, you may sign electronically at the link below. This link will expire in 30 days.</p>
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="${signLink}" style="background: #B8942F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Review and Sign Agreement</a>
+    <p>Please review the agreement carefully and sign electronically at the link below. This link expires in 30 days.</p>
+    <p style="text-align:center;margin:30px 0;">
+      <a href="${signLink}" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Review and Sign Agreement</a>
     </p>
-    <p>If you have any questions, please contact Wayne Simms at wayne@tripillarstudio.com.</p>
+    <p>Questions? Contact Wayne Simms at wayne@tripillarstudio.com.</p>
     <p>Best regards,<br>Tri-Pillars LLC</p>
-  </body>
-</html>
-      `,
-    });
+    </body></html>`
+    );
 
     // Notify Wayne
-    await resend.emails.send({
-      from: 'Ember <ember@tripillarstudio.com>',
-      to: 'wayne@tripillarstudio.com',
-      subject: `Agreement sent — ${org_name} — ${license_tier} — ${today}`,
-      html: `<p>Agreement sent to <strong>${org_name}</strong> (${license_tier}) — ${contact_email}</p>`,
-    });
+    await sendEmail('wayne@tripillarstudio.com',
+      `Agreement sent — ${org_name} — ${license_tier} — ${today}`,
+      `<p>Agreement sent to <strong>${org_name}</strong> (${license_tier}) — ${contact_email}</p>`
+    );
 
     return NextResponse.json({ agreement });
   } catch (err) {
