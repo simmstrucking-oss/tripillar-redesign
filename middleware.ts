@@ -15,22 +15,55 @@ const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
 const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
 
 // ── Helper: verify JWT from cookie ───────────────────────────────────────────
+// Supabase JS v2 stores tokens in chunked cookies:
+//   sb-<ref>-auth-token.0=<chunk0>
+//   sb-<ref>-auth-token.1=<chunk1>
+// or as a single cookie sb-<ref>-auth-token=<value>
+// We must reassemble chunks before parsing.
 async function getSessionUser(req: NextRequest) {
-  // Supabase stores the session in a cookie named 'lg-facilitator-session'
-  // or the default 'sb-<ref>-auth-token'
   const cookieHeader = req.headers.get('cookie') ?? '';
 
-  // Parse all sb-*-auth-token cookies
-  const tokenMatch = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/);
-  if (!tokenMatch) return null;
+  // Collect all cookie key=value pairs
+  const cookies: Record<string, string> = {};
+  for (const part of cookieHeader.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx === -1) continue;
+    const key = part.slice(0, idx).trim();
+    const val = part.slice(idx + 1).trim();
+    cookies[key] = val;
+  }
+
+  // Find the base token cookie name (e.g. "sb-wuwgbdjgsgtsmuctuhpt-auth-token")
+  let rawToken: string | null = null;
+
+  // Try single-cookie format first
+  const singleMatch = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token$/.test(k));
+  if (singleMatch) {
+    rawToken = decodeURIComponent(cookies[singleMatch]);
+  } else {
+    // Try chunked format — reassemble ordered chunks
+    const chunkBase = Object.keys(cookies)
+      .find(k => /^sb-[^.]+?-auth-token\.0$/.test(k))
+      ?.replace(/\.0$/, '');
+    if (chunkBase) {
+      let assembled = '';
+      let i = 0;
+      while (cookies[`${chunkBase}.${i}`] !== undefined) {
+        assembled += decodeURIComponent(cookies[`${chunkBase}.${i}`]);
+        i++;
+      }
+      rawToken = assembled;
+    }
+  }
+
+  if (!rawToken) return null;
 
   let tokenData: { access_token?: string } | null = null;
   try {
-    tokenData = JSON.parse(decodeURIComponent(tokenMatch[1]));
+    tokenData = JSON.parse(rawToken);
   } catch {
-    // Try base64
     try {
-      tokenData = JSON.parse(Buffer.from(tokenMatch[1], 'base64').toString());
+      tokenData = JSON.parse(Buffer.from(rawToken, 'base64').toString());
     } catch {
       return null;
     }
@@ -38,7 +71,6 @@ async function getSessionUser(req: NextRequest) {
 
   if (!tokenData?.access_token) return null;
 
-  // Validate with Supabase
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
