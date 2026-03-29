@@ -1,104 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 // ── Route protection rules ────────────────────────────────────────────────────
-//
-//  /facilitators/login       → public (login page)
-//  /facilitators/hub/*       → requires valid Supabase session (role: facilitator | org_admin)
-//  /org/dashboard            → requires valid session (role: org_admin)
-//  /admin/facilitators       → requires x-admin-secret header OR admin cookie
-//  /api/create-facilitator   → requires x-admin-secret header (handled in route itself)
-
 const PROTECTED_HUB     = /^\/facilitators\/hub(\/|$)/;
 const PROTECTED_ORG_HUB = /^\/org\/(hub|onboarding)(\/|$)/;
 const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
 const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
 
-// ── Helper: decode @supabase/ssr base64url cookie value ──────────────────────
-// createBrowserClient encodes cookie values as "base64-<base64url JSON>"
-function decodeSupabaseCookieValue(raw: string): string {
-  const PREFIX = 'base64-';
-  if (raw.startsWith(PREFIX)) {
-    // Edge Runtime: no Buffer — use atob (base64url → standard base64 first)
-    const b64 = raw.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/');
-    // Pad to multiple of 4
-    const padded = b64 + '=='.slice((b64.length % 4) || 4);
-    try { return atob(padded); } catch { return raw; }
-  }
-  try { return decodeURIComponent(raw); } catch { return raw; }
-}
-
-// ── Helper: verify JWT from cookie ───────────────────────────────────────────
-async function getSessionUser(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie') ?? '';
-
-  const cookies: Record<string, string> = {};
-  for (const part of cookieHeader.split(';')) {
-    const idx = part.indexOf('=');
-    if (idx === -1) continue;
-    cookies[part.slice(0, idx).trim()] = part.slice(idx + 1).trim();
-  }
-
-  let rawJoined: string | null = null;
-
-  // Try single-cookie format first
-  const singleKey = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token$/.test(k));
-  if (singleKey && cookies[singleKey]) {
-    rawJoined = cookies[singleKey];
-  } else {
-    // Try chunked format — reassemble ordered chunks
-    const chunkZeroKey = Object.keys(cookies).find(k => /^sb-[^.]+?-auth-token\.0$/.test(k));
-    if (chunkZeroKey) {
-      const chunkBase = chunkZeroKey.slice(0, -2); // strip ".0"
-      let assembled = '';
-      let i = 0;
-      while (cookies[`${chunkBase}.${i}`] !== undefined) {
-        assembled += cookies[`${chunkBase}.${i}`];
-        i++;
-      }
-      rawJoined = assembled;
-    }
-  }
-
-  if (!rawJoined) return null;
-
-  let tokenData: { access_token?: string } | null = null;
-  try {
-    const decoded = decodeSupabaseCookieValue(rawJoined);
-    tokenData = JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-
-  if (!tokenData?.access_token) return null;
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-
-  const { data, error } = await supabase.auth.getUser(tokenData.access_token);
-  if (error || !data?.user) return null;
-  return data.user;
-}
-
-
-// ── Owner override (hard-coded, immutable) ───────────────────────────────────
+// ── Owner emails (hard-coded, immutable) ─────────────────────────────────────
 const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
 
-async function isOwner(req: NextRequest): Promise<boolean> {
-  const user = await getSessionUser(req);
-  return !!user && OWNER_EMAILS.includes(user.email ?? '');
+// ── getSessionUser via @supabase/ssr createServerClient ──────────────────────
+// This is the official approach — handles chunked cookies + base64url encoding
+// automatically. We pass a mutable response so Supabase can refresh tokens.
+async function getSessionUser(req: NextRequest, res: NextResponse) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            req.cookies.set(name, value);
+            res.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  return user ?? null;
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const res = NextResponse.next();
+
+  // Get session user (handles cookie refresh automatically)
+  const user = await getSessionUser(req, res);
 
   // ── Owner override — unrestricted access ────────────────────────────────
-  if (await isOwner(req)) {
-    const res = NextResponse.next();
+  if (user && OWNER_EMAILS.includes(user.email ?? '')) {
     res.headers.set('x-owner-override', 'true');
     res.headers.set('x-cert-status', 'active');
     res.headers.set('x-user-role', 'admin');
@@ -107,29 +55,27 @@ export async function middleware(req: NextRequest) {
 
   // ── Admin routes ─────────────────────────────────────────────────────────
   if (PROTECTED_ADMIN.test(pathname)) {
-    const adminSecret  = req.headers.get('x-admin-secret');
-    const adminCookie  = req.cookies.get('lg-admin-session')?.value;
-    const validSecret  = process.env.ADMIN_SECRET!;
-
+    const adminSecret = req.headers.get('x-admin-secret');
+    const adminCookie = req.cookies.get('lg-admin-session')?.value;
+    const validSecret = process.env.ADMIN_SECRET!;
     if (adminSecret !== validSecret && adminCookie !== validSecret) {
       return NextResponse.redirect(new URL('/facilitators/login?reason=admin', req.url));
     }
-    return NextResponse.next();
+    return res;
   }
 
   // ── Facilitator hub routes ────────────────────────────────────────────────
   if (PROTECTED_HUB.test(pathname)) {
-    const user = await getSessionUser(req);
     if (!user) {
       return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
     }
-    // Role check — fetch profile role
-    const supabase = createClient(
+    // Fetch profile role via service client
+    const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
-    const { data: profile } = await supabase
+    const { data: profile } = await sb
       .from('facilitator_profiles')
       .select('role, cert_status')
       .eq('user_id', user.id)
@@ -138,49 +84,44 @@ export async function middleware(req: NextRequest) {
     if (!profile) {
       return NextResponse.redirect(new URL('/facilitators/login?reason=no-profile', req.url));
     }
-    // Expired cert → still allow login but add header for hub to show banner
-    const res = NextResponse.next();
     res.headers.set('x-cert-status', profile.cert_status ?? 'unknown');
     res.headers.set('x-user-role', profile.role ?? 'community');
     return res;
   }
 
-  // ── Org hub / onboarding (org_contact role via user_metadata) ─────────────
+  // ── Org hub / onboarding ─────────────────────────────────────────────────
   if (PROTECTED_ORG_HUB.test(pathname)) {
-    const user = await getSessionUser(req);
     if (!user) {
       return NextResponse.redirect(new URL('/org/login?reason=session', req.url));
     }
     if (user.user_metadata?.role !== 'org_contact') {
       return NextResponse.redirect(new URL('/org/login?reason=role', req.url));
     }
-    return NextResponse.next();
+    return res;
   }
 
   // ── Org dashboard ─────────────────────────────────────────────────────────
   if (PROTECTED_ORG.test(pathname)) {
-    const user = await getSessionUser(req);
     if (!user) {
       return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
     }
-    const supabase = createClient(
+    const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
-    const { data: profile } = await supabase
+    const { data: profile } = await sb
       .from('facilitator_profiles')
       .select('role')
       .eq('user_id', user.id)
       .single();
-
     if (!profile || profile.role !== 'org_admin') {
       return NextResponse.redirect(new URL('/facilitators/hub/dashboard', req.url));
     }
-    return NextResponse.next();
+    return res;
   }
 
-  return NextResponse.next();
+  return res;
 }
 
 export const config = {
