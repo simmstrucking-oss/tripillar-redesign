@@ -272,6 +272,64 @@ export default function AdultProgramPage() {
         </div>
       </section>
 
+      {/* Solo Companion CTA */}
+      <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <div className="rounded-2xl bg-card-bg border border-card-border p-10 md:p-16 shadow-sm">
+            <div className="max-w-2xl">
+              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+                The Solo Companion
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-3 leading-snug">
+                Can&apos;t join a group right now?
+              </h2>
+              <p className="text-xl text-muted mb-6 leading-relaxed">
+                Work through Book 1 on your own.
+              </p>
+              <p className="text-muted leading-relaxed mb-8">
+                The Solo Companion is a self-guided digital version of Live
+                and Grieve™ Book 1. 13 weeks. All the curriculum. At your own
+                pace.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 items-start">
+                <a
+                  href="https://solo.tripillarstudio.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
+                >
+                  Start the Solo Companion
+                </a>
+              </div>
+              <p className="text-muted text-sm mt-5">
+                Have a facilitator code?{" "}
+                <span className="text-navy">
+                  Access is included with your group.
+                </span>
+              </p>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* Large Print note */}
+      <div className="pb-4 max-w-6xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <p className="text-muted text-xs text-center">
+            Large Print editions of the Live and Grieve™ participant workbook are available on{" "}
+            <a
+              href="https://www.amazon.com/s?k=live+and+grieve+tri-pillars"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold hover:underline"
+            >
+              Amazon
+            </a>
+            .
+          </p>
+        </FadeIn>
+      </div>
+
       {/* CTA */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn>

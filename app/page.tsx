@@ -28,6 +28,8 @@ const programs = [
     desc: "A year-long, four-book program for adults walking through loss. Weekly small groups, trained facilitators, and a pace that respects where you actually are.",
     href: "/program/adult",
     badge: "52 Weeks",
+    external: false,
+    linkText: "Learn more",
   },
   {
     name: "Live and Grieve Youth™",
@@ -35,6 +37,17 @@ const programs = [
     desc: "13 sessions for children and teens, offered through schools and youth organizations. Two age tracks, designed for how young people actually process grief.",
     href: "/program/youth",
     badge: "13 Sessions",
+    external: false,
+    linkText: "Learn more",
+  },
+  {
+    name: "The Solo Companion",
+    sub: "Self-Guided",
+    desc: "The complete Book 1 experience, self-guided and on your schedule. For individuals who can't access a group or want to begin now.",
+    href: "https://solo.tripillarstudio.com",
+    badge: "13 Weeks, Self-Guided",
+    external: true,
+    linkText: "Begin now",
   },
 ];
 
@@ -237,7 +250,7 @@ export default function HomePage() {
             </div>
           </FadeIn>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {programs.map((p, i) => (
               <FadeIn key={i} delay={i * 100}>
                 <div className="card-hover bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col shadow-sm">
@@ -251,16 +264,41 @@ export default function HomePage() {
                   <p className="text-muted leading-relaxed mb-6 flex-1">
                     {p.desc}
                   </p>
-                  <Link
-                    href={p.href}
-                    className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
-                  >
-                    Learn more <span>→</span>
-                  </Link>
+                  {p.external ? (
+                    <a
+                      href={p.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
+                    >
+                      {p.linkText} <span>→</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={p.href}
+                      className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
+                    >
+                      {p.linkText} <span>→</span>
+                    </Link>
+                  )}
                 </div>
               </FadeIn>
             ))}
           </div>
+          <FadeIn delay={300}>
+            <p className="text-center text-muted text-xs mt-8">
+              Large Print editions of the participant workbook are available on{" "}
+              <a
+                href="https://www.amazon.com/s?k=live+and+grieve+tri-pillars"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold hover:underline"
+              >
+                Amazon
+              </a>
+              .
+            </p>
+          </FadeIn>
         </div>
       </section>
 
