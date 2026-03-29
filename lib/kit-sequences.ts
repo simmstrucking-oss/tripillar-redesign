@@ -22,7 +22,7 @@ export const KIT_SEQUENCES = {
 
   // ── Trainer sequences (create in Kit dashboard, then update IDs) ──
   TRAINER_WELCOME:            2702325,
-  TRAINER_RENEWAL_60:         0,  // TODO: update after Kit dashboard creation
-  TRAINER_RENEWAL_30:         0,  // TODO: update after Kit dashboard creation
-  TRAINER_FEE_REMINDER:       0,  // TODO: update after Kit dashboard creation
+  TRAINER_RENEWAL_60:         2702357,
+  TRAINER_RENEWAL_30:         2702359,
+  TRAINER_FEE_REMINDER:       2702351,
 };
