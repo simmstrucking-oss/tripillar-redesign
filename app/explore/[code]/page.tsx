@@ -225,7 +225,7 @@ export default function ProspectLandingPage({
             <a href="mailto:wayne@tripillarstudio.com" style={{ color: '#B8942F', textDecoration: 'none' }}>
               wayne@tripillarstudio.com
             </a>
-            {' '}}for access.
+            {' for access.'}
           </p>
         </div>
       </div>
