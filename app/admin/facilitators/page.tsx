@@ -118,6 +118,7 @@ const ROLES = [
   { value: 'community',    label: 'Community Track' },
   { value: 'professional', label: 'Professional Track' },
   { value: 'ministry',     label: 'Ministry Track' },
+  { value: 'trainer',      label: 'Trainer' },
   { value: 'org_admin',    label: 'Org Admin' },
 ];
 
@@ -130,6 +131,7 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
   };
   const [form,         setForm]         = useState(empty);
   const [books,        setBooks]        = useState<number[]>([]);
+  const [booksAuth,    setBooksAuth]    = useState<number[]>([]);
   const [addOrg,       setAddOrg]       = useState(false);
   const [newOrgName,   setNewOrgName]   = useState('');
   const [loading,      setLoading]      = useState(false);
@@ -140,6 +142,10 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
 
   function toggleBook(id: number) {
     setBooks(b => b.includes(id) ? b.filter(x => x !== id) : [...b, id]);
+  }
+
+  function toggleBookAuth(id: number) {
+    setBooksAuth(b => b.includes(id) ? b.filter(x => x !== id) : [...b, id]);
   }
 
   function genPassword() {
@@ -181,6 +187,7 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
         track: form.role,
         org_id: orgId || undefined,
         books_certified: books,
+        ...(form.role === 'trainer' ? { books_authorized_to_train: booksAuth } : {}),
       }),
     });
 
@@ -196,6 +203,7 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
       });
       setForm(empty);
       setBooks([]);
+      setBooksAuth([]);
       setNewOrgName('');
       setAddOrg(false);
       onCreated();
@@ -273,6 +281,31 @@ function CreateFacilitatorForm({ orgs, onCreated }: { orgs: Org[]; onCreated: ()
             </div>
           </div>
         </div>
+
+        {/* Trainer: Books Authorized to Train */}
+        {form.role === 'trainer' && (
+          <div style={{ marginBottom: '1rem', padding: '1rem', background: C.goldLt, borderRadius: 8, border: `1px solid ${C.gold}40` }}>
+            <label style={{ ...fieldLabel, color: C.gold }}>Books Authorized to Train *</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: 6 }}>
+              {BOOKS.map(b => (
+                <label key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={booksAuth.includes(b.id)}
+                    onChange={() => toggleBookAuth(b.id)}
+                    style={{ accentColor: C.gold, width: 15, height: 15 }}
+                  />
+                  {b.label}
+                </label>
+              ))}
+            </div>
+            {booksAuth.length === 0 && (
+              <div style={{ marginTop: 6, fontSize: '0.78rem', color: C.warn, fontFamily: 'Inter, sans-serif' }}>
+                ⚠️ Select at least one book for the trainer to be authorized.
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Organization */}
         <div style={{ marginBottom: '1rem' }}>

@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const { email, first_name, last_name, phone, org_id, track, temp_password, books_certified } = body as typeof body & { books_certified?: number[] };
+  const { email, first_name, last_name, phone, org_id, track, temp_password, books_certified, books_authorized_to_train } = body as typeof body & { books_certified?: number[]; books_authorized_to_train?: number[] };
 
   if (!email || !first_name || !last_name || !temp_password) {
     return NextResponse.json(
@@ -168,6 +168,13 @@ export async function POST(req: NextRequest) {
       cert_issued:     new Date().toISOString().split('T')[0],
       cert_renewal:    renewalDate,
       created_at:      new Date().toISOString(),
+      ...(track === 'trainer' ? {
+        books_authorized_to_train: books_authorized_to_train ?? [],
+        trainer_status: 'active',
+        trainer_cert_id: certId,
+        trainer_cert_issued: new Date().toISOString().split('T')[0],
+        trainer_cert_renewal: renewalDate,
+      } : {}),
     });
 
     if (error) {
