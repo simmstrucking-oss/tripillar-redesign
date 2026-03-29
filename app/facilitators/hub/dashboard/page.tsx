@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
+import SignatureField from '@/app/components/SignatureField';
 
 /* ── Fonts ── */
 const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
@@ -59,6 +60,13 @@ interface Profile {
   cert_issued: string; cert_renewal: string; books_certified?: number[];
   kit_subscriber_id?: string; organization_id?: string;
   organizations?: { name: string; type?: string; license_status?: string };
+  status?: string;
+  onboarding_checklist?: Record<string, boolean>;
+  onboarding_complete?: boolean;
+  training_date?: string;
+  training_location?: string;
+  training_confirmed?: boolean;
+  dismissed_orientation?: boolean;
 }
 interface Cohort {
   id: string; book_number: number; start_date: string; end_date?: string;
@@ -3118,6 +3126,348 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
 }
 
 /* ════════════════════════════════════════════════════════════
+   ONBOARDING WELCOME SCREEN (Phase 1)
+═════════════════════════════════════════════════════════════*/
+interface OnboardingState {
+  id: string;
+  status?: string;
+  onboarding_checklist: Record<string, boolean>;
+  onboarding_complete: boolean;
+  training_date: string | null;
+  training_location: string | null;
+  training_confirmed: boolean;
+  dismissed_orientation: boolean;
+  books_certified?: number[];
+}
+
+const CHECKLIST_ITEMS = [
+  { num: 1, label: 'Read the Facilitator Inner Work Guide', hasDoc: true, docDesc: 'Open Document' },
+  { num: 2, label: 'Complete the Grief Inventory from Chapter 1', note: 'You do not submit this. Complete it for yourself before training day.' },
+  { num: 3, label: 'Review your Master Facilitator Manual Week 1', hasFM: true },
+  { num: 4, label: 'Read the Facilitator Code of Conduct', hasDoc: true, docDesc: 'Open Document' },
+  { num: 5, label: 'Sign the Facilitator Code of Conduct', hasSignature: true },
+  { num: 6, label: 'Review the Participant Appropriateness Guide', hasDoc: true, docDesc: 'Open Document' },
+  { num: 7, label: 'Confirm training details', hasTraining: true },
+];
+
+const DOC_PATHS: Record<number, { bucket: string; file: string }> = {
+  1: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Inner_Work_Guide.docx' },
+  4: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Code_of_Conduct.docx' },
+  6: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Participant_Appropriateness_Guide.docx' },
+};
+
+function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
+  onboarding: OnboardingState;
+  onUpdate: (ob: Partial<OnboardingState>) => void;
+  onContinue: () => void;
+}) {
+  const checklist = onboarding.onboarding_checklist ?? {};
+  const [trainingDate, setTrainingDate] = useState(onboarding.training_date ?? '');
+  const [trainingLocation, setTrainingLocation] = useState(onboarding.training_location ?? '');
+  const [trainingUnderstood, setTrainingUnderstood] = useState(onboarding.training_confirmed ?? false);
+  const [savingTraining, setSavingTraining] = useState(false);
+  const [openingDoc, setOpeningDoc] = useState<number | null>(null);
+
+  async function toggleItem(num: number, checked: boolean) {
+    await fetch('/api/hub/onboarding', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ item: num, checked }),
+    });
+    const updated = { ...checklist, [String(num)]: checked };
+    onUpdate({ onboarding_checklist: updated });
+  }
+
+  async function openDoc(itemNum: number) {
+    const doc = DOC_PATHS[itemNum];
+    if (!doc) return;
+    setOpeningDoc(itemNum);
+    try {
+      const res = await fetch(`/api/hub/documents`, { credentials: 'include' });
+      const data = await res.json();
+      const sections = data.sections ?? [];
+      let url: string | null = null;
+      const fileName = doc.file.split('/').pop()!.replace('.docx', '');
+      for (const s of sections) {
+        const found = s.documents?.find((d: { path: string; url: string | null }) =>
+          d.path.includes(fileName)
+        );
+        if (found?.url) { url = found.url; break; }
+      }
+      if (url) window.open(url, '_blank');
+      else alert('Document not available. Please contact wayne@tripillarstudio.com');
+    } catch { alert('Failed to load document.'); }
+    setOpeningDoc(null);
+  }
+
+  async function openFM(bookNum: number) {
+    setOpeningDoc(3);
+    try {
+      const res = await fetch(`/api/hub/documents`, { credentials: 'include' });
+      const data = await res.json();
+      const sections = data.sections ?? [];
+      let url: string | null = null;
+      for (const s of sections) {
+        const found = s.documents?.find((d: { name: string; url: string | null }) =>
+          d.name.toLowerCase().includes(`fm_book_${bookNum}`) || d.name.toLowerCase().includes(`fm${bookNum}`)
+        );
+        if (found?.url) { url = found.url; break; }
+      }
+      if (url) window.open(url, '_blank');
+      else alert('Manual not available yet. Contact wayne@tripillarstudio.com');
+    } catch { alert('Failed to load document.'); }
+    setOpeningDoc(null);
+  }
+
+  async function saveTraining() {
+    if (!trainingDate || !trainingLocation || !trainingUnderstood) return;
+    setSavingTraining(true);
+    const res = await fetch('/api/hub/onboarding', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ training_date: trainingDate, training_location: trainingLocation, training_confirmed: true }),
+    });
+    const data = await res.json();
+    setSavingTraining(false);
+    onUpdate({ training_date: trainingDate, training_location: trainingLocation, training_confirmed: true });
+    if (!checklist['7']) toggleItem(7, true);
+    if (data.onboarding_complete) onUpdate({ onboarding_complete: true });
+  }
+
+  function handleSignSuccess() {
+    toggleItem(5, true);
+  }
+
+  const completedCount = CHECKLIST_ITEMS.filter(i => checklist[String(i.num)]).length;
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '2.5rem 1.25rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.65rem', color: C.navy, margin: '0 0 0.75rem' }}>
+            Welcome to the Live and Grieve™ Facilitator Hub
+          </h1>
+          <p style={{ color: C.muted, fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 560, margin: '0 auto' }}>
+            Before your certification training, there are a few things to complete. This preparation will take approximately 90 minutes and will make your training day significantly more meaningful.
+          </p>
+        </div>
+
+        <div style={{ background: C.goldLt, borderRadius: 8, padding: '0.6rem 1rem', marginBottom: '1.5rem',
+          fontSize: '0.85rem', color: C.gold, fontWeight: 600, textAlign: 'center' }}>
+          {completedCount} of 7 complete
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {CHECKLIST_ITEMS.map(item => {
+            const checked = !!checklist[String(item.num)];
+            return (
+              <div key={item.num} style={{ ...card, marginBottom: 0, opacity: checked ? 0.85 : 1 }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  {!item.hasSignature && !item.hasTraining && (
+                    <input type="checkbox" checked={checked}
+                      onChange={e => toggleItem(item.num, e.target.checked)}
+                      style={{ width: 18, height: 18, marginTop: 2, accentColor: C.gold, flexShrink: 0 }} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, color: C.navy, fontSize: '0.9rem', marginBottom: 4 }}>
+                      {item.num}. {item.label}
+                    </div>
+
+                    {item.note && (
+                      <p style={{ fontSize: '0.8rem', color: C.muted, margin: '4px 0 0', fontStyle: 'italic' }}>
+                        {item.note}
+                      </p>
+                    )}
+
+                    {item.hasDoc && DOC_PATHS[item.num] && (
+                      <button onClick={() => openDoc(item.num)}
+                        disabled={openingDoc === item.num}
+                        style={{ ...btn(C.navy, '#fff', true), marginTop: 8, opacity: openingDoc === item.num ? 0.6 : 1 }}>
+                        {openingDoc === item.num ? 'Loading...' : item.docDesc ?? 'Open Document'}
+                      </button>
+                    )}
+
+                    {item.hasFM && (
+                      <div style={{ marginTop: 8 }}>
+                        {(onboarding.books_certified?.length ?? 0) > 0 ? (
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {onboarding.books_certified!.map(b => (
+                              <button key={b} onClick={() => openFM(b)}
+                                disabled={openingDoc === 3}
+                                style={{ ...btn(C.navy, '#fff', true), opacity: openingDoc === 3 ? 0.6 : 1 }}>
+                                {openingDoc === 3 ? '...' : `Open FM Book ${b}`}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ fontSize: '0.8rem', color: C.warn, margin: 0 }}>
+                            Book assignment pending — contact{' '}
+                            <a href="mailto:wayne@tripillarstudio.com" style={{ color: C.gold }}>wayne@tripillarstudio.com</a>
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {item.hasSignature && (
+                      <div style={{ marginTop: 10 }}>
+                        {checked ? (
+                          <div style={{ color: C.success, fontSize: '0.85rem', fontWeight: 600 }}>
+                            &#10003; Code of Conduct signed
+                          </div>
+                        ) : (
+                          <SignatureField documentName="Facilitator Code of Conduct" onSuccess={handleSignSuccess} />
+                        )}
+                      </div>
+                    )}
+
+                    {item.hasTraining && (
+                      <div style={{ marginTop: 10 }}>
+                        {onboarding.training_confirmed ? (
+                          <div style={{ color: C.success, fontSize: '0.85rem', fontWeight: 600 }}>
+                            &#10003; Training confirmed — {onboarding.training_date}, {onboarding.training_location}
+                          </div>
+                        ) : (
+                          <div style={{ display: 'grid', gap: '0.6rem', maxWidth: 400 }}>
+                            <div>
+                              <label style={fieldLabel}>Training Date</label>
+                              <input type="date" style={inp} value={trainingDate}
+                                onChange={e => setTrainingDate(e.target.value)} />
+                            </div>
+                            <div>
+                              <label style={fieldLabel}>Training Location</label>
+                              <input type="text" style={inp} placeholder="City, State or venue name"
+                                value={trainingLocation}
+                                onChange={e => setTrainingLocation(e.target.value)} />
+                            </div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
+                              <input type="checkbox" checked={trainingUnderstood}
+                                onChange={e => setTrainingUnderstood(e.target.checked)}
+                                style={{ width: 16, height: 16, accentColor: C.gold }} />
+                              I understand what to bring
+                            </label>
+                            <button onClick={saveTraining}
+                              disabled={!trainingDate || !trainingLocation || !trainingUnderstood || savingTraining}
+                              style={{ ...btn(C.gold, '#fff', true),
+                                opacity: (!trainingDate || !trainingLocation || !trainingUnderstood) ? 0.5 : 1,
+                                width: 'fit-content' }}>
+                              {savingTraining ? 'Saving...' : 'Save Training Details'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <button onClick={onContinue}
+            style={{ ...btn(C.navy, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
+            Continue to Hub →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Persistent onboarding banner ── */
+function OnboardingBanner({ checklist }: { checklist: Record<string, boolean> }) {
+  const count = CHECKLIST_ITEMS.filter(i => checklist[String(i.num)]).length;
+  const complete = count === 7;
+
+  if (complete) return null;
+
+  return (
+    <div style={{
+      background: C.goldLt, border: `1px solid ${C.gold}40`, borderRadius: 8,
+      padding: '0.75rem 1.1rem', marginBottom: '1.25rem',
+      fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.gold, fontWeight: 600,
+    }}>
+      Pre-training preparation: {count} of 7 complete
+    </div>
+  );
+}
+
+/* ── Orientation Panel (Phase 2) ── */
+function OrientationPanel({ onDismiss }: { onDismiss: () => void }) {
+  const [dismissing, setDismissing] = useState(false);
+
+  async function dismiss() {
+    setDismissing(true);
+    await fetch('/api/hub/onboarding', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ dismissed_orientation: true }),
+    });
+    setDismissing(false);
+    onDismiss();
+  }
+
+  return (
+    <div style={{
+      background: C.white, border: `1px solid ${C.gold}40`, borderRadius: 10,
+      padding: '1.25rem 1.5rem', marginBottom: '1.25rem',
+      borderLeft: `4px solid ${C.gold}`,
+    }}>
+      <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', color: C.navy, margin: '0 0 0.75rem' }}>
+        Welcome to your Hub
+      </h3>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.75 }}>
+        <p style={{ margin: '0 0 0.5rem' }}>Here is everything you need to know:</p>
+        <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
+          <li><strong>Library tab:</strong> your Master Facilitator Manual and Reference Guide are here. Additional documents unlock as you complete certification for each book.</li>
+          <li><strong>Forms tab:</strong> submit incident reports, session feedback, reflections, and cohort summaries digitally. All submissions are logged.</li>
+          <li><strong>Get Support tab:</strong> send a consultation request directly to Wayne and Jamie any time.</li>
+          <li>Your reflections are private. Everything else is logged for program records.</li>
+          <li>Questions? Use the Get Support tab.</li>
+        </ul>
+      </div>
+      <button onClick={dismiss} disabled={dismissing}
+        style={{ ...btn(C.bg, C.navy, true), border: `1px solid ${C.border}` }}>
+        {dismissing ? 'Dismissing...' : 'Dismiss'}
+      </button>
+    </div>
+  );
+}
+
+/* ── Certification Acknowledgment section ── */
+function CertAcknowledgmentCard() {
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Certification Acknowledgment</h2>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted, lineHeight: 1.6, margin: '0 0 1rem' }}>
+        By signing below, you acknowledge that you have completed the certification requirements for the Live and Grieve™ Facilitator program and agree to uphold program standards.
+      </p>
+      <SignatureField documentName="Certification Acknowledgment" />
+    </div>
+  );
+}
+
+/* ── Group Use License section ── */
+function GroupUseLicenseCard() {
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Group Use License</h2>
+      <div style={{
+        background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8,
+        padding: '1rem 1.25rem', marginBottom: '1rem',
+        fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.7,
+      }}>
+        I agree to use Live and Grieve™ materials only within my certified facilitator role, not to reproduce or redistribute materials without written permission from Tri-Pillars LLC, and to follow the Facilitator Code of Conduct at all times.
+      </div>
+      <SignatureField documentName="Group Use License" />
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
 type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections';
@@ -3138,22 +3488,38 @@ export default function HubDashboard() {
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState('');
 
+  /* ── Onboarding state ── */
+  const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [dismissedOrientation, setDismissedOrientation] = useState(false);
+
   const loadHub = useCallback(async () => {
-    const [profRes, cohortsRes] = await Promise.all([
+    const [profRes, cohortsRes, obRes] = await Promise.all([
       fetch('/api/hub/profile'),
       fetch('/api/hub/cohorts'),
+      fetch('/api/hub/onboarding'),
     ]);
 
     if (profRes.status === 401) { router.replace('/facilitators/login?reason=session'); return; }
 
-    const [profData, cohortData] = await Promise.all([
-      profRes.json(), cohortsRes.json(),
+    const [profData, cohortData, obData] = await Promise.all([
+      profRes.json(), cohortsRes.json(), obRes.json(),
     ]);
 
     if (profData.profile)           setProfile(profData.profile);
     else                            setError(profData.error ?? 'Failed to load profile');
     if (cohortData.cohorts)         setCohorts(cohortData.cohorts);
     if (cohortData.announcements)   setAnnouncements(cohortData.announcements);
+
+    if (obData.onboarding) {
+      const ob = obData.onboarding;
+      setOnboarding(ob);
+      setDismissedOrientation(!!ob.dismissed_orientation);
+      // Show welcome screen for pending_certification who haven't completed onboarding
+      if (ob.status === 'pending_certification' && !ob.onboarding_complete) {
+        setShowWelcome(true);
+      }
+    }
 
     setLoading(false);
   }, [router]);
@@ -3163,6 +3529,10 @@ export default function HubDashboard() {
   async function logout() {
     await getSupabaseBrowser().auth.signOut();
     router.replace('/facilitators/login');
+  }
+
+  function updateOnboarding(partial: Partial<OnboardingState>) {
+    setOnboarding(prev => prev ? { ...prev, ...partial } : prev);
   }
 
   if (loading) return (
@@ -3184,9 +3554,47 @@ export default function HubDashboard() {
     </div>
   );
 
+  /* ── Show welcome screen if applicable ── */
+  if (showWelcome && onboarding && !onboarding.onboarding_complete) {
+    return (
+      <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href={FONT_LINK} rel="stylesheet" />
+
+        <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, sans-serif' }}>
+          {/* Topbar */}
+          <div style={{ background: C.navy, height: 58, display: 'flex', alignItems: 'center',
+            justifyContent: 'space-between', padding: '0 1.25rem' }}>
+            <span style={{ fontFamily: 'Playfair Display, serif', color: C.gold,
+              fontWeight: 700, fontSize: '1.05rem' }}>Live and Grieve™</span>
+            <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>Log out</button>
+          </div>
+          <OnboardingWelcome
+            onboarding={onboarding}
+            onUpdate={updateOnboarding}
+            onContinue={() => setShowWelcome(false)}
+          />
+        </div>
+      </>
+    );
+  }
+
   const TAB_LABELS: Record<Tab, string> = {
     overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log',
   };
+
+  /* ── Determine if orientation panel should show ── */
+  const isPending = profile.cert_status === 'pending_certification';
+  const isCertified = profile.cert_status === 'active' || profile.cert_status === 'certified';
+  const showOrientation = !dismissedOrientation && (
+    (isPending && onboarding?.onboarding_complete) || (isCertified)
+  );
+
+  /* ── Onboarding banner: show if pending + not all 7 done ── */
+  const obChecklist = onboarding?.onboarding_checklist ?? {};
+  const showBanner = isPending && !onboarding?.onboarding_complete;
 
   return (
     <>
@@ -3239,13 +3647,36 @@ export default function HubDashboard() {
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '1.5rem 1.25rem' }}>
           <CertBanner status={profile.cert_status} renewal={profile.cert_renewal} />
 
+          {/* Onboarding banner */}
+          {showBanner && <OnboardingBanner checklist={obChecklist} />}
+
+          {/* Onboarding complete banner */}
+          {onboarding?.onboarding_complete && isPending && (
+            <div style={{ background: C.success + '12', border: `1px solid ${C.success}40`, borderRadius: 8,
+              padding: '0.85rem 1.1rem', marginBottom: '1.25rem', fontSize: '0.875rem',
+              fontWeight: 500, color: C.success, fontFamily: 'Inter, sans-serif' }}>
+              Pre-training preparation complete. Your training day is going to be great. ✓
+            </div>
+          )}
+
+          {/* Orientation Panel (Phase 2) */}
+          {showOrientation && (
+            <OrientationPanel onDismiss={() => setDismissedOrientation(true)} />
+          )}
+
           {tab === 'overview' && (
             <>
               <AnnouncementsCard announcements={announcements} />
               <CertCard profile={profile} />
+              <CertAcknowledgmentCard />
             </>
           )}
-          {tab === 'documents' && <DocumentsLibrary profile={profile} />}
+          {tab === 'documents' && (
+            <>
+              <DocumentsLibrary profile={profile} />
+              <GroupUseLicenseCard />
+            </>
+          )}
           {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} profile={profile} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
           {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}

@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   // Also ensure Vercel traces pdfkit's data files into the deployment
   outputFileTracingIncludes: {
     "/api/reports/generate": ["./node_modules/pdfkit/js/data/**"],
+    "/api/hub/sign": ["./node_modules/pdfkit/js/data/**"],
   },
 };
 
