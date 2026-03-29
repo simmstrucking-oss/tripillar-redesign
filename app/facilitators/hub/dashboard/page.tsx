@@ -2709,9 +2709,228 @@ function IncidentTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[]
 }
 
 /* ════════════════════════════════════════════════════════════
+   REFLECTION LOG TAB  —  Private to facilitator, no admin access
+═════════════════════════════════════════════════════════════*/
+interface Reflection {
+  id: string; cohort_id?: string; session_number?: number;
+  went_well?: string; challenges?: string; concerns?: string;
+  self_care?: boolean; submitted_at: string;
+}
+
+function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }) {
+  const activeCohorts = cohorts.filter(c => c.status === 'active' || c.status === 'in_progress');
+  const [submitting, setSubmitting] = useState(false);
+  const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [reflections, setReflections] = useState<Reflection[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [form, setForm] = useState({
+    cohort_id: '', session_number: '', went_well: '', challenges: '', concerns: '', self_care: false,
+  });
+  const set = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }));
+
+  const loadReflections = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch(`/api/hub/reflections?facilitator_id=${profile.id}`);
+      const data = await res.json();
+      if (res.ok) setReflections(data.reflections ?? []);
+    } catch { /* silent */ }
+    setLoadingHistory(false);
+  }, [profile.id]);
+
+  useEffect(() => { loadReflections(); }, [loadReflections]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true); setMsg(null);
+    try {
+      const res = await fetch('/api/hub/reflections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facilitator_id: profile.id,
+          cohort_id: form.cohort_id || null,
+          session_number: form.session_number ? Number(form.session_number) : null,
+          went_well: form.went_well || null,
+          challenges: form.challenges || null,
+          concerns: form.concerns || null,
+          self_care: form.self_care,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMsg({ text: 'Reflection saved.', ok: true });
+        setForm({ cohort_id: '', session_number: '', went_well: '', challenges: '', concerns: '', self_care: false });
+        loadReflections();
+      } else {
+        setMsg({ text: data.error ?? 'Submission failed.', ok: false });
+      }
+    } catch {
+      setMsg({ text: 'Network error. Please try again.', ok: false });
+    }
+    setSubmitting(false);
+  }
+
+  function toggleExpand(id: string) {
+    setExpanded(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  return (
+    <div>
+      {/* Privacy banner */}
+      <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10,
+        padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <span style={{ fontSize: '1.25rem' }}>🔒</span>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#3730A3', fontWeight: 600 }}>
+          Your reflections are private. Wayne cannot see them.
+        </span>
+      </div>
+
+      {/* Form */}
+      <div style={card}>
+        <h2 style={sectionTitle}>New Reflection</h2>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <label style={fieldLabel}>Cohort</label>
+              <select style={inp} value={form.cohort_id} onChange={e => set('cohort_id', e.target.value)}>
+                <option value="">— Select Cohort (optional) —</option>
+                {activeCohorts.map(c => (
+                  <option key={c.id} value={c.id}>Book {c.book_number} — {BOOKS_MAP[c.book_number] ?? ''} ({c.start_date})</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={fieldLabel}>Session Number</label>
+              <select style={inp} value={form.session_number} onChange={e => set('session_number', e.target.value)}>
+                <option value="">— Select (optional) —</option>
+                {Array.from({ length: 13 }, (_, i) => i + 1).map(n => (
+                  <option key={n} value={n}>Session {n}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>What Went Well</label>
+            <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+              value={form.went_well} onChange={e => set('went_well', e.target.value)}
+              placeholder="What worked well in this session…" />
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>What Was Challenging</label>
+            <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+              value={form.challenges} onChange={e => set('challenges', e.target.value)}
+              placeholder="Any difficulties or areas for growth…" />
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>Any Participant Concerns to Monitor</label>
+            <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+              value={form.concerns} onChange={e => set('concerns', e.target.value)}
+              placeholder="Participants who may need extra attention…" />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy }}>
+              <input type="checkbox" checked={form.self_care}
+                onChange={e => set('self_care', e.target.checked)}
+                style={{ width: 18, height: 18, accentColor: C.gold }} />
+              Self-care practice completed this week
+            </label>
+          </div>
+
+          {msg && (
+            <p style={{ fontSize: '0.85rem', fontFamily: 'Inter, sans-serif', fontWeight: 500,
+              color: msg.ok ? C.success : C.danger, margin: '0 0 0.75rem' }}>
+              {msg.text}
+            </p>
+          )}
+
+          <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
+            {submitting ? 'Saving…' : 'Save Reflection'}
+          </button>
+        </form>
+      </div>
+
+      {/* History */}
+      <div style={card}>
+        <h2 style={sectionTitle}>Your Reflection History</h2>
+        {loadingHistory ? (
+          <p style={{ color: C.muted, fontSize: '0.85rem', fontFamily: 'Inter, sans-serif' }}>Loading…</p>
+        ) : reflections.length === 0 ? (
+          <p style={{ color: C.muted, fontSize: '0.85rem', fontFamily: 'Inter, sans-serif' }}>No reflections yet.</p>
+        ) : (
+          <div>
+            {reflections.map(r => {
+              const date = new Date(r.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+              const isOpen = expanded.has(r.id);
+              const preview = r.went_well ? (r.went_well.length > 100 ? r.went_well.slice(0, 100) + '…' : r.went_well) : '—';
+              return (
+                <div key={r.id} style={{ borderBottom: `1px solid ${C.border}`, padding: '0.75rem 0' }}>
+                  <div onClick={() => toggleExpand(r.id)}
+                    style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.muted }}>{date}</span>
+                      {r.session_number != null && (
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.navy, marginLeft: '0.75rem', fontWeight: 600 }}>
+                          Session {r.session_number}
+                        </span>
+                      )}
+                      {!isOpen && (
+                        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, margin: '0.25rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {preview}
+                        </p>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: C.muted, flexShrink: 0 }}>{isOpen ? '▲' : '▼'}</span>
+                  </div>
+                  {isOpen && (
+                    <div style={{ marginTop: '0.5rem', paddingLeft: '0.25rem' }}>
+                      {r.went_well && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <span style={{ ...fieldLabel, marginBottom: 2 }}>Went Well</span>
+                          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, margin: 0, whiteSpace: 'pre-wrap' }}>{r.went_well}</p>
+                        </div>
+                      )}
+                      {r.challenges && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <span style={{ ...fieldLabel, marginBottom: 2 }}>Challenges</span>
+                          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, margin: 0, whiteSpace: 'pre-wrap' }}>{r.challenges}</p>
+                        </div>
+                      )}
+                      {r.concerns && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <span style={{ ...fieldLabel, marginBottom: 2 }}>Concerns</span>
+                          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, margin: 0, whiteSpace: 'pre-wrap' }}>{r.concerns}</p>
+                        </div>
+                      )}
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: r.self_care ? C.success : C.muted, margin: '0.25rem 0 0' }}>
+                        Self-care: {r.self_care ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -2779,7 +2998,7 @@ export default function HubDashboard() {
   );
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log',
   };
 
   return (
@@ -2818,7 +3037,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes', 'feedback', 'reports', 'support', 'incident'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'feedback', 'reports', 'support', 'incident', 'reflections'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -2846,6 +3065,7 @@ export default function HubDashboard() {
           {tab === 'reports'   && <ReportsTab profile={profile} />}
           {tab === 'support'  && <SupportTab />}
           {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
+          {tab === 'reflections' && <ReflectionTab profile={profile} cohorts={cohorts} />}
         </div>
       </div>
     </>
