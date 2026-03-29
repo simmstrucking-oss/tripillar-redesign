@@ -2285,7 +2285,7 @@ function SupportTab() {
                     Week/Session: {r.week_number}
                   </p>
                 )}
-                <p style={{ fontSize: '0.85rem', color: C.charcoal, marginBottom: '0.5rem',
+                <p style={{ fontSize: '0.85rem', color: C.navy, marginBottom: '0.5rem',
                   lineHeight: 1.5 }}>{r.description}</p>
                 <p style={{ fontSize: '0.75rem', color: C.muted }}>
                   {new Date(r.created_at).toLocaleDateString('en-US', {
