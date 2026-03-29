@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 //  /api/create-facilitator   → requires x-admin-secret header (handled in route itself)
 
 const PROTECTED_HUB     = /^\/facilitators\/hub(\/|$)/;
+const PROTECTED_ORG_HUB = /^\/org\/(hub|onboarding)(\/|$)/;
 const PROTECTED_ORG     = /^\/org\/dashboard(\/|$)/;
 const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
 
@@ -93,6 +94,18 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  // ── Org hub / onboarding (org_contact role via user_metadata) ─────────────
+  if (PROTECTED_ORG_HUB.test(pathname)) {
+    const user = await getSessionUser(req);
+    if (!user) {
+      return NextResponse.redirect(new URL('/org/login?reason=session', req.url));
+    }
+    if (user.user_metadata?.role !== 'org_contact') {
+      return NextResponse.redirect(new URL('/org/login?reason=role', req.url));
+    }
+    return NextResponse.next();
+  }
+
   // ── Org dashboard ─────────────────────────────────────────────────────────
   if (PROTECTED_ORG.test(pathname)) {
     const user = await getSessionUser(req);
@@ -122,6 +135,8 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/facilitators/hub/:path*',
+    '/org/hub/:path*',
+    '/org/onboarding/:path*',
     '/org/dashboard/:path*',
     '/admin/facilitators/:path*',
   ],
