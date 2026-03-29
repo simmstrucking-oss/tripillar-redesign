@@ -50,9 +50,27 @@ async function getSessionUser(req: NextRequest) {
   return data.user;
 }
 
+
+// ── Owner override (hard-coded, immutable) ───────────────────────────────────
+const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
+
+async function isOwner(req: NextRequest): Promise<boolean> {
+  const user = await getSessionUser(req);
+  return !!user && OWNER_EMAILS.includes(user.email ?? '');
+}
+
 // ── Middleware ────────────────────────────────────────────────────────────────
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // ── Owner override — unrestricted access ────────────────────────────────
+  if (await isOwner(req)) {
+    const res = NextResponse.next();
+    res.headers.set('x-owner-override', 'true');
+    res.headers.set('x-cert-status', 'active');
+    res.headers.set('x-user-role', 'admin');
+    return res;
+  }
 
   // ── Admin routes ─────────────────────────────────────────────────────────
   if (PROTECTED_ADMIN.test(pathname)) {

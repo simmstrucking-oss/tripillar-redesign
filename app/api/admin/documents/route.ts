@@ -9,6 +9,12 @@ function isAdmin(req: NextRequest) {
 
 const BUCKETS = ['facilitator-documents', 'admin-documents', 'restricted-documents'] as const;
 
+
+// Owner bypass
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
+
 export async function GET(req: NextRequest) {
   if (!isAdmin(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

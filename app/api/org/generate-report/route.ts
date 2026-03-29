@@ -30,6 +30,12 @@ async function getCallerOrgId(req: NextRequest): Promise<string | null> {
   return profile.organization_id ?? null;
 }
 
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const { org_id, date_from, date_to } = body;

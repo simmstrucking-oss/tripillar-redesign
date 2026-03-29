@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -16,7 +22,7 @@ export async function GET(
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.user_metadata?.role !== 'org_contact') {
+  if (!user || (!isOwnerEmail(user.email) && user.user_metadata?.role !== 'org_contact')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

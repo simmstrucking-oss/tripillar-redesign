@@ -36,6 +36,12 @@ function sb() {
 // Returns: org, facilitators (with cohort counts), aggregate stats, announcements
 // Security: caller must be a facilitator with role=org_admin AND have an organization_id.
 //           All data is scoped to that exact organization_id — never trusts a query param.
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
+
 export async function GET(req: NextRequest) {
   const user = await getUser(req);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

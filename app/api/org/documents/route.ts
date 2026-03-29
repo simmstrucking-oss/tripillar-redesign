@@ -20,7 +20,7 @@ async function getOrgUser(req: NextRequest) {
   );
   const { data, error } = await sb.auth.getUser(token);
   if (error || !data?.user) return null;
-  if (data.user.user_metadata?.role !== 'org_contact') return null;
+  if (!isOwnerEmail(data.user.email) && data.user.user_metadata?.role !== 'org_contact') return null;
   return data.user;
 }
 
@@ -30,6 +30,12 @@ const FILE_LOCATIONS: Record<string, { bucket: string; prefix: string; patterns:
   'program-overview':     { bucket: 'facilitator-documents',  prefix: '01_PROGRAM',  patterns: ['Program_Overview'] },
   'appropriateness-guide':{ bucket: 'facilitator-documents',  prefix: '01_PROGRAM',  patterns: ['Appropriateness'] },
 };
+
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
 
 export async function GET(req: NextRequest) {
   const user = await getOrgUser(req);

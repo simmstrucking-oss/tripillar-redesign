@@ -29,6 +29,12 @@ function esc(v: unknown): string {
 
 // GET /api/org/export — returns CSV of all facilitators in the caller's org
 // Security: same org_admin + organization_id check as /api/org/dashboard
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
+}
+
 export async function GET(req: NextRequest) {
   const user = await getUser(req);
   if (!user) return new NextResponse('Unauthorized', { status: 401 });

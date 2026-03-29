@@ -20,7 +20,7 @@ async function getOrgUser(req: NextRequest) {
   );
   const { data, error } = await sb.auth.getUser(token);
   if (error || !data?.user) return null;
-  if (data.user.user_metadata?.role !== 'org_contact') return null;
+  if (!isOwnerEmail(data.user.email) && data.user.user_metadata?.role !== 'org_contact') return null;
   return data.user;
 }
 
@@ -30,6 +30,12 @@ function sb() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
+}
+
+
+// Owner override: wayne@ and jamie@ bypass all role/permission checks
+function isOwnerEmail(email: string | undefined): boolean {
+  return email === 'wayne@tripillarstudio.com' || email === 'jamie@tripillarstudio.com';
 }
 
 export async function GET(req: NextRequest) {
