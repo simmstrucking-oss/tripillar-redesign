@@ -3,11 +3,13 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const REASON_MESSAGES: Record<string, string> = {
-  session:    'Your session has expired. Please log in again.',
+  session:      'Your session has expired. Please sign in again.',
   'no-profile': 'Account setup incomplete. Contact wayne@tripillarstudio.com.',
-  admin:      'Admin access required.',
+  admin:        'Admin access required.',
 };
 
 function LoginForm() {
@@ -21,7 +23,6 @@ function LoginForm() {
   const [loading,  setLoading]  = useState(false);
 
   useEffect(() => {
-    // If already logged in, redirect to hub
     const supabase = getSupabaseBrowser();
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.replace('/facilitators/hub/dashboard');
@@ -32,146 +33,138 @@ function LoginForm() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     const supabase = getSupabaseBrowser();
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
     if (authError) {
       setError(authError.message);
       setLoading(false);
       return;
     }
-
     router.replace('/facilitators/hub/dashboard');
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f8f6f2',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Inter', sans-serif",
-      padding: '2rem',
-    }}>
-      <div style={{
-        backgroundColor: '#fff',
-        borderRadius: '8px',
-        padding: '2.5rem',
-        width: '100%',
-        maxWidth: '420px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-      }}>
-        {/* Logo area */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.5rem', color: '#2D3142', fontWeight: 700, margin: 0 }}>
-            Live and Grieve™
-          </h1>
-          <p style={{ color: '#6b7280', marginTop: '0.25rem', fontSize: '0.9rem' }}>
-            Facilitator Portal
+    <div className="min-h-screen bg-[#F8F4EE] flex flex-col">
+
+      {/* Top bar */}
+      <div className="w-full px-6 py-4 flex items-center">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <Image src="/logo.png" alt="Live and Grieve" width={24} height={36} className="h-8 w-auto" />
+          <span className="font-serif text-lg font-bold text-navy group-hover:text-gold transition-colors">
+            Tri&#8209;Pillars<sup className="text-xs text-gold">™</sup>
+          </span>
+        </Link>
+      </div>
+
+      {/* Center card */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+              style={{ background: 'rgba(160,132,58,0.12)' }}>
+              {/* Person/facilitator icon */}
+              <svg className="w-7 h-7" style={{ color: '#A0843A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h1 className="font-serif text-2xl font-bold text-navy">Facilitator Portal</h1>
+            <p className="text-muted text-sm mt-1">Live and Grieve™ Certified Facilitators</p>
+          </div>
+
+          {/* Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-card-border p-8">
+
+            {/* Reason banner */}
+            {reason && REASON_MESSAGES[reason] && (
+              <div className="mb-6 px-4 py-3 rounded-lg text-sm"
+                style={{ background: '#FEF3C7', border: '1px solid #F59E0B', color: '#92400E' }}>
+                {REASON_MESSAGES[reason]}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-navy mb-1.5">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className="w-full px-4 py-2.5 rounded-lg border border-card-border text-sm text-navy placeholder-muted/50
+                    focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors bg-white"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-navy">Password</label>
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 rounded-lg border border-card-border text-sm text-navy placeholder-muted/50
+                    focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors bg-white"
+                />
+              </div>
+
+              {error && (
+                <div className="px-4 py-3 rounded-lg text-sm"
+                  style={{ background: '#FEE2E2', border: '1px solid #EF4444', color: '#991B1B' }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-lg text-sm font-semibold transition-all mt-2"
+                style={{
+                  background: loading ? '#9CA3AF' : '#A0843A',
+                  color: '#F8F4EE',
+                  letterSpacing: '0.02em',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: loading ? 'none' : '0 1px 3px rgba(160,132,58,0.3)',
+                }}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Signing in…
+                  </span>
+                ) : 'Sign In'}
+              </button>
+            </form>
+          </div>
+
+          {/* Footer note */}
+          <p className="text-center text-xs text-muted mt-6">
+            Issues accessing your account?{' '}
+            <a href="mailto:wayne@tripillarstudio.com"
+              className="text-navy underline underline-offset-2 hover:text-gold transition-colors">
+              Contact us
+            </a>
           </p>
         </div>
+      </div>
 
-        {/* Reason banner */}
-        {reason && REASON_MESSAGES[reason] && (
-          <div style={{
-            backgroundColor: '#fef3c7',
-            border: '1px solid #f59e0b',
-            borderRadius: '4px',
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
-            fontSize: '0.875rem',
-            color: '#92400e',
-          }}>
-            {REASON_MESSAGES[reason]}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', color: '#374151', marginBottom: '0.25rem', fontWeight: 500 }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              style={{
-                width: '100%',
-                padding: '0.625rem 0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', color: '#374151', marginBottom: '0.25rem', fontWeight: 500 }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              style={{
-                width: '100%',
-                padding: '0.625rem 0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          {error && (
-            <div style={{
-              backgroundColor: '#fee2e2',
-              border: '1px solid #ef4444',
-              borderRadius: '4px',
-              padding: '0.75rem 1rem',
-              marginBottom: '1rem',
-              fontSize: '0.875rem',
-              color: '#991b1b',
-            }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              backgroundColor: loading ? '#9ca3af' : '#2D3142',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '0.75rem',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {loading ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
-
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>
-          Issues logging in?{' '}
-          <a href="mailto:wayne@tripillarstudio.com" style={{ color: '#2D3142' }}>
-            Contact us
-          </a>
-        </p>
+      {/* Page footer */}
+      <div className="text-center pb-6 text-xs text-muted/50">
+        Tri-Pillars Studio™ · Live and Grieve™
       </div>
     </div>
   );
