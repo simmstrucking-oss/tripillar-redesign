@@ -63,6 +63,19 @@ export async function GET(req: NextRequest) {
       .gte('created_at', weekStart.toISOString());
     const purchaseCount = (newPurchases ?? []).length;
 
+    // 6. Session feedback submissions this week
+    const { data: weekFeedback } = await sb
+      .from('session_feedback_submissions')
+      .select('id, avg_satisfaction, cohort_id, session_number')
+      .gte('submitted_at', weekStart.toISOString())
+      .lte('submitted_at', now.toISOString());
+    const feedbackCount = (weekFeedback ?? []).length;
+    const ratedFeedback = (weekFeedback ?? []).filter(f => f.avg_satisfaction != null);
+    const avgSatisfaction = ratedFeedback.length > 0
+      ? Math.round((ratedFeedback.reduce((s, f) => s + Number(f.avg_satisfaction), 0) / ratedFeedback.length) * 10) / 10
+      : null;
+    const lowSatisfaction = (weekFeedback ?? []).filter(f => f.avg_satisfaction != null && Number(f.avg_satisfaction) < 3);
+
     // Build email
     const incidentRows = incidents.length > 0
       ? `<tr><td style="padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;" colspan="2">
@@ -115,6 +128,22 @@ export async function GET(req: NextRequest) {
       <h3 style="font-family:Georgia,serif;font-size:15px;color:#2D3142;margin:0 0 8px;">New Organizations (${(newOrgs ?? []).length})</h3>
       <ul style="margin:0 0 20px;padding-left:18px;">${newOrgRows}</ul>
 
+      <h3 style="font-family:Georgia,serif;font-size:15px;color:#2D3142;margin:0 0 8px;">Session Feedback Summary</h3>
+      <div style="margin:0 0 20px;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;">
+        <div style="font-size:13px;color:#4a5568;line-height:1.8;">
+          <strong>${feedbackCount}</strong> feedback submission${feedbackCount !== 1 ? 's' : ''} this week<br>
+          ${avgSatisfaction != null
+            ? `Average satisfaction: <strong style="color:${avgSatisfaction < 3 ? '#dc2626' : avgSatisfaction >= 4 ? '#16a34a' : '#2D3142'}">${avgSatisfaction}</strong> / 5`
+            : 'No satisfaction ratings submitted'}
+        </div>
+        ${lowSatisfaction.length > 0
+          ? `<div style="margin-top:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:4px;">
+              <strong style="color:#dc2626;font-size:13px;">⚠️ Needs Attention (${lowSatisfaction.length})</strong><br>
+              <span style="font-size:12px;color:#7f1d1d;">${lowSatisfaction.map(f => `Session ${f.session_number} (cohort ${f.cohort_id?.slice(0, 8)}…) — rated ${f.avg_satisfaction}`).join('<br>')}</span>
+            </div>`
+          : ''}
+      </div>
+
       <div style="margin-top:24px;padding:14px 18px;background:#f9f7f4;border-left:3px solid #B8942F;border-radius:0 6px 6px 0;">
         <a href="https://www.tripillarstudio.com/admin/dashboard"
            style="color:#B8942F;font-size:13px;font-weight:600;text-decoration:none;">
@@ -148,6 +177,9 @@ export async function GET(req: NextRequest) {
       critical_incidents: incidents.length,
       new_facilitators: newFacsCount,
       solo_purchases: purchaseCount,
+      feedback_submissions: feedbackCount,
+      avg_satisfaction: avgSatisfaction,
+      low_satisfaction_sessions: lowSatisfaction.length,
     });
 
   } catch (err) {

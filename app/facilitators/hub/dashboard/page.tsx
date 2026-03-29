@@ -913,6 +913,7 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
   const [expandedId,  setExpandedId]  = useState<string | null>(null);
   const [sessionLogs, setSessionLogs] = useState<Record<string, SessionLog[]>>({});
   const [outcomes,    setOutcomes]    = useState<Record<string, CohortOutcome>>({});
+  const [feedbackData, setFeedbackData] = useState<Record<string, { session_number: number; participants_present: number; forms_collected: number; avg_satisfaction: number | null }[]>>({});
   const [form, setForm] = useState({
     book_number: '', start_date: '', end_date: '',
     participant_count: '', notes: '',
@@ -920,9 +921,10 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   async function loadCohortData(cohortId: string) {
-    const [logsRes, outcomeRes] = await Promise.all([
+    const [logsRes, outcomeRes, feedbackRes] = await Promise.all([
       fetch(`/api/hub/session-logs?cohort_id=${cohortId}`),
       fetch(`/api/hub/cohort-outcomes?cohort_id=${cohortId}`),
+      fetch(`/api/hub/session-feedback?cohort_id=${cohortId}`),
     ]);
     if (logsRes.ok) {
       const d = await logsRes.json();
@@ -931,6 +933,10 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
     if (outcomeRes.ok) {
       const d = await outcomeRes.json();
       if (d.outcome) setOutcomes(prev => ({ ...prev, [cohortId]: d.outcome }));
+    }
+    if (feedbackRes.ok) {
+      const d = await feedbackRes.json();
+      setFeedbackData(prev => ({ ...prev, [cohortId]: d.feedback ?? [] }));
     }
   }
 
@@ -1029,6 +1035,7 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
                   onToggle={() => toggleExpand(c.id)}
                   logs={sessionLogs[c.id] ?? null}
                   outcome={outcomes[c.id]}
+                  feedback={feedbackData[c.id] ?? null}
                   onDataSaved={() => loadCohortData(c.id)}
                 />
               ))}
@@ -1045,6 +1052,7 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
                   onToggle={() => toggleExpand(c.id)}
                   logs={sessionLogs[c.id] ?? null}
                   outcome={outcomes[c.id]}
+                  feedback={feedbackData[c.id] ?? null}
                   onDataSaved={() => loadCohortData(c.id)}
                 />
               ))}
@@ -1057,9 +1065,11 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
 }
 
 /* ── Expandable cohort row with all 3 sub-sections ── */
-function CohortExpandRow({ c, expanded, onToggle, logs, outcome, onDataSaved }: {
+function CohortExpandRow({ c, expanded, onToggle, logs, outcome, feedback, onDataSaved }: {
   c: Cohort; expanded: boolean; onToggle: () => void;
-  logs: SessionLog[] | null; outcome?: CohortOutcome; onDataSaved: () => void;
+  logs: SessionLog[] | null; outcome?: CohortOutcome;
+  feedback: { session_number: number; participants_present: number; forms_collected: number; avg_satisfaction: number | null }[] | null;
+  onDataSaved: () => void;
 }) {
   const logsLogged   = (logs ?? []).length;
   const hasIncident  = (logs ?? []).some(l => l.critical_incident);
@@ -1182,6 +1192,56 @@ function CohortExpandRow({ c, expanded, onToggle, logs, outcome, onDataSaved }: 
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.83rem', color: C.muted, margin: 0 }}>
                 Post-Program Outcomes will unlock once all 13 session logs are submitted.
               </p>
+            </div>
+          )}
+
+          {/* Satisfaction Trend */}
+          {feedback && feedback.length > 0 && (
+            <div style={{ marginTop: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700,
+                color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em',
+                margin: '0 0 0.75rem' }}>
+                Satisfaction Trend
+              </h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: `2px solid ${C.border}` }}>
+                      {['Session', 'Participants', 'Forms', 'Avg Rating'].map(h => (
+                        <th key={h} style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: C.muted,
+                          fontWeight: 600, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {feedback.map(fb => (
+                      <tr key={fb.session_number} style={{ borderBottom: `1px solid ${C.border}` }}>
+                        <td style={{ padding: '0.45rem 0.75rem', color: C.navy, fontWeight: 500 }}>Session {fb.session_number}</td>
+                        <td style={{ padding: '0.45rem 0.75rem', color: C.navy }}>{fb.participants_present}</td>
+                        <td style={{ padding: '0.45rem 0.75rem', color: C.navy }}>{fb.forms_collected}</td>
+                        <td style={{ padding: '0.45rem 0.75rem', fontWeight: 600,
+                          color: fb.avg_satisfaction != null && fb.avg_satisfaction < 3 ? C.danger
+                            : fb.avg_satisfaction != null && fb.avg_satisfaction >= 4 ? C.success : C.navy }}>
+                          {fb.avg_satisfaction != null ? fb.avg_satisfaction.toFixed(1) : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: `2px solid ${C.border}`, background: C.bg }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 700, color: C.navy }} colSpan={3}>Overall Average</td>
+                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 700, color: C.gold }}>
+                        {(() => {
+                          const rated = feedback.filter(f => f.avg_satisfaction != null);
+                          if (rated.length === 0) return '—';
+                          const avg = rated.reduce((s, f) => s + Number(f.avg_satisfaction), 0) / rated.length;
+                          return avg.toFixed(1);
+                        })()}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           )}
         </div>
@@ -2119,6 +2179,128 @@ function DataCharts({ cohorts }: { cohorts: FacReportCohort[] }) {
   );
 }
 
+/* ── Submit Feedback Tab ── */
+const SATISFACTION_OPTIONS = [
+  { value: '1',   label: '1 — Very Low' },
+  { value: '1.5', label: '1.5' },
+  { value: '2',   label: '2 — Low' },
+  { value: '2.5', label: '2.5' },
+  { value: '3',   label: '3 — Moderate' },
+  { value: '3.5', label: '3.5' },
+  { value: '4',   label: '4 — High' },
+  { value: '4.5', label: '4.5' },
+  { value: '5',   label: '5 — Very High' },
+] as const;
+
+function FeedbackTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }) {
+  const activeCohorts = cohorts.filter(c => c.status === 'active');
+  const [submitting, setSubmitting] = useState(false);
+  const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [form, setForm] = useState({
+    cohort_id: '', session_number: '', participants_present: '',
+    forms_collected: '', avg_satisfaction: '', themes: '',
+  });
+  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true); setMsg(null);
+    try {
+      const res = await fetch('/api/hub/session-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cohort_id: form.cohort_id,
+          session_number: Number(form.session_number),
+          participants_present: Number(form.participants_present),
+          forms_collected: Number(form.forms_collected),
+          avg_satisfaction: form.avg_satisfaction ? Number(form.avg_satisfaction) : null,
+          themes: form.themes || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMsg({ text: 'Feedback submitted successfully.', ok: true });
+        setForm({ cohort_id: '', session_number: '', participants_present: '', forms_collected: '', avg_satisfaction: '', themes: '' });
+      } else {
+        setMsg({ text: data.error ?? 'Submission failed.', ok: false });
+      }
+    } catch {
+      setMsg({ text: 'Network error. Please try again.', ok: false });
+    }
+    setSubmitting(false);
+  }
+
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Submit Session Feedback</h2>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '0 0 1.25rem' }}>
+        After collecting participant feedback forms, submit a summary here for each session.
+      </p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div>
+            <label style={fieldLabel}>Cohort *</label>
+            <select style={inp} value={form.cohort_id} onChange={e => set('cohort_id', e.target.value)} required>
+              <option value="">— Select Cohort —</option>
+              {activeCohorts.map(c => (
+                <option key={c.id} value={c.id}>Book {c.book_number} — {BOOKS_MAP[c.book_number] ?? ''} ({c.start_date})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Session Number *</label>
+            <select style={inp} value={form.session_number} onChange={e => set('session_number', e.target.value)} required>
+              <option value="">— Select —</option>
+              {Array.from({ length: 13 }, (_, i) => i + 1).map(n => (
+                <option key={n} value={n}>Session {n}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={fieldLabel}>Participants Present *</label>
+            <input type="number" min="0" style={inp} value={form.participants_present}
+              onChange={e => set('participants_present', e.target.value)} required />
+          </div>
+          <div>
+            <label style={fieldLabel}>Feedback Forms Collected *</label>
+            <input type="number" min="0" style={inp} value={form.forms_collected}
+              onChange={e => set('forms_collected', e.target.value)} required />
+          </div>
+          <div>
+            <label style={fieldLabel}>Average Satisfaction Rating</label>
+            <select style={inp} value={form.avg_satisfaction} onChange={e => set('avg_satisfaction', e.target.value)}>
+              <option value="">— Select —</option>
+              {SATISFACTION_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '0.75rem' }}>
+          <label style={fieldLabel}>Themes or Notable Comments</label>
+          <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+            value={form.themes} onChange={e => set('themes', e.target.value)}
+            placeholder="Any recurring themes, notable feedback, or observations from participants…" />
+        </div>
+
+        {msg && (
+          <p style={{ fontSize: '0.85rem', fontFamily: 'Inter, sans-serif', fontWeight: 500,
+            color: msg.ok ? C.success : C.danger, margin: '0 0 0.75rem' }}>
+            {msg.text}
+          </p>
+        )}
+
+        <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
+          {submitting ? 'Submitting…' : 'Submit Feedback'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 /* ── Get Support Tab ── */
 type ConsultRequest = {
   id: string; request_type: string; description: string;
@@ -2529,7 +2711,7 @@ function IncidentTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[]
 /* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports' | 'support' | 'incident';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -2541,7 +2723,7 @@ export default function HubDashboard() {
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab');
-      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'support' || p === 'incident') return p as Tab;
+      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'feedback' || p === 'support' || p === 'incident') return p as Tab;
     }
     return 'overview';
   });
@@ -2597,7 +2779,7 @@ export default function HubDashboard() {
   );
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident',
   };
 
   return (
@@ -2636,7 +2818,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes', 'reports', 'support', 'incident'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'feedback', 'reports', 'support', 'incident'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -2660,6 +2842,7 @@ export default function HubDashboard() {
           {tab === 'documents' && <DocumentsCard documents={documents} />}
           {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
+          {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}
           {tab === 'reports'   && <ReportsTab profile={profile} />}
           {tab === 'support'  && <SupportTab />}
           {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
