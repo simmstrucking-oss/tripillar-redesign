@@ -860,22 +860,19 @@ export default function TrainerHubDashboard() {
     document.head.appendChild(link);
   }, []);
 
-  /* ── Auth + profile load ── */
+  /* ── Auth + profile load (cookie-based via /api/auth/me) ── */
   useEffect(() => {
     (async () => {
       try {
-        const supabase = getSupabaseBrowser();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { router.push('/facilitators/login'); return; }
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (res.status === 401) { router.push('/facilitators/login'); return; }
+        if (!res.ok) { setError('Failed to load profile.'); setLoading(false); return; }
 
-        const { data: prof } = await supabase
-          .from('facilitator_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+        const data = await res.json();
+        const prof = data.profile;
 
         if (!prof || (prof.role !== 'trainer' && prof.role !== 'super_admin')) {
-          router.push('/facilitators/login');
+          router.push('/facilitators/hub/dashboard');
           return;
         }
 
