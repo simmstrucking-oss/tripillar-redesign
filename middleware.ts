@@ -19,8 +19,11 @@ const PROTECTED_ADMIN   = /^\/admin\/facilitators(\/|$)/;
 function decodeSupabaseCookieValue(raw: string): string {
   const PREFIX = 'base64-';
   if (raw.startsWith(PREFIX)) {
+    // Edge Runtime: no Buffer — use atob (base64url → standard base64 first)
     const b64 = raw.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/');
-    return Buffer.from(b64, 'base64').toString('utf-8');
+    // Pad to multiple of 4
+    const padded = b64 + '=='.slice((b64.length % 4) || 4);
+    try { return atob(padded); } catch { return raw; }
   }
   try { return decodeURIComponent(raw); } catch { return raw; }
 }

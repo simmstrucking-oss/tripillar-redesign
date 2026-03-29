@@ -13,11 +13,10 @@ import { createClient } from '@supabase/supabase-js';
 function decodeSupabaseCookieValue(raw: string): string {
   const PREFIX = 'base64-';
   if (raw.startsWith(PREFIX)) {
-    // base64url → standard base64 → string
     const b64 = raw.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/');
-    return Buffer.from(b64, 'base64').toString('utf-8');
+    const padded = b64 + '=='.slice((b64.length % 4) || 4);
+    try { return Buffer.from(padded, 'base64').toString('utf-8'); } catch { return raw; }
   }
-  // Legacy: plain JSON (URL-encoded)
   try { return decodeURIComponent(raw); } catch { return raw; }
 }
 
