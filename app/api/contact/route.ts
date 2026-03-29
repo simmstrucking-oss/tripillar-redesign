@@ -130,10 +130,11 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
-  } catch (err) {
-    console.error("SMTP error:", err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("SMTP error:", msg);
     return NextResponse.json(
-      { error: "email_failed", message: "Something went wrong sending your message. Please try emailing us directly." },
+      { error: "email_failed", detail: msg, message: "Something went wrong sending your message. Please try emailing us directly." },
       { status: 502 }
     );
   }
