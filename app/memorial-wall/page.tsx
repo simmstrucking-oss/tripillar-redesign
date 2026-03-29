@@ -1,6 +1,8 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { createClient } from "@supabase/supabase-js";
+import MemorialForm from "./MemorialForm";
 
 export const metadata: Metadata = {
   title: "Memorial Wall | Tri-Pillars™",
@@ -8,14 +10,29 @@ export const metadata: Metadata = {
     "In whose memory Live and Grieve was built. A tribute to those we carry forward.",
 };
 
-const names = [
-  { name: "Jacoby Gray", note: "In whose memory it all began" },
-  { name: "Ian Hornagold", note: "Who made the work urgent" },
-  { name: "Nan Simms", note: null },
-  { name: "Pamela Jo Haycraft", note: null },
-];
+export const revalidate = 60; // revalidate every 60s so approvals go live quickly
 
-export default function MemorialWallPage() {
+async function getApprovedEntries() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data, error } = await supabase
+    .from("memorial_entries")
+    .select("id, name, relationship, tribute")
+    .eq("approved", true)
+    .order("submitted_at", { ascending: true });
+
+  if (error) {
+    console.error("Memorial fetch error:", error);
+    return [];
+  }
+  return data ?? [];
+}
+
+export default async function MemorialWallPage() {
+  const entries = await getApprovedEntries();
+
   return (
     <>
       {/* Hero */}
@@ -45,14 +62,17 @@ export default function MemorialWallPage() {
       {/* Names */}
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6">
         <div className="space-y-8">
-          {names.map((person, i) => (
-            <FadeIn key={i} delay={i * 120}>
+          {entries.map((person, i) => (
+            <FadeIn key={person.id} delay={i * 120}>
               <div className="text-center py-8 border-b border-card-border last:border-0">
                 <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-2">
                   {person.name}
                 </h2>
-                {person.note && (
-                  <p className="text-gold text-sm italic">{person.note}</p>
+                {person.relationship && (
+                  <p className="text-muted text-sm mb-1">{person.relationship}</p>
+                )}
+                {person.tribute && (
+                  <p className="text-gold text-sm italic">{person.tribute}</p>
                 )}
               </div>
             </FadeIn>
@@ -62,40 +82,23 @@ export default function MemorialWallPage() {
 
       {/* Add a name */}
       <section className="py-24 bg-section-alt">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-              Add a Name
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">
-              Honor someone you carry.
-            </h2>
-            <p className="text-muted leading-relaxed mb-4">
-              Contributions of $50 or more add a name and optional photo to
-              this wall. Every contribution goes directly toward expanding
-              access to Live and Grieve programs.
-            </p>
-            <p className="text-muted text-sm mb-8">
-              To add a name, email{" "}
-              <a href="mailto:wayne@tripillarstudio.com" className="text-gold hover:underline">
-                wayne@tripillarstudio.com
-              </a>{" "}
-              with the name, an optional photo, and your contribution receipt.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/support"
-                className="inline-block bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
-              >
-                Support the Mission
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-block border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3.5 rounded-md text-sm transition-colors"
-              >
-                Contact Us
-              </Link>
+            <div className="text-center mb-10">
+              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+                Add a Name
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
+                Honor someone you carry.
+              </h2>
+              <p className="text-muted leading-relaxed">
+                Submit a name to be added to this wall. All submissions are
+                reviewed before publishing. Names are added as a tribute — no
+                contribution required.
+              </p>
             </div>
+
+            <MemorialForm />
           </FadeIn>
         </div>
       </section>
