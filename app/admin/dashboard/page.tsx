@@ -41,6 +41,14 @@ interface ProgramMetrics {
   revenue_30d_cents:      number | null;
   solo_purchases_total:   number | null;
   solo_purchases_30d:     number | null;
+  // Cohort Completion Summaries
+  summaries_submitted:       number;
+  avg_participants_completed: number | null;
+  avg_summary_completion_rate: number | null;
+  assessment_strong:         number;
+  assessment_moderate:       number;
+  assessment_challenging:    number;
+  would_run_again_pct:       number | null;
   // Recency
   cohorts_last_30d:       number;
   facs_last_30d:          number;
@@ -203,6 +211,13 @@ export default function AdminDashboard() {
         revenue_30d_cents:      fin?.revenue_30d_cents                     ?? null,
         solo_purchases_total:   fin?.solo_purchases_total                  ?? null,
         solo_purchases_30d:     fin?.solo_purchases_30d                    ?? null,
+        summaries_submitted:       d.cohort_completion_summary?.summaries_submitted ?? 0,
+        avg_participants_completed: d.cohort_completion_summary?.avg_participants_completed ?? null,
+        avg_summary_completion_rate: d.cohort_completion_summary?.avg_completion_rate ?? null,
+        assessment_strong:         d.cohort_completion_summary?.assessment_distribution?.Strong ?? 0,
+        assessment_moderate:       d.cohort_completion_summary?.assessment_distribution?.Moderate ?? 0,
+        assessment_challenging:    d.cohort_completion_summary?.assessment_distribution?.Challenging ?? 0,
+        would_run_again_pct:       d.cohort_completion_summary?.would_run_again_pct ?? null,
         cohorts_last_30d:       0,
         facs_last_30d:          0,
         orgs_last_30d:          0,
@@ -350,6 +365,33 @@ export default function AdminDashboard() {
                   <div style={{ color:C.slate,fontSize:12 }}>Critical Incidents (session logs): <strong style={{color:m.critical_incidents>0?C.red:C.green}}>{m.critical_incidents}</strong></div>
                   <div style={{ color:C.slate,fontSize:12, marginTop:6 }}>Critical Incident Reports (formal): <strong style={{color:m.critical_incident_reports>0?C.red:C.green}}>{m.critical_incident_reports}</strong></div>
                 </div>
+
+                <SectionHead title="Cohort Completions" />
+                <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:16 }}>
+                  <StatCard label="Summaries Submitted"     value={m.summaries_submitted} color={C.green} />
+                  <StatCard label="Avg Participants Completed" value={m.avg_participants_completed ?? '—'} />
+                  <StatCard label="Avg Completion Rate"     value={m.avg_summary_completion_rate ? `${m.avg_summary_completion_rate}%` : '—'} color={m.avg_summary_completion_rate && m.avg_summary_completion_rate >= 70 ? C.green : C.gold} />
+                  <StatCard label="Would Run Again"         value={m.would_run_again_pct ? `${m.would_run_again_pct}%` : '—'} color={C.green} />
+                </div>
+                {m.summaries_submitted > 0 && (
+                  <div style={{ background:C.cardBg,borderRadius:10,padding:'20px 24px',boxShadow:'0 2px 8px rgba(0,0,0,0.07)',maxWidth:500,marginTop:16 }}>
+                    <div style={{ color:C.slate,fontSize:11,fontWeight:600,textTransform:'uppercase',marginBottom:10 }}>Facilitator Assessment Distribution</div>
+                    {['Strong','Moderate','Challenging'].map(level => {
+                      const count = level === 'Strong' ? m.assessment_strong : level === 'Moderate' ? m.assessment_moderate : m.assessment_challenging;
+                      const pct = m.summaries_submitted > 0 ? Math.round((count / m.summaries_submitted) * 100) : 0;
+                      const barColor = level === 'Strong' ? C.green : level === 'Moderate' ? C.gold : C.red;
+                      return (
+                        <div key={level} style={{ display:'flex',alignItems:'center',gap:10,marginBottom:6 }}>
+                          <span style={{ width:90,fontSize:12,color:C.navy,fontWeight:500 }}>{level}</span>
+                          <div style={{ flex:1,height:14,background:'#EAEAEA',borderRadius:6,overflow:'hidden' }}>
+                            <div style={{ width:`${pct}%`,height:'100%',background:barColor,borderRadius:6,transition:'width 0.5s ease' }} />
+                          </div>
+                          <span style={{ fontSize:12,fontWeight:700,color:C.navy,minWidth:50 }}>{count} ({pct}%)</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </>
             )}
 

@@ -905,8 +905,170 @@ function PostProgramForm({ cohortId, preCount, existing, onSaved }: {
   );
 }
 
+/* ── Cohort Completion Summary Form ── */
+function CohortSummaryForm({ cohortId, facilitatorId, onCompleted }: {
+  cohortId: string; facilitatorId: string; onCompleted: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [form, setForm] = useState({
+    total_enrolled: '', total_completed: '', dropout_reasons: '',
+    facilitator_assessment: '', notable_outcomes: '',
+    would_run_again: '', curriculum_feedback: '',
+  });
+  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.total_enrolled || !form.total_completed || !form.facilitator_assessment || !form.would_run_again) {
+      setMsg('Please fill all required fields.'); return;
+    }
+    setSaving(true); setMsg('');
+    const res = await fetch(`/api/hub/cohorts/${cohortId}/complete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        facilitator_id: facilitatorId,
+        total_enrolled: Number(form.total_enrolled),
+        total_completed: Number(form.total_completed),
+        dropout_reasons: form.dropout_reasons || null,
+        facilitator_assessment: form.facilitator_assessment,
+        notable_outcomes: form.notable_outcomes || null,
+        would_run_again: form.would_run_again === 'yes',
+        curriculum_feedback: form.curriculum_feedback || null,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      setMsg('Cohort marked complete. Wayne has been notified.');
+      onCompleted();
+    } else {
+      const d = await res.json();
+      setMsg('Error: ' + d.error);
+    }
+  }
+
+  if (!open) {
+    return (
+      <div style={{ marginTop: '1.25rem' }}>
+        <button onClick={() => setOpen(true)} style={btn(C.navy, '#fff')}>
+          Mark Complete &amp; Submit Summary
+        </button>
+      </div>
+    );
+  }
+
+  if (msg && !msg.startsWith('Error') && msg.includes('complete')) {
+    return (
+      <div style={{ marginTop: '1.25rem', background: '#F0FAF4', border: '1px solid #86EFAC',
+        borderRadius: 10, padding: '1.25rem' }}>
+        <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem',
+          color: '#166534', margin: 0, fontWeight: 700 }}>
+          ✓ {msg}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} style={{ marginTop: '1.25rem', background: '#FAFAF8',
+      border: `1px solid ${C.border}`, borderRadius: 10, padding: '1.25rem' }}>
+      <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', color: C.navy,
+        margin: '0 0 0.5rem' }}>
+        Cohort Completion Summary
+      </h3>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.muted,
+        margin: '0 0 1rem', fontStyle: 'italic' }}>
+        Completing this form will mark the cohort as finished. Wayne will receive a notification.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '0.75rem', marginBottom: '1rem' }}>
+        <div>
+          <label style={fieldLabel}>Total Participants Enrolled *</label>
+          <input type="number" min="0" style={{ ...inp, width: 120 }}
+            value={form.total_enrolled} onChange={e => set('total_enrolled', e.target.value)} required />
+        </div>
+        <div>
+          <label style={fieldLabel}>Total Participants Completed *</label>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', color: C.muted, margin: '0 0 4px' }}>
+            Attended 10 or more of 13 sessions
+          </p>
+          <input type="number" min="0" style={{ ...inp, width: 120 }}
+            value={form.total_completed} onChange={e => set('total_completed', e.target.value)} required />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '0.75rem' }}>
+        <label style={fieldLabel}>Dropout Reasons (if known)</label>
+        <textarea style={{ ...inp, height: 60, resize: 'vertical' }}
+          placeholder="e.g. scheduling conflicts, moved away, personal reasons…"
+          value={form.dropout_reasons} onChange={e => set('dropout_reasons', e.target.value)} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '0.75rem', marginBottom: '0.75rem' }}>
+        <div>
+          <label style={fieldLabel}>Overall Cohort Assessment *</label>
+          <select style={inp} value={form.facilitator_assessment}
+            onChange={e => set('facilitator_assessment', e.target.value)} required>
+            <option value="">— Select —</option>
+            <option value="Strong">Strong</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Challenging">Challenging</option>
+          </select>
+        </div>
+        <div>
+          <label style={fieldLabel}>Would you run this cohort again? *</label>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: 6 }}>
+            {['yes', 'no'].map(v => (
+              <label key={v} style={{ display: 'flex', alignItems: 'center', gap: 6,
+                fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, cursor: 'pointer' }}>
+                <input type="radio" name="would_run_again" value={v}
+                  checked={form.would_run_again === v}
+                  onChange={() => set('would_run_again', v)} />
+                {v === 'yes' ? 'Yes' : 'No'}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '0.75rem' }}>
+        <label style={fieldLabel}>Notable Outcomes or Milestones</label>
+        <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+          placeholder="Breakthroughs, group dynamics, participant growth moments…"
+          value={form.notable_outcomes} onChange={e => set('notable_outcomes', e.target.value)} />
+      </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Curriculum Feedback for Tri-Pillars</label>
+        <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
+          placeholder="Suggestions for content, pacing, structure, or resources…"
+          value={form.curriculum_feedback} onChange={e => set('curriculum_feedback', e.target.value)} />
+      </div>
+
+      {msg && (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
+          color: msg.startsWith('Error') ? C.danger : C.success,
+          margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
+      )}
+
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <button type="submit" disabled={saving} style={btn(C.navy, '#fff')}>
+          {saving ? 'Submitting…' : 'Submit Summary & Complete Cohort'}
+        </button>
+        <button type="button" onClick={() => setOpen(false)} style={btn(C.border, C.navy, true)}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 /* ── Main Cohorts Card ── */
-function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => void }) {
+function CohortsCard({ cohorts, profile, onAdded }: { cohorts: Cohort[]; profile: Profile; onAdded: () => void }) {
   const [showForm,    setShowForm]    = useState(false);
   const [loading,     setLoading]     = useState(false);
   const [msg,         setMsg]         = useState('');
@@ -1036,7 +1198,8 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
                   logs={sessionLogs[c.id] ?? null}
                   outcome={outcomes[c.id]}
                   feedback={feedbackData[c.id] ?? null}
-                  onDataSaved={() => loadCohortData(c.id)}
+                  onDataSaved={() => { loadCohortData(c.id); onAdded(); }}
+                  facilitatorId={profile.id}
                 />
               ))}
             </>
@@ -1053,7 +1216,8 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
                   logs={sessionLogs[c.id] ?? null}
                   outcome={outcomes[c.id]}
                   feedback={feedbackData[c.id] ?? null}
-                  onDataSaved={() => loadCohortData(c.id)}
+                  onDataSaved={() => { loadCohortData(c.id); onAdded(); }}
+                  facilitatorId={profile.id}
                 />
               ))}
             </>
@@ -1065,11 +1229,12 @@ function CohortsCard({ cohorts, onAdded }: { cohorts: Cohort[]; onAdded: () => v
 }
 
 /* ── Expandable cohort row with all 3 sub-sections ── */
-function CohortExpandRow({ c, expanded, onToggle, logs, outcome, feedback, onDataSaved }: {
+function CohortExpandRow({ c, expanded, onToggle, logs, outcome, feedback, onDataSaved, facilitatorId }: {
   c: Cohort; expanded: boolean; onToggle: () => void;
   logs: SessionLog[] | null; outcome?: CohortOutcome;
   feedback: { session_number: number; participants_present: number; forms_collected: number; avg_satisfaction: number | null }[] | null;
   onDataSaved: () => void;
+  facilitatorId: string;
 }) {
   const logsLogged   = (logs ?? []).length;
   const hasIncident  = (logs ?? []).some(l => l.critical_incident);
@@ -1193,6 +1358,11 @@ function CohortExpandRow({ c, expanded, onToggle, logs, outcome, feedback, onDat
                 Post-Program Outcomes will unlock once all 13 session logs are submitted.
               </p>
             </div>
+          )}
+
+          {/* 2D — Cohort Completion Summary (only for non-completed cohorts) */}
+          {c.status !== 'completed' && (
+            <CohortSummaryForm cohortId={c.id} facilitatorId={facilitatorId} onCompleted={onDataSaved} />
           )}
 
           {/* Satisfaction Trend */}
@@ -2787,7 +2957,7 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
         padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <span style={{ fontSize: '1.25rem' }}>🔒</span>
         <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#3730A3', fontWeight: 600 }}>
-          Your reflections are private. Wayne cannot see them.
+          Your reflections are private.
         </span>
       </div>
 
@@ -3059,7 +3229,7 @@ export default function HubDashboard() {
             </>
           )}
           {tab === 'documents' && <DocumentsCard documents={documents} />}
-          {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} onAdded={loadHub} />}
+          {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} profile={profile} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
           {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}
           {tab === 'reports'   && <ReportsTab profile={profile} />}

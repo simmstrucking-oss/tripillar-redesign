@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   ] = await Promise.all([
     sb.from('organizations').select('id, name, type, state, city, status, license_start, license_end, max_facilitators, created_at'),
     sb.from('facilitator_profiles').select('id, organization_id, cert_status, role, cert_issued, books_certified, last_active, created_at'),
-    sb.from('cohorts').select('id, facilitator_id, book_number, status, start_date, end_date, participant_count'),
+    sb.from('cohorts').select('id, facilitator_id, book_number, status, start_date, end_date, participant_count, total_enrolled, total_completed, facilitator_assessment, would_run_again, summary_submitted_at'),
     sb.from('cohort_outcomes').select('cohort_id, pre_participant_count, post_participant_count, completion_rate, post_grief_intensity_rating, post_connection_rating, post_self_care_rating, post_hope_rating, pre_setting_type, pre_community_type, pre_primary_loss_types, pre_age_ranges, pre_time_since_loss, post_submitted_at'),
     sb.from('session_logs').select('cohort_id, week_number, participants_attended, session_duration_minutes, critical_incident, session_date'),
     sb.from('session_progress').select('user_id, current_week, sections_completed, session_count, duration_minutes, last_active_week, last_updated'),
@@ -277,6 +277,17 @@ export async function GET(req: NextRequest) {
     return new Date(o.license_end) < now2;
   }).length;
 
+  // ── Cohort Completion Summary metrics ────────────────────
+  const summaryCohorts = allCohorts.filter(c => c.summary_submitted_at);
+  const assessmentDist: Record<string, number> = { Strong: 0, Moderate: 0, Challenging: 0 };
+  let summaryEnrolledSum = 0, summaryCompletedSum = 0, wouldRunAgainCount = 0;
+  summaryCohorts.forEach(c => {
+    if (c.facilitator_assessment) assessmentDist[c.facilitator_assessment] = (assessmentDist[c.facilitator_assessment] ?? 0) + 1;
+    summaryEnrolledSum += c.total_enrolled ?? 0;
+    summaryCompletedSum += c.total_completed ?? 0;
+    if (c.would_run_again) wouldRunAgainCount++;
+  });
+
   return NextResponse.json({
     generated_at: new Date().toISOString(),
     scope: 'program',
@@ -321,6 +332,13 @@ export async function GET(req: NextRequest) {
       active_subscriptions:   activeSubscriptions,
       total_purchases:        allPurchases.length,
       revenue_by_month:       revenueTimeSeries,
+    },
+    cohort_completion_summary: {
+      summaries_submitted:       summaryCohorts.length,
+      avg_participants_completed: summaryCohorts.length > 0 ? Math.round(summaryCompletedSum / summaryCohorts.length * 10) / 10 : null,
+      avg_completion_rate:       summaryEnrolledSum > 0 ? Math.round((summaryCompletedSum / summaryEnrolledSum) * 100) : null,
+      assessment_distribution:   assessmentDist,
+      would_run_again_pct:       summaryCohorts.length > 0 ? Math.round((wouldRunAgainCount / summaryCohorts.length) * 100) : null,
     },
   });
 }
