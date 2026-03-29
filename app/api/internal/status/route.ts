@@ -17,6 +17,7 @@ const COMPLETED_SESSIONS = [
   { session: 10, date: '2026-03-29', summary: 'Kit sequences + tags for website. Free Guide PDF + subscribe flow. Contact form (Resend). Solo Companion links. Memorial Wall. /start landing page. Cross-surface navigation. Main nav Solo Companion + Facilitator Login.' },
   { session: 11, date: '2026-03-29', summary: 'Debug audit (clean). Cache issue resolved (re-alias). /start page + cross-surface nav. Pricing locked: $24.99 one-time, $9.99×3 installment.' },
   { session: 12, date: '2026-03-29', summary: 'Critical Incident Report. Session Feedback. Facilitator Reflection Log (private RLS). Cohort Summary form. Document Library: 109 files in 3 buckets, Hub UI, /admin/documents, access logging.' },
+  { session: 13, date: '2026-03-29', summary: 'Task 7: Facilitator onboarding checklist (7 items, Phase 1), orientation panel (Phase 2), digital signatures (Phase 3) — Code of Conduct, Cert Acknowledgment, Group Use License. DB: facilitator_signatures table + 6 onboarding columns on facilitator_profiles. Verification audit (8 checks). Fix 1: RESEND_API_KEY trailing newline removed; Resend DNS records identified for Namecheap. Fix 2: IP disclosure added to SignatureField.tsx. Fix 3: Status endpoint updated.' },
 ];
 
 const LIVE_FEATURES = [
@@ -40,6 +41,9 @@ const LIVE_FEATURES = [
   { feature: 'Contact form (Resend)',                 url: 'https://tripillarstudio.com/contact',          date: '2026-03-29' },
   { feature: '/start landing page',                  url: 'https://tripillarstudio.com/start',            date: '2026-03-29' },
   { feature: 'Document access logging',              url: 'document_access_log table',                     date: '2026-03-29' },
+  { feature: 'Facilitator onboarding checklist (Phase 1 + 2)', url: '/facilitators/hub/dashboard',          date: '2026-03-29' },
+  { feature: 'Digital signatures (Code of Conduct, Cert Ack, Group Use License)', url: '/api/hub/sign',    date: '2026-03-29' },
+  { feature: 'Internal context/status/documents API', url: '/api/internal/*',                               date: '2026-03-29' },
 ];
 
 const PENDING_TASKS = [
