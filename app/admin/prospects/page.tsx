@@ -474,6 +474,274 @@ function ProspectListView({
 }
 
 /* ════════════════════════════════════════════════════════════
+   SEND AGREEMENT FORM
+═════════════════════════════════════════════════════════════*/
+function SendAgreementForm({
+  prospect,
+  onSuccess,
+}: {
+  prospect: Prospect;
+  onSuccess: () => void;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    org_name: prospect.org_name,
+    contact_name: prospect.contact_name,
+    contact_email: prospect.contact_email,
+    contact_title: '',
+    org_address: '',
+    org_state: '',
+    license_tier: 'Community Tier',
+    books_licensed: [
+      'Book 1 — Understanding Grief',
+      'Book 2 — The Grieving Body',
+      'Book 3 — Relationships and Grief',
+    ],
+    license_start_date: new Date().toISOString().split('T')[0],
+    test_mode: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleToggleBook = (book: string) => {
+    setFormData(prev => ({
+      ...prev,
+      books_licensed: prev.books_licensed.includes(book)
+        ? prev.books_licensed.filter(b => b !== book)
+        : [...prev.books_licensed, book],
+    }));
+  };
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/admin/agreements', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': adminSecret(),
+        },
+        body: JSON.stringify({
+          prospect_id: prospect.id,
+          ...formData,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(
+          `Agreement sent to ${formData.contact_email}\nToken: ${data.agreement.token}`
+        );
+        setShowForm(false);
+        setFormData({
+          ...formData,
+          org_name: prospect.org_name,
+          contact_name: prospect.contact_name,
+          contact_email: prospect.contact_email,
+        });
+        onSuccess();
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to send agreement');
+      }
+    } catch (err) {
+      setError('Error sending agreement');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const books = [
+    'Book 1 — Understanding Grief',
+    'Book 2 — The Grieving Body',
+    'Book 3 — Relationships and Grief',
+    'Book 4 — Finding Meaning',
+    'Book 5 — Continuing Bonds',
+    'Book 6 — Living Forward',
+  ];
+
+  const tierFees: Record<string, number> = {
+    'Community Tier': 1500,
+    'Standard Organization': 2500,
+    'Multi-site': 4000,
+  };
+
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <h3 style={{
+          fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 700,
+          color: C.navy, margin: 0,
+        }}>
+          Send License Agreement
+        </h3>
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            style={btn(C.gold, C.navy, true)}
+          >
+            Send Agreement
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} style={{
+          background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6,
+          padding: '1rem', marginTop: '0.75rem',
+        }}>
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1rem',
+            marginBottom: '1rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+          }}>
+            <div>
+              <label style={fieldLabel}>Org Name</label>
+              <input
+                type="text"
+                value={formData.org_name}
+                onChange={e => setFormData({ ...formData, org_name: e.target.value })}
+                required
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>Contact Name</label>
+              <input
+                type="text"
+                value={formData.contact_name}
+                onChange={e => setFormData({ ...formData, contact_name: e.target.value })}
+                required
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>Contact Email</label>
+              <input
+                type="email"
+                value={formData.contact_email}
+                onChange={e => setFormData({ ...formData, contact_email: e.target.value })}
+                required
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>Contact Title</label>
+              <input
+                type="text"
+                value={formData.contact_title}
+                onChange={e => setFormData({ ...formData, contact_title: e.target.value })}
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>Org Address</label>
+              <input
+                type="text"
+                value={formData.org_address}
+                onChange={e => setFormData({ ...formData, org_address: e.target.value })}
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>Org State</label>
+              <input
+                type="text"
+                value={formData.org_state}
+                onChange={e => setFormData({ ...formData, org_state: e.target.value })}
+                style={inp}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={fieldLabel}>License Tier</label>
+            <select
+              value={formData.license_tier}
+              onChange={e => setFormData({ ...formData, license_tier: e.target.value })}
+              style={inp}
+            >
+              <option value="Community Tier">Community Tier</option>
+              <option value="Standard Organization">Standard Organization</option>
+              <option value="Multi-site">Multi-site</option>
+            </select>
+            <div style={{ fontSize: '0.8rem', color: C.muted, marginTop: 4 }}>
+              Annual Fee: ${tierFees[formData.license_tier]}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={fieldLabel}>Books Licensed</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              {books.map(book => (
+                <label key={book} style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.books_licensed.includes(book)}
+                    onChange={() => handleToggleBook(book)}
+                    style={{ marginRight: '0.5rem', cursor: 'pointer' }}
+                  />
+                  {book}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={fieldLabel}>License Start Date</label>
+            <input
+              type="date"
+              value={formData.license_start_date}
+              onChange={e => setFormData({ ...formData, license_start_date: e.target.value })}
+              required
+              style={inp}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={formData.test_mode}
+                onChange={e => setFormData({ ...formData, test_mode: e.target.checked })}
+                style={{ marginRight: '0.5rem', cursor: 'pointer' }}
+              />
+              Test Mode (exclude from reporting)
+            </label>
+          </div>
+
+          {error && (
+            <p style={{ color: C.danger, fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+              {error}
+            </p>
+          )}
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ ...btn(C.gold, C.navy) }}
+            >
+              {loading ? 'Sending…' : 'Generate and Send Agreement'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              style={btn(C.border, C.navy)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    PROSPECT DETAIL VIEW
 ═════════════════════════════════════════════════════════════*/
 function ProspectDetailView({
@@ -785,6 +1053,13 @@ function ProspectDetailView({
             </div>
           )}
         </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
+        {/* Send Agreement */}
+        <SendAgreementForm prospect={prospect} onSuccess={onUpdated} />
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
 
         {/* Call requests */}
         {callRequests.length > 0 && (
