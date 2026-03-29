@@ -1,13 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
@@ -17,7 +14,7 @@ function getClientIp(request: NextRequest): string {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
     const body = await request.json();
@@ -133,7 +130,7 @@ export async function POST(
 
     <div class="section">
       <div class="label">Code</div>
-      <div class="value">${params.code}</div>
+      <div class="value">${(await params).code}</div>
       <div class="label">Reference ID</div>
       <div class="value">${callRequest.id}</div>
       <div class="timestamp">Received: ${new Date().toLocaleString()}</div>
@@ -144,11 +141,18 @@ export async function POST(
     `;
 
     try {
-      await resend.emails.send({
-        from: 'Ember <ember@tripillarstudio.com>',
-        to: 'wayne@tripillarstudio.com',
-        subject: `Prospect requesting a conversation — ${org_name} — ${prospect?.sector || 'Unknown'}`,
-        html: emailHtml
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Ember <ember@tripillarstudio.com>',
+          to: 'wayne@tripillarstudio.com',
+          subject: `Prospect requesting a conversation — ${org_name} — ${prospect?.sector || 'Unknown'}`,
+          html: emailHtml,
+        }),
       });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
