@@ -40,6 +40,7 @@ function LoginForm() {
       setLoading(false);
       return;
     }
+    router.refresh();
     router.replace('/facilitators/hub/dashboard');
   }
 
