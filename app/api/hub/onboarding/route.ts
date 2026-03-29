@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile, error } = await sb()
     .from('facilitator_profiles')
-    .select('id, status, onboarding_checklist, onboarding_complete, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
+    .select('id, cert_status, onboarding_checklist, onboarding_complete, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
     .eq('user_id', user.id)
     .single();
 

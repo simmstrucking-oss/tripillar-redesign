@@ -3130,7 +3130,7 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
 ═════════════════════════════════════════════════════════════*/
 interface OnboardingState {
   id: string;
-  status?: string;
+  cert_status?: string;
   onboarding_checklist: Record<string, boolean>;
   onboarding_complete: boolean;
   training_date: string | null;
@@ -3516,7 +3516,7 @@ export default function HubDashboard() {
       setOnboarding(ob);
       setDismissedOrientation(!!ob.dismissed_orientation);
       // Show welcome screen for pending_certification who haven't completed onboarding
-      if (ob.status === 'pending_certification' && !ob.onboarding_complete) {
+      if (ob.cert_status === 'pending_certification' && !ob.onboarding_complete) {
         setShowWelcome(true);
       }
     }
