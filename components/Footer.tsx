@@ -3,15 +3,49 @@
 import { useState } from "react";
 import Link from "next/link";
 
+type SubmitState = "idle" | "loading" | "subscribed" | "already_subscribed" | "invalid_email" | "error";
+
 export default function Footer() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubmitted(true);
-      setEmail("");
+    const trimmed = email.trim();
+    if (!trimmed) return;
+
+    setSubmitState("loading");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error === "invalid_email") {
+          setSubmitState("invalid_email");
+          setErrorMsg(data.message || "Please enter a valid email address.");
+        } else {
+          setSubmitState("error");
+          setErrorMsg(data.message || "Something went wrong. Please try again.");
+        }
+        return;
+      }
+
+      if (data.status === "already_subscribed") {
+        setSubmitState("already_subscribed");
+      } else {
+        setSubmitState("subscribed");
+        setEmail("");
+      }
+    } catch {
+      setSubmitState("error");
+      setErrorMsg("Something went wrong. Please try again.");
     }
   };
 
@@ -27,28 +61,38 @@ export default function Footer() {
             Occasional updates on the program, grief resources, and how to bring
             Live and Grieve™ to your community.
           </p>
-          {submitted ? (
+          {submitState === "subscribed" ? (
             <p className="text-gold-light text-sm font-medium">
-              Thank you. We&apos;ll be in touch.
+              You&apos;re on the list.
+            </p>
+          ) : submitState === "already_subscribed" ? (
+            <p className="text-white/70 text-sm">
+              You&apos;re already subscribed.
             </p>
           ) : (
             <form
               onSubmit={handleSubmit}
               className="flex flex-col sm:flex-row gap-2"
             >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="flex-1 bg-white/10 border border-white/15 rounded-md px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-gold/50 transition-colors"
-              />
+              <div className="flex-1 flex flex-col gap-1">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (submitState !== "idle") setSubmitState("idle"); }}
+                  placeholder="your@email.com"
+                  disabled={submitState === "loading"}
+                  className="bg-white/10 border border-white/15 rounded-md px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-gold/50 transition-colors disabled:opacity-50"
+                />
+                {(submitState === "invalid_email" || submitState === "error") && (
+                  <p className="text-red-400 text-xs text-left">{errorMsg}</p>
+                )}
+              </div>
               <button
                 type="submit"
-                className="bg-gold text-white font-semibold text-sm px-6 py-2.5 rounded-md hover:bg-gold-light transition-colors whitespace-nowrap"
+                disabled={submitState === "loading"}
+                className="bg-gold text-white font-semibold text-sm px-6 py-2.5 rounded-md hover:bg-gold-light transition-colors whitespace-nowrap disabled:opacity-60 self-start sm:self-auto"
               >
-                Subscribe
+                {submitState === "loading" ? "Subscribing…" : "Subscribe"}
               </button>
             </form>
           )}
