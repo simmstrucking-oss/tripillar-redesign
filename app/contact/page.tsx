@@ -1,12 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Contact | Tri-Pillars™",
-  description:
-    "Get in touch with Wayne and Jamie Simms, founders of Tri-Pillars™ Studio and Live and Grieve™.",
-};
 
 const whoIncludes = [
   {
@@ -47,7 +43,63 @@ const whoIncludes = [
   },
 ];
 
+type FormState = "idle" | "loading" | "sent" | "error";
+
+interface FieldErrors {
+  name?: string;
+  email?: string;
+  message?: string;
+  general?: string;
+}
+
 export default function ContactPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [inquiryType, setInquiryType] = useState("general");
+  const [message, setMessage] = useState("");
+  const [formState, setFormState] = useState<FormState>("idle");
+  const [errors, setErrors] = useState<FieldErrors>({});
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormState("loading");
+    setErrors({});
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          inquiry_type: inquiryType,
+          message: message.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error === "validation") {
+          setErrors({ [data.field]: data.message });
+          setFormState("idle");
+        } else if (data.error === "invalid_email") {
+          setErrors({ email: data.message });
+          setFormState("idle");
+        } else {
+          setErrors({ general: data.message || "Something went wrong. Please try again." });
+          setFormState("error");
+        }
+        return;
+      }
+
+      setFormState("sent");
+    } catch {
+      setErrors({ general: "Something went wrong. Please try again." });
+      setFormState("error");
+    }
+  };
+
   return (
     <>
       {/* Hero */}
@@ -74,7 +126,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact info */}
+      {/* Contact info + form */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-16">
           <FadeIn>
@@ -156,28 +208,131 @@ export default function ContactPage() {
             </div>
           </FadeIn>
 
+          {/* Contact Form */}
           <FadeIn delay={150}>
             <p className="text-gold text-xs uppercase tracking-widest mb-6 font-medium">
+              Send a Message
+            </p>
+
+            {formState === "sent" ? (
+              <div className="bg-card-bg border border-card-border rounded-2xl p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-7 h-7 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="font-serif text-xl text-navy mb-2">Message sent.</h3>
+                <p className="text-muted text-sm leading-relaxed">
+                  Thank you, {name.split(" ")[0]}. Wayne and Jamie read every message personally. They&apos;ll be in touch soon.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">
+                    {errors.general}
+                  </div>
+                )}
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-navy mb-1.5 uppercase tracking-wide">
+                      Name <span className="text-gold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: undefined })); }}
+                      placeholder="Your name"
+                      disabled={formState === "loading"}
+                      className={`w-full border rounded-md px-4 py-2.5 text-sm text-navy placeholder-muted/50 bg-white focus:outline-none focus:border-gold/50 transition-colors disabled:opacity-50 ${errors.name ? "border-red-400" : "border-card-border"}`}
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-navy mb-1.5 uppercase tracking-wide">
+                      Email <span className="text-gold">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: undefined })); }}
+                      placeholder="your@email.com"
+                      disabled={formState === "loading"}
+                      className={`w-full border rounded-md px-4 py-2.5 text-sm text-navy placeholder-muted/50 bg-white focus:outline-none focus:border-gold/50 transition-colors disabled:opacity-50 ${errors.email ? "border-red-400" : "border-card-border"}`}
+                    />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-navy mb-1.5 uppercase tracking-wide">
+                    Inquiry Type
+                  </label>
+                  <select
+                    value={inquiryType}
+                    onChange={(e) => setInquiryType(e.target.value)}
+                    disabled={formState === "loading"}
+                    className="w-full border border-card-border rounded-md px-4 py-2.5 text-sm text-navy bg-white focus:outline-none focus:border-gold/50 transition-colors disabled:opacity-50"
+                  >
+                    <option value="general">General</option>
+                    <option value="individual">Individual / Family</option>
+                    <option value="institution">Institution / Organization</option>
+                    <option value="facilitator">Facilitator</option>
+                    <option value="media">Media / Research</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-navy mb-1.5 uppercase tracking-wide">
+                    Message <span className="text-gold">*</span>
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => { setMessage(e.target.value); setErrors(prev => ({ ...prev, message: undefined })); }}
+                    placeholder="Tell us how we can help…"
+                    rows={5}
+                    disabled={formState === "loading"}
+                    className={`w-full border rounded-md px-4 py-2.5 text-sm text-navy placeholder-muted/50 bg-white focus:outline-none focus:border-gold/50 transition-colors disabled:opacity-50 resize-none ${errors.message ? "border-red-400" : "border-card-border"}`}
+                  />
+                  {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={formState === "loading"}
+                  className="w-full bg-gold text-white font-semibold px-6 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm disabled:opacity-60"
+                >
+                  {formState === "loading" ? "Sending…" : "Send Message"}
+                </button>
+
+                <p className="text-muted/60 text-xs text-center">
+                  We respond personally to every message, typically within 1–2 business days.
+                </p>
+              </form>
+            )}
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* What to include */}
+      <section className="py-16 bg-section-alt">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium text-center">
               What to Include
             </p>
-            <div className="space-y-6">
+            <h2 className="font-serif text-2xl sm:text-3xl text-navy mb-10 text-center">
+              Depending on who you are
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {whoIncludes.map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-card-bg border border-card-border rounded-xl p-6"
-                >
-                  <h3 className="font-serif text-lg text-navy mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted text-sm leading-relaxed mb-4">
-                    {item.desc}
-                  </p>
+                <div key={i} className="bg-card-bg border border-card-border rounded-xl p-6">
+                  <h3 className="font-serif text-lg text-navy mb-2">{item.title}</h3>
+                  <p className="text-muted text-sm leading-relaxed mb-4">{item.desc}</p>
                   <ul className="space-y-1.5">
                     {item.include.map((tip, j) => (
-                      <li
-                        key={j}
-                        className="flex items-start gap-2 text-xs text-muted"
-                      >
+                      <li key={j} className="flex items-start gap-2 text-xs text-muted">
                         <span className="text-gold/60 mt-0.5 flex-shrink-0">◆</span>
                         {tip}
                       </li>
@@ -191,7 +346,7 @@ export default function ContactPage() {
       </section>
 
       {/* Free guide reminder */}
-      <section className="py-16 bg-section-alt">
+      <section className="py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <FadeIn>
             <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
@@ -218,9 +373,7 @@ export default function ContactPage() {
       {/* Crisis resources */}
       <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn>
-          <div
-            className="rounded-2xl border border-card-border p-8 bg-section-alt"
-          >
+          <div className="rounded-2xl border border-card-border p-8 bg-section-alt">
             <p className="text-muted text-xs uppercase tracking-widest mb-4 font-medium">
               If You Need Immediate Help
             </p>
@@ -234,10 +387,7 @@ export default function ContactPage() {
               away.
             </p>
             <div className="grid sm:grid-cols-3 gap-4">
-              <a
-                href="tel:988"
-                className="flex items-center gap-3 bg-card-bg border border-card-border rounded-xl p-4 hover:border-gold/15 transition-colors"
-              >
+              <a href="tel:988" className="flex items-center gap-3 bg-card-bg border border-card-border rounded-xl p-4 hover:border-gold/15 transition-colors">
                 <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-gold text-xs">📞</span>
                 </div>
@@ -255,10 +405,7 @@ export default function ContactPage() {
                   <p className="text-muted text-xs">Text HOME to 741741</p>
                 </div>
               </div>
-              <a
-                href="tel:911"
-                className="flex items-center gap-3 bg-card-bg border border-card-border rounded-xl p-4 hover:border-gold/15 transition-colors"
-              >
+              <a href="tel:911" className="flex items-center gap-3 bg-card-bg border border-card-border rounded-xl p-4 hover:border-gold/15 transition-colors">
                 <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-gold text-xs">🚨</span>
                 </div>
