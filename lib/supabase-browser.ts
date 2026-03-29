@@ -1,12 +1,12 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Browser-side Supabase client using @supabase/ssr
-// This stores the session in cookies so middleware and API routes can read it.
-let _client: ReturnType<typeof createBrowserClient> | null = null;
+// Browser-side Supabase client — use plain supabase-js (not @supabase/ssr createBrowserClient,
+// which silently hangs in browser context with no network requests or errors).
+let _client: SupabaseClient | null = null;
 
 export function getSupabaseBrowser() {
   if (_client) return _client;
-  _client = createBrowserClient(
+  _client = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
