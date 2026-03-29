@@ -65,8 +65,6 @@ export async function POST(
         {
           document_name: 'Institutional License Agreement',
           document_version: agreement.token,
-          signer_name,
-          signer_email: signer_email || agreement.contact_email,
           signed_at: now,
           ip_address: ipAddr,
           signature_text: finalSignatureText,

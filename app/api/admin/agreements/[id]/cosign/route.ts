@@ -81,8 +81,6 @@ export async function POST(
         {
           document_name: 'Institutional License Agreement',
           document_version: agreement.token,
-          signer_name: 'Wayne Simms',
-          signer_email: 'wayne@tripillarstudio.com',
           signed_at: new Date().toISOString(),
           ip_address: ipAddr,
           signature_text: signatureText,
