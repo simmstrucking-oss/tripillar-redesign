@@ -2119,6 +2119,187 @@ function DataCharts({ cohorts }: { cohorts: FacReportCohort[] }) {
   );
 }
 
+/* ── Get Support Tab ── */
+type ConsultRequest = {
+  id: string; request_type: string; description: string;
+  week_number: string | null; status: string; created_at: string;
+};
+
+const REQUEST_TYPES = [
+  'Curriculum question',
+  'Group dynamics',
+  'Participant concern',
+  'Critical incident follow-up',
+  'Other',
+] as const;
+
+function SupportTab() {
+  const [requests, setRequests]   = useState<ConsultRequest[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError]         = useState('');
+  const [form, setForm]           = useState({
+    request_type: '' as string,
+    description: '',
+    week_number: '',
+  });
+
+  useEffect(() => {
+    fetch('/api/hub/consultation-requests')
+      .then(r => r.json())
+      .then(d => setRequests(d.requests ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [submitted]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (!form.request_type) { setError('Please select a request type.'); return; }
+    if (!form.description.trim()) { setError('Please describe your question or concern.'); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/hub/consultation-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Something went wrong. Please try again.'); return; }
+      setSubmitted(true);
+      setForm({ request_type: '', description: '', week_number: '' });
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const statusColor = (s: string) =>
+    s === 'pending' ? '#A0843A' : s === 'in_progress' ? '#2E5FA3' : '#2E7D4F';
+
+  return (
+    <div>
+      {/* Submit form */}
+      <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12,
+        padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem',
+          color: C.navy, marginBottom: '0.25rem' }}>Request Consultation Support</h3>
+        <p style={{ color: C.muted, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          Wayne or Jamie will follow up within 2 business days.
+        </p>
+
+        {submitted ? (
+          <div style={{ background: '#F0F7F0', border: '1px solid #B8D8B8', borderRadius: 8,
+            padding: '1rem', color: '#2E5D2E', fontSize: '0.9rem' }}>
+            ✅ Your request has been sent. Wayne or Jamie will follow up within 2 business days.
+            <button onClick={() => setSubmitted(false)}
+              style={{ display: 'block', marginTop: '0.75rem', background: 'none', border: 'none',
+                color: C.gold, cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}>
+              Submit another request
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600,
+                color: C.navy, marginBottom: '0.35rem' }}>Request Type *</label>
+              <select value={form.request_type}
+                onChange={e => setForm(f => ({ ...f, request_type: e.target.value }))}
+                disabled={submitting}
+                style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 6,
+                  border: `1px solid ${C.border}`, fontSize: '0.875rem', color: form.request_type ? C.navy : C.muted,
+                  background: C.white, appearance: 'auto' }}>
+                <option value="">— Select type —</option>
+                {REQUEST_TYPES.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600,
+                color: C.navy, marginBottom: '0.35rem' }}>
+                Brief Description * <span style={{ color: C.muted, fontWeight: 400 }}>
+                  ({form.description.length}/500)
+                </span>
+              </label>
+              <textarea value={form.description} rows={4}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value.slice(0, 500) }))}
+                disabled={submitting}
+                placeholder="Describe your question or situation..."
+                style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 6,
+                  border: `1px solid ${C.border}`, fontSize: '0.875rem', color: C.navy,
+                  resize: 'vertical', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' }} />
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600,
+                color: C.navy, marginBottom: '0.35rem' }}>
+                Week or Session Number <span style={{ color: C.muted, fontWeight: 400 }}>(optional)</span>
+              </label>
+              <input type="text" value={form.week_number}
+                onChange={e => setForm(f => ({ ...f, week_number: e.target.value }))}
+                disabled={submitting}
+                placeholder="e.g. Week 4, Session 2"
+                style={{ width: '100%', maxWidth: 240, padding: '0.6rem 0.75rem', borderRadius: 6,
+                  border: `1px solid ${C.border}`, fontSize: '0.875rem', color: C.navy,
+                  boxSizing: 'border-box' }} />
+            </div>
+
+            {error && (
+              <p style={{ color: '#C0392B', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>
+            )}
+
+            <button type="submit" disabled={submitting}
+              style={{ ...btn(C.gold, '#fff', true), opacity: submitting ? 0.6 : 1 }}>
+              {submitting ? 'Sending…' : 'Send Request'}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Past requests */}
+      <div>
+        <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem',
+          color: C.navy, marginBottom: '0.75rem' }}>Your Past Requests</h4>
+        {loading ? (
+          <p style={{ color: C.muted, fontSize: '0.875rem' }}>Loading…</p>
+        ) : requests.length === 0 ? (
+          <p style={{ color: C.muted, fontSize: '0.875rem' }}>No requests submitted yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {requests.map(r => (
+              <div key={r.id} style={{ background: C.white, border: `1px solid ${C.border}`,
+                borderRadius: 10, padding: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: C.navy }}>{r.request_type}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: statusColor(r.status),
+                    background: `${statusColor(r.status)}18`, borderRadius: 20, padding: '2px 10px',
+                    textTransform: 'capitalize' }}>{r.status.replace('_', ' ')}</span>
+                </div>
+                {r.week_number && (
+                  <p style={{ fontSize: '0.78rem', color: C.muted, marginBottom: '0.35rem' }}>
+                    Week/Session: {r.week_number}
+                  </p>
+                )}
+                <p style={{ fontSize: '0.85rem', color: C.charcoal, marginBottom: '0.5rem',
+                  lineHeight: 1.5 }}>{r.description}</p>
+                <p style={{ fontSize: '0.75rem', color: C.muted }}>
+                  {new Date(r.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Full Reports Tab shell ── */
 function ReportsTab({ profile }: { profile: Profile }) {
   const [report,   setReport]  = useState<FacReport | null>(null);
@@ -2174,7 +2355,7 @@ function ReportsTab({ profile }: { profile: Profile }) {
 /* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'reports' | 'support';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -2186,7 +2367,7 @@ export default function HubDashboard() {
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab');
-      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes') return p as Tab;
+      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'support') return p as Tab;
     }
     return 'overview';
   });
@@ -2242,7 +2423,7 @@ export default function HubDashboard() {
   );
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', reports: 'My Reports', support: 'Get Support',
   };
 
   return (
@@ -2276,7 +2457,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes', 'reports'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'reports', 'support'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -2301,6 +2482,7 @@ export default function HubDashboard() {
           {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} onAdded={loadHub} />}
           {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
           {tab === 'reports'   && <ReportsTab profile={profile} />}
+          {tab === 'support'  && <SupportTab />}
         </div>
       </div>
     </>
