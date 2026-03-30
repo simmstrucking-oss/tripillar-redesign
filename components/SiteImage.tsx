@@ -9,7 +9,7 @@ interface SiteImageProps {
 
 export function SiteImage({ src, alt, maxWidth = 600, className = '' }: SiteImageProps) {
   return (
-    <div style={{ maxWidth: `${maxWidth}px`, margin: '2rem auto', borderRadius: '12px', overflow: 'hidden' }} className={className}>
+    <div style={{ maxWidth: `clamp(200px, 90vw, ${maxWidth}px)`, margin: '2rem auto', borderRadius: '12px', overflow: 'hidden' }} className={className}>
       <Image
         src={src}
         alt={alt}
