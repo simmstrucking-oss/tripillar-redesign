@@ -15,7 +15,12 @@ function decodeSupabaseCookieValue(raw: string): string {
   if (raw.startsWith(PREFIX)) {
     const b64 = raw.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/');
     const padded = b64 + '=='.slice((b64.length % 4) || 4);
-    try { return Buffer.from(padded, 'base64').toString('utf-8'); } catch { return raw; }
+    try {
+      // Use atob for Edge Runtime compatibility (no Buffer)
+      return decodeURIComponent(
+        atob(padded).split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')
+      );
+    } catch { return raw; }
   }
   try { return decodeURIComponent(raw); } catch { return raw; }
 }

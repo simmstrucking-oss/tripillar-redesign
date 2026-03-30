@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { getUserFromRequest } from '@/lib/auth-helper';
 
 // ── Route protection rules ────────────────────────────────────────────────────
 const PROTECTED_HUB         = /^\/facilitators\/hub(\/|$)/;
@@ -12,30 +12,9 @@ const PROTECTED_ADMIN       = /^\/admin\/(facilitators|trainers)(\/|$)/;
 // ── Owner emails (hard-coded, immutable) ─────────────────────────────────────
 const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
 
-// ── getSessionUser via @supabase/ssr createServerClient ──────────────────────
-// This is the official approach — handles chunked cookies + base64url encoding
-// automatically. We pass a mutable response so Supabase can refresh tokens.
-async function getSessionUser(req: NextRequest, res: NextResponse) {
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            req.cookies.set(name, value);
-            res.cookies.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  return user ?? null;
+// ── getSessionUser via auth-helper (Edge-compatible, same as API routes) ─────
+async function getSessionUser(req: NextRequest) {
+  return getUserFromRequest(req);
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -43,8 +22,8 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const res = NextResponse.next();
 
-  // Get session user (handles cookie refresh automatically)
-  const user = await getSessionUser(req, res);
+  // Get session user via auth-helper (Edge-compatible)
+  const user = await getSessionUser(req);
 
   // ── Owner override — unrestricted access ────────────────────────────────
   if (user && OWNER_EMAILS.includes(user.email ?? '')) {
