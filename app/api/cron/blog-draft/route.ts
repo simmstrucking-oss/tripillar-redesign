@@ -82,35 +82,48 @@ function generateBlogDraft() {
 }
 
 // Send Telegram notification to Wayne
-async function notifyWayne(title: string, category: string, excerpt: string, postId: string, botToken: string) {
-  const message = `📝 New blog draft ready for review:
+async function notifyWayne(title: string, category: string, excerpt: string, postId: string, _botToken: string) {
+  const resendKey = process.env.RESEND_API_KEY || 're_aDy5YJGb_ML9LLRsnH5PD7Np5W6BeKrk3';
 
-Title: ${title}
-Category: ${category}
-Excerpt: ${excerpt}
-
-Reply PUBLISH to make it live, EDIT: [your notes] to revise, or SKIP to discard.
-
-Draft ID: ${postId}`;
+  const html = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+      <h2 style="color:#1c3028;">📝 New Blog Draft Ready</h2>
+      <p><strong>Title:</strong> ${title}</p>
+      <p><strong>Category:</strong> ${category}</p>
+      <p><strong>Excerpt:</strong><br>${excerpt}</p>
+      <hr/>
+      <p><strong>Draft ID:</strong> <code>${postId}</code></p>
+      <p>Reply to this email or message Ember on Telegram:</p>
+      <ul>
+        <li><strong>PUBLISH</strong> — make it live</li>
+        <li><strong>EDIT: [your notes]</strong> — revise it</li>
+        <li><strong>SKIP</strong> — discard</li>
+      </ul>
+    </div>
+  `;
 
   try {
-    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${resendKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        chat_id: 6869281291,
-        text: message,
-        parse_mode: 'Markdown',
+        from: 'Ember <ember@tripillarstudio.com>',
+        to: ['wayne@tripillarstudio.com'],
+        subject: `📝 Blog Draft Ready: ${title}`,
+        html,
       }),
     });
 
     if (!response.ok) {
-      console.error('Telegram send failed:', await response.text());
+      console.error('Resend send failed:', await response.text());
       return false;
     }
     return true;
   } catch (err) {
-    console.error('Telegram notification error:', err);
+    console.error('Email notification error:', err);
     return false;
   }
 }
