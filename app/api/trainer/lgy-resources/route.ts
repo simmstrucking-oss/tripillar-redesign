@@ -13,13 +13,13 @@ const TRAIN_ELEMENTARY = 'lgy/LGY_TRAIN001_Facilitator_Manual_Elementary.docx';
 const TRAIN_MH = 'lgy/LGY_TRAIN002_Facilitator_Manual_MH.docx';
 const TRAIN_ASSESSMENT = 'lgy/LGY_TRAIN003_004_Certification_Assessment.docx';
 
-async function getSignedUrl(
-  supabase: ReturnType<typeof createClient>,
-  path: string
-): Promise<string | null> {
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(path, SIGNED_URL_EXPIRES);
+function makeSupabase() {
+  return createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+async function getSignedUrl(path: string): Promise<string | null> {
+  const sb = makeSupabase();
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_EXPIRES);
   if (error || !data?.signedUrl) return null;
   return data.signedUrl;
 }
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
+  const supabase = makeSupabase();
   const isOwner = OWNER_EMAILS.includes(user.email ?? '');
 
   // Load trainer profile
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   // Elementary manual — gated to elementary authorization
   if (authorizedTracks.includes('elementary')) {
-    const url = await getSignedUrl(supabase, TRAIN_ELEMENTARY);
+    const url = await getSignedUrl(TRAIN_ELEMENTARY);
     if (url) {
       docs.push({ path: TRAIN_ELEMENTARY, label: docLabel(TRAIN_ELEMENTARY), url, track: 'elementary' });
       await supabase.from('trainer_document_downloads').insert({
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
 
   // Middle/High manual — gated to middle_high authorization
   if (authorizedTracks.includes('middle_high')) {
-    const url = await getSignedUrl(supabase, TRAIN_MH);
+    const url = await getSignedUrl(TRAIN_MH);
     if (url) {
       docs.push({ path: TRAIN_MH, label: docLabel(TRAIN_MH), url, track: 'middle_high' });
       await supabase.from('trainer_document_downloads').insert({
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
   // Assessment — visible for any authorized track
   if (authorizedTracks.length > 0) {
-    const url = await getSignedUrl(supabase, TRAIN_ASSESSMENT);
+    const url = await getSignedUrl(TRAIN_ASSESSMENT);
     if (url) {
       docs.push({ path: TRAIN_ASSESSMENT, label: docLabel(TRAIN_ASSESSMENT), url, track: 'both' });
       await supabase.from('trainer_document_downloads').insert({

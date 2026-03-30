@@ -28,13 +28,13 @@ function docLabel(path: string): string {
   return name;
 }
 
-async function getSignedUrl(
-  supabase: ReturnType<typeof createClient>,
-  path: string
-): Promise<string | null> {
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(path, SIGNED_URL_EXPIRES);
+function makeSupabase() {
+  return createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+async function getSignedUrl(path: string): Promise<string | null> {
+  const sb = makeSupabase();
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_EXPIRES);
   if (error || !data?.signedUrl) return null;
   return data.signedUrl;
 }
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
+  const supabase = makeSupabase();
   const isOwner = OWNER_EMAILS.includes(user.email ?? '');
 
   const { data: profile, error: profileError } = await supabase
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
   const sharedDocs = [];
   for (const path of SHARED_DOCS) {
     if (path.endsWith('.keep')) continue;
-    const url = await getSignedUrl(supabase, path);
+    const url = await getSignedUrl(path);
     if (!url) continue;
 
     await supabase.from('document_access_log').insert({
