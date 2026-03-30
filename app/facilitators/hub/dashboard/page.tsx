@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 import SignatureField from '@/app/components/SignatureField';
+import { WEEK1_CONTENT, type DocParagraph } from '@/lib/week1-content';
 
 /* ── Fonts ── */
 const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
@@ -3452,32 +3453,255 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         {step === 5 && (
           <div>
             {progressBar(5)}
-            {heading("Step 5 of 7 \u2014 Your First Session")}
-            {body("You are not expected to have memorized the Master Facilitator Manual. You are expected to have read Week 1 before training day. Know the structure of the first session before you walk into the room.")}
+            {heading('Step 5 of 7 \u2014 Your First Session')}
+
             {firstBook ? (
-              <button onClick={() => {
-                findAndOpenDoc(`FM`);
-              }}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : `Open Master Facilitator Manual \u2014 Book ${firstBook}`}
-              </button>
+              <>
+                {body('Read Week 1 of your Master Facilitator Manual below before training day. Every layer is here — participant workbook content, facilitation notes, and facilitator tips. Read it in full. Know the structure before you walk into the room.')}
+
+                {/* Inline Week 1 content */}
+                <div style={{
+                  background: '#FDFCF8',
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 8,
+                  padding: '1.5rem 1.75rem',
+                  margin: '1.25rem 0',
+                  maxHeight: '60vh',
+                  overflowY: 'auto',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.75,
+                  color: C.navy,
+                }}>
+                  {WEEK1_CONTENT.map((p: DocParagraph, i: number) => {
+                    if (!p.text.trim()) return <div key={i} style={{ height: '0.5rem' }} />;
+
+                    if (p.style === 'Heading 1') return (
+                      <h2 key={i} style={{
+                        fontFamily: 'Playfair Display, serif',
+                        fontSize: '1.15rem',
+                        fontWeight: 700,
+                        color: C.navy,
+                        margin: '1.5rem 0 0.5rem',
+                        borderBottom: `2px solid ${C.gold}`,
+                        paddingBottom: '0.4rem',
+                      }}>{p.text}</h2>
+                    );
+
+                    if (p.style === 'Heading 2') return (
+                      <h3 key={i} style={{
+                        fontFamily: 'Playfair Display, serif',
+                        fontSize: '0.975rem',
+                        fontWeight: 600,
+                        color: C.navy,
+                        margin: '1.25rem 0 0.35rem',
+                        borderLeft: `3px solid ${C.gold}`,
+                        paddingLeft: '0.6rem',
+                      }}>{p.text}</h3>
+                    );
+
+                    if (p.style === 'Heading 3') return (
+                      <h4 key={i} style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        color: C.navy,
+                        margin: '1rem 0 0.25rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}>{p.text}</h4>
+                    );
+
+                    if (p.style === 'List Paragraph') return (
+                      <div key={i} style={{
+                        paddingLeft: '1.25rem',
+                        margin: '0.2rem 0',
+                        position: 'relative',
+                      }}>
+                        <span style={{ position: 'absolute', left: 0, color: C.gold }}>›</span>
+                        {p.text}
+                      </div>
+                    );
+
+                    // Normal — detect special marker lines and style them distinctly
+                    const text = p.text;
+
+                    // Facilitator layer headers (▸ FACILITATION LAYER)
+                    if (text.startsWith('\u25b8 FACILITATION LAYER') || text.startsWith('\u25b8  First sessions')) {
+                      return (
+                        <div key={i} style={{
+                          background: '#EEF2FF',
+                          borderLeft: `3px solid #4F46E5`,
+                          borderRadius: '0 4px 4px 0',
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.5rem 0 0.2rem',
+                          fontWeight: 600,
+                          fontSize: '0.82rem',
+                          color: '#3730A3',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Participant workbook markers (▮ PARTICIPANT WORKBOOK)
+                    if (text.startsWith('\u25ae PARTICIPANT WORKBOOK')) {
+                      return (
+                        <div key={i} style={{
+                          background: C.goldLt,
+                          borderLeft: `3px solid ${C.gold}`,
+                          borderRadius: '0 4px 4px 0',
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.5rem 0 0.2rem',
+                          fontWeight: 600,
+                          fontSize: '0.82rem',
+                          color: '#7A5C10',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Invite lines (► Invite participants)
+                    if (text.startsWith('\u25ba Invite') || text.startsWith('\u25ba Point')) {
+                      return (
+                        <div key={i} style={{
+                          color: '#7A5C10',
+                          fontStyle: 'italic',
+                          fontSize: '0.84rem',
+                          margin: '0.4rem 0',
+                          paddingLeft: '0.5rem',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Facilitator Tips
+                    if (text.startsWith('Facilitator Tip:')) {
+                      return (
+                        <div key={i} style={{
+                          background: '#F0FDF4',
+                          borderLeft: `3px solid #16A34A`,
+                          borderRadius: '0 4px 4px 0',
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.4rem 0',
+                          fontSize: '0.84rem',
+                          color: '#166534',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Watch for / Transition / Closing ritual markers
+                    if (text.startsWith('\u2691 WATCH') || text.startsWith('\u2194 TRANSITION') || text.startsWith('\u25ce CLOSING') || text.startsWith('\u2192 LOOKING')) {
+                      return (
+                        <div key={i} style={{
+                          background: '#FFF7ED',
+                          borderLeft: `3px solid #D97706`,
+                          borderRadius: '0 4px 4px 0',
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.6rem 0 0.2rem',
+                          fontWeight: 600,
+                          fontSize: '0.82rem',
+                          color: '#92400E',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Trauma-sensitive tip (▲)
+                    if (text.startsWith('\u25b2 Trauma')) {
+                      return (
+                        <div key={i} style={{
+                          background: '#FFF1F2',
+                          borderLeft: `3px solid #E11D48`,
+                          borderRadius: '0 4px 4px 0',
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.6rem 0',
+                          fontSize: '0.84rem',
+                          color: '#881337',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Watch-for bullets (· Someone...)
+                    if (text.startsWith('\u00b7  ')) {
+                      return (
+                        <div key={i} style={{
+                          paddingLeft: '1rem',
+                          margin: '0.2rem 0',
+                          fontSize: '0.85rem',
+                          color: '#92400E',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Session at-a-glance block (◉ SESSION AT-A-GLANCE)
+                    if (text.startsWith('\u25c9 SESSION AT-A-GLANCE') || text.startsWith('\u25c8 BEFORE THE SESSION')) {
+                      return (
+                        <div key={i} style={{
+                          background: C.navy,
+                          color: '#fff',
+                          borderRadius: 4,
+                          padding: '0.4rem 0.75rem',
+                          margin: '0.75rem 0 0.2rem',
+                          fontWeight: 700,
+                          fontSize: '0.82rem',
+                          letterSpacing: '0.03em',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Timing lines (⏱)
+                    if (text.startsWith('\u23f1')) {
+                      return (
+                        <div key={i} style={{
+                          color: C.muted,
+                          fontSize: '0.82rem',
+                          fontStyle: 'italic',
+                          margin: '0.15rem 0 0.4rem',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // At-a-glance timing rows (indented dot-leader lines)
+                    if (text.startsWith('  ') && text.includes('\u00b7\u00b7\u00b7')) {
+                      return (
+                        <div key={i} style={{
+                          fontFamily: 'monospace',
+                          fontSize: '0.82rem',
+                          color: C.navy,
+                          margin: '0.1rem 0',
+                          paddingLeft: '0.5rem',
+                        }}>{text}</div>
+                      );
+                    }
+
+                    // Default normal paragraph
+                    return (
+                      <p key={i} style={{ margin: '0.35rem 0' }}>{text}</p>
+                    );
+                  })}
+                </div>
+
+                {/* Open Full Manual button */}
+                <button
+                  onClick={() => { findAndOpenDoc('FM'); }}
+                  disabled={openingDoc}
+                  style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, marginBottom: '1rem' }}
+                >
+                  {openingDoc ? 'Loading\u2026' : `Open Full Master Facilitator Manual \u2014 Book ${firstBook}`}
+                </button>
+
+                {checkboxRow('I have read Week 1 of the Master Facilitator Manual and am ready for training day.')}
+              </>
             ) : (
-              <p style={{ color: C.muted, fontSize: '0.9rem', fontStyle: 'italic', fontFamily: 'Inter, sans-serif' }}>
-                Your book assignment is pending. Wayne will confirm this before training day — check back here once confirmed.
-              </p>
-            )}
-            {firstBook
-              ? checkboxRow("I have reviewed Week 1 of the Master Facilitator Manual.")
-              : (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
+              <>
+                <p style={{ color: C.navy, fontSize: '0.95rem', fontFamily: 'Inter, sans-serif', lineHeight: 1.7, margin: '0 0 1.25rem' }}>
+                  Your book assignment will be confirmed by Wayne before training day. Once assigned, your Week 1 session will appear here. Check back after you hear from Wayne.
+                </p>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.9rem', color: C.navy,
                   fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
                   <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
-                    style={{ width: 18, height: 18, accentColor: C.gold, flexShrink: 0 }} />
-                  My book is not yet assigned. I understand I need to review Week 1 once it is confirmed.
+                    style={{ width: 18, height: 18, accentColor: C.gold, flexShrink: 0, marginTop: 2 }} />
+                  I understand my Week 1 content will be here once my book is assigned.
                 </label>
-              )
-            }
+              </>
+            )}
+
             {nextBtn(!checked)}
           </div>
         )}
