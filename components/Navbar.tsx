@@ -27,12 +27,12 @@ const simpleLinks = [
   { href: "/contact",      label: "Contact" },
 ];
 
-// Login portal links
+// Login portal links (highest tier → lowest)
 const loginLinks = [
-  { href: "https://solo.tripillarstudio.com", label: "I\u2019m a Participant" },
-  { href: "/login/facilitator",               label: "I\u2019m a Facilitator" },
-  { href: "/login/organization",              label: "I\u2019m an Organization" },
-  { href: "/login/trainer",                   label: "I\u2019m a Trainer" },
+  { href: "/login/organization", label: "Partner Portal",   sub: "Licensed Organizations",  icon: "🏛" },
+  { href: "/login/trainer",      label: "Trainer Portal",   sub: "Certified Trainers",       icon: "🎓" },
+  { href: "/login/facilitator",  label: "Facilitator Portal", sub: "Certified Facilitators", icon: "📋" },
+  { href: "https://solo.tripillarstudio.com", label: "Solo Companion", sub: "Individual Participants", icon: "👤", external: true },
 ];
 
 // Full mobile list (flat, no dropdowns)
@@ -334,17 +334,28 @@ export default function Navbar() {
                 pointerEvents: loginOpen ? "auto" : "none",
               }}
             >
-              {loginLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="block px-4 py-2.5 text-sm transition-colors"
-                  style={{ color: "#F5F0E8", borderLeft: "3px solid transparent" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
-                >
-                  {link.label}
-                </a>
+              {loginLinks.map((link, i) => (
+                <div key={link.href}>
+                  {i > 0 && (
+                    <div style={{ height: "1px", background: "rgba(201,168,76,0.25)", margin: "0 12px" }} />
+                  )}
+                  <a
+                    href={link.href}
+                    {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="block px-4 py-2.5 transition-colors"
+                    style={{ borderLeft: "3px solid transparent" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "14px" }}>{link.icon}</span>
+                      <div>
+                        <div style={{ color: "#F5F0E8", fontWeight: 600, fontSize: "13px", lineHeight: "1.3" }}>{link.label}</div>
+                        <div style={{ color: "rgba(245,240,232,0.55)", fontSize: "11px", lineHeight: "1.3" }}>{link.sub}</div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
               ))}
             </div>
           </li>
@@ -460,17 +471,28 @@ export default function Navbar() {
             </button>
             {mobileLoginOpen && (
               <div className="mt-2 rounded-xl overflow-hidden" style={{ background: "#1B2B4B" }}>
-                {loginLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="block px-5 py-3 text-sm transition-colors"
-                    style={{ color: "#F5F0E8", borderLeft: "3px solid transparent" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
-                  >
-                    {link.label}
-                  </a>
+                {loginLinks.map((link, i) => (
+                  <div key={link.href}>
+                    {i > 0 && (
+                      <div style={{ height: "1px", background: "rgba(201,168,76,0.25)", margin: "0 16px" }} />
+                    )}
+                    <a
+                      href={link.href}
+                      {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="block px-5 py-3 transition-colors"
+                      style={{ borderLeft: "3px solid transparent" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <span style={{ fontSize: "16px" }}>{link.icon}</span>
+                        <div>
+                          <div style={{ color: "#F5F0E8", fontWeight: 600, fontSize: "14px", lineHeight: "1.3" }}>{link.label}</div>
+                          <div style={{ color: "rgba(245,240,232,0.55)", fontSize: "12px", lineHeight: "1.3" }}>{link.sub}</div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
                 ))}
               </div>
             )}

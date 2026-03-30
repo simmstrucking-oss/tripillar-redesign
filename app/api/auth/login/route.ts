@@ -51,20 +51,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 401 });
   }
 
+  // Owner override — Wayne and Jamie always route to admin/facilitator hub
+  const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
+
   // Look up the user's role from facilitator_profiles for client-side routing
   let role: string | null = null;
   if (data.user) {
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
-    const { data: profile } = await sb
-      .from('facilitator_profiles')
-      .select('role')
-      .eq('user_id', data.user.id)
-      .single();
-    role = profile?.role ?? null;
+    if (OWNER_EMAILS.includes(data.user.email ?? '')) {
+      role = 'super_admin';
+    } else {
+      const sb = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      );
+      const { data: profile } = await sb
+        .from('facilitator_profiles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+      role = profile?.role ?? null;
+    }
   }
 
   // Re-create response with role included (cookies were already set on `res`)
