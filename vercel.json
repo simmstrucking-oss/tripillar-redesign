@@ -19,6 +19,18 @@
     {
       "path": "/api/internal/health-check",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/blog-draft",
+      "schedule": "0 13 * * 1"
+    },
+    {
+      "path": "/api/cron/blog-draft",
+      "schedule": "0 13 * * 3"
+    },
+    {
+      "path": "/api/cron/blog-draft",
+      "schedule": "0 13 * * 5"
     }
   ]
 }
