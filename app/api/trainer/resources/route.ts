@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserFromRequest } from '@/lib/auth-helper';
 
-/* ── Types ── */
 interface Document {
   name: string;
   url: string | null;
@@ -20,166 +19,78 @@ const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
 const FAC_BUCKET = 'facilitator-documents';
 const RESTRICTED_BUCKET = 'restricted-documents';
 
-/* ─────────────────────────────────────────────────────────────
-   EXACT paths verified against Supabase Storage 2026-03-29
-   facilitator-documents/ folder structure:
-     01_PROGRAM/
-       LG_Participant_Appropriateness_Guide.docx
-       LG_Program_Overview.docx
-       LG_Self_Guided_Solo_Companion.docx
-       LG_Specialized_Populations_Supplement.docx
-     02_FACILITATOR/
-       LG_Certified_Facilitator_Reference_Guide_Book1_FINAL.docx  (no CFRG/ subfolder)
-       LG_Certified_Facilitator_Reference_Guide_Book2_FINAL.docx
-       LG_Certified_Facilitator_Reference_Guide_Book3_FINAL.docx
-       LG_Certified_Facilitator_Reference_Guide_Book4_FINAL.docx
-       LG_Facilitator_Code_of_Conduct.docx
-       LG_Facilitator_Corrective_Action_Process.docx
-       LG_Facilitator_Inner_Work_Guide.docx
-       LG_Facilitator_Supervision_Framework.docx
-       LG_Master_Facilitator_Manual_Book1_FINAL.docx  (no FM/ subfolder)
-       LG_Master_Facilitator_Manual_Book2_FINAL.docx
-       LG_Master_Facilitator_Manual_Book3_FINAL.docx
-       LG_Master_Facilitator_Manual_Book4_FINAL.docx
-       LG_Virtual_Facilitation_Addendum.docx
-     03_CERTIFICATION/
-       LG_Assessment_Book1_Participant_Copy.docx
-       LG_Assessment_Book2_Participant_Copy.docx
-       LG_Assessment_Book3_Participant_Copy.docx
-       LG_Assessment_Book4_Participant_Copy.docx
-       LG_Certification_Acknowledgment_Form.docx
-       LG_Trainer_Certification_Pathway.docx
-     03_TRAINING/
-       LG_Facilitator_Certification_Training_Manual_Book1_FINAL.docx
-       LG_Facilitator_Certification_Training_Manual_Book2_FINAL.docx
-       LG_Facilitator_Certification_Training_Manual_Book3_FINAL.docx
-       LG_Facilitator_Certification_Training_Manual_Book4_FINAL.docx
-     04_OUTCOMES/
-       LG_Outcome_Facilitator_Cohort_Summary.docx
-       LG_Outcome_Tracking_Book2_Post_Program.docx
-       LG_Outcome_Tracking_Book2_Pre_Program.docx
-       LG_Outcome_Tracking_Book3_Post_Program.docx
-       LG_Outcome_Tracking_Book3_Pre_Program.docx
-       LG_Outcome_Tracking_Book4_Post_Program.docx
-       LG_Outcome_Tracking_Book4_Pre_Program.docx
-       LG_Outcome_Tracking_Post_Program.docx     (Book 1 pre/post — no book number suffix)
-       LG_Outcome_Tracking_Pre_Program.docx
-       LG_Outcomes_Research_Brief.docx
-       LG_Program_Evaluation_Summary_Template.docx
-     05_FORMS/
-       LG_Crisis_Resources_Sheet.docx
-       LG_Critical_Incident_Report.docx
-       LG_Facilitator_Reflection_Log.docx
-       LG_Group_Agreements.docx
-       LG_Scenario_Cards_Modules_8_9.docx
-       LG_Session_Attendance_Log.docx
-       LG_Session_Feedback_Form.docx
+/* ─────────────────────────────────────────────────────────────────────────
+   BOOKS ARE NOT SERVED DIGITALLY THROUGH THE HUB.
+   FM, CFRG, TM removed from all trainer-facing sections.
+   Answer keys (restricted-documents) remain — trainers still need those.
+──────────────────────────────────────────────────────────────────────────*/
 
-   restricted-documents/03_CERTIFICATION/
-       LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx
-       LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx
-       LG_Assessment_Trainer_Answer_Key_Book4_CONFIDENTIAL.docx
-    
-
-   trainer-documents/ — empty bucket (templates not yet uploaded)
-────────────────────────────────────────────────────────────── */
-
-/* ── Facilitator section definitions — exact paths from storage ── */
 interface FacDocDef { name: string; path: string; }
 interface FacSectionDef { title: string; docs: FacDocDef[]; }
 
+// Non-book facilitator documents trainers can access
 const FACILITATOR_SECTIONS: FacSectionDef[] = [
   {
-    title: 'Program Overview',
+    title: 'Program Reference',
     docs: [
-      { name: 'Program Overview', path: '01_PROGRAM/LG_Program_Overview.docx' },
-      { name: 'Participant Appropriateness Guide', path: '01_PROGRAM/LG_Participant_Appropriateness_Guide.docx' },
-      { name: 'Specialized Populations Supplement', path: '01_PROGRAM/LG_Specialized_Populations_Supplement.docx' },
-      { name: 'Self-Guided Solo Companion Guide', path: '01_PROGRAM/LG_Self_Guided_Solo_Companion.docx' },
-    ],
-  },
-  {
-    title: 'Certified Facilitator Reference Guides',
-    docs: [
-      { name: 'CFRG — Book 1: In The Quiet', path: '02_FACILITATOR/LG_Certified_Facilitator_Reference_Guide_Book1_FINAL.docx' },
-      { name: 'CFRG — Book 2: Through The Weight', path: '02_FACILITATOR/LG_Certified_Facilitator_Reference_Guide_Book2_FINAL.docx' },
-      { name: 'CFRG — Book 3: Toward the Light', path: '02_FACILITATOR/LG_Certified_Facilitator_Reference_Guide_Book3_FINAL.docx' },
-      { name: 'CFRG — Book 4: With the Memory', path: '02_FACILITATOR/LG_Certified_Facilitator_Reference_Guide_Book4_FINAL.docx' },
-    ],
-  },
-  {
-    title: 'Master Facilitator Manuals',
-    docs: [
-      { name: 'Master Facilitator Manual — Book 1: In The Quiet', path: '02_FACILITATOR/LG_Master_Facilitator_Manual_Book1_FINAL.docx' },
-      { name: 'Master Facilitator Manual — Book 2: Through The Weight', path: '02_FACILITATOR/LG_Master_Facilitator_Manual_Book2_FINAL.docx' },
-      { name: 'Master Facilitator Manual — Book 3: Toward the Light', path: '02_FACILITATOR/LG_Master_Facilitator_Manual_Book3_FINAL.docx' },
-      { name: 'Master Facilitator Manual — Book 4: With the Memory', path: '02_FACILITATOR/LG_Master_Facilitator_Manual_Book4_FINAL.docx' },
+      { name: 'Program Overview',                    path: '01_PROGRAM/LG_Program_Overview.docx' },
+      { name: 'Participant Appropriateness Guide',   path: '01_PROGRAM/LG_Participant_Appropriateness_Guide.docx' },
+      { name: 'Specialized Populations Supplement',  path: '01_PROGRAM/LG_Specialized_Populations_Supplement.docx' },
+      { name: 'Self-Guided Solo Companion Guide',    path: '01_PROGRAM/LG_Self_Guided_Solo_Companion.docx' },
     ],
   },
   {
     title: 'Facilitator Resources',
     docs: [
-      { name: 'Facilitator Inner Work Guide', path: '02_FACILITATOR/LG_Facilitator_Inner_Work_Guide.docx' },
-      { name: 'Facilitator Code of Conduct', path: '02_FACILITATOR/LG_Facilitator_Code_of_Conduct.docx' },
-      { name: 'Facilitator Supervision Framework', path: '02_FACILITATOR/LG_Facilitator_Supervision_Framework.docx' },
+      { name: 'Facilitator Inner Work Guide',          path: '02_FACILITATOR/LG_Facilitator_Inner_Work_Guide.docx' },
+      { name: 'Facilitator Code of Conduct',           path: '02_FACILITATOR/LG_Facilitator_Code_of_Conduct.docx' },
+      { name: 'Facilitator Supervision Framework',     path: '02_FACILITATOR/LG_Facilitator_Supervision_Framework.docx' },
       { name: 'Facilitator Corrective Action Process', path: '02_FACILITATOR/LG_Facilitator_Corrective_Action_Process.docx' },
-      { name: 'Virtual Facilitation Addendum', path: '02_FACILITATOR/LG_Virtual_Facilitation_Addendum.docx' },
+      { name: 'Virtual Facilitation Addendum',         path: '02_FACILITATOR/LG_Virtual_Facilitation_Addendum.docx' },
     ],
   },
   {
     title: 'Certification & Trainer Pathway',
     docs: [
-      { name: 'Trainer Certification Pathway', path: '03_CERTIFICATION/LG_Trainer_Certification_Pathway.docx' },
-      { name: 'Certification Acknowledgment Form', path: '03_CERTIFICATION/LG_Certification_Acknowledgment_Form.docx' },
-      { name: 'Assessment Participant Copy — Book 1', path: '03_CERTIFICATION/LG_Assessment_Book1_Participant_Copy.docx' },
-      { name: 'Assessment Participant Copy — Book 2', path: '03_CERTIFICATION/LG_Assessment_Book2_Participant_Copy.docx' },
-      { name: 'Assessment Participant Copy — Book 3', path: '03_CERTIFICATION/LG_Assessment_Book3_Participant_Copy.docx' },
-      { name: 'Assessment Participant Copy — Book 4', path: '03_CERTIFICATION/LG_Assessment_Book4_Participant_Copy.docx' },
+      { name: 'Trainer Certification Pathway',           path: '03_CERTIFICATION/LG_Trainer_Certification_Pathway.docx' },
+      { name: 'Certification Acknowledgment Form',       path: '03_CERTIFICATION/LG_Certification_Acknowledgment_Form.docx' },
+      { name: 'Assessment Participant Copy — Book 1',   path: '03_CERTIFICATION/LG_Assessment_Book1_Participant_Copy.docx' },
+      { name: 'Assessment Participant Copy — Book 2',   path: '03_CERTIFICATION/LG_Assessment_Book2_Participant_Copy.docx' },
+      { name: 'Assessment Participant Copy — Book 3',   path: '03_CERTIFICATION/LG_Assessment_Book3_Participant_Copy.docx' },
+      { name: 'Assessment Participant Copy — Book 4',   path: '03_CERTIFICATION/LG_Assessment_Book4_Participant_Copy.docx' },
     ],
   },
   {
     title: 'Outcome Tracking',
     docs: [
-      // Book 1 has no book number suffix
-      { name: 'Outcome Tracking — Pre-Program (Book 1)', path: '04_OUTCOMES/LG_Outcome_Tracking_Pre_Program.docx' },
+      { name: 'Outcome Tracking — Pre-Program (Book 1)',  path: '04_OUTCOMES/LG_Outcome_Tracking_Pre_Program.docx' },
       { name: 'Outcome Tracking — Post-Program (Book 1)', path: '04_OUTCOMES/LG_Outcome_Tracking_Post_Program.docx' },
-      { name: 'Outcome Tracking — Pre-Program (Book 2)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book2_Pre_Program.docx' },
+      { name: 'Outcome Tracking — Pre-Program (Book 2)',  path: '04_OUTCOMES/LG_Outcome_Tracking_Book2_Pre_Program.docx' },
       { name: 'Outcome Tracking — Post-Program (Book 2)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book2_Post_Program.docx' },
-      { name: 'Outcome Tracking — Pre-Program (Book 3)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book3_Pre_Program.docx' },
+      { name: 'Outcome Tracking — Pre-Program (Book 3)',  path: '04_OUTCOMES/LG_Outcome_Tracking_Book3_Pre_Program.docx' },
       { name: 'Outcome Tracking — Post-Program (Book 3)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book3_Post_Program.docx' },
-      { name: 'Outcome Tracking — Pre-Program (Book 4)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book4_Pre_Program.docx' },
+      { name: 'Outcome Tracking — Pre-Program (Book 4)',  path: '04_OUTCOMES/LG_Outcome_Tracking_Book4_Pre_Program.docx' },
       { name: 'Outcome Tracking — Post-Program (Book 4)', path: '04_OUTCOMES/LG_Outcome_Tracking_Book4_Post_Program.docx' },
-      { name: 'Facilitator Cohort Summary', path: '04_OUTCOMES/LG_Outcome_Facilitator_Cohort_Summary.docx' },
-      { name: 'Outcomes Research Brief', path: '04_OUTCOMES/LG_Outcomes_Research_Brief.docx' },
-      { name: 'Program Evaluation Summary Template', path: '04_OUTCOMES/LG_Program_Evaluation_Summary_Template.docx' },
+      { name: 'Facilitator Cohort Summary',               path: '04_OUTCOMES/LG_Outcome_Facilitator_Cohort_Summary.docx' },
+      { name: 'Outcomes Research Brief',                  path: '04_OUTCOMES/LG_Outcomes_Research_Brief.docx' },
+      { name: 'Program Evaluation Summary Template',      path: '04_OUTCOMES/LG_Program_Evaluation_Summary_Template.docx' },
     ],
   },
   {
     title: 'Forms & Templates',
     docs: [
-      { name: 'Crisis Resources Sheet', path: '05_FORMS/LG_Crisis_Resources_Sheet.docx' },
-      { name: 'Group Agreements', path: '05_FORMS/LG_Group_Agreements.docx' },
-      { name: 'Session Attendance Log', path: '05_FORMS/LG_Session_Attendance_Log.docx' },
-      { name: 'Session Feedback Form', path: '05_FORMS/LG_Session_Feedback_Form.docx' },
-      { name: 'Facilitator Reflection Log', path: '05_FORMS/LG_Facilitator_Reflection_Log.docx' },
-      { name: 'Critical Incident Report', path: '05_FORMS/LG_Critical_Incident_Report.docx' },
-      // Trainer-only: confirmed at 05_FORMS/ (not 02_FACILITATOR/)
+      { name: 'Crisis Resources Sheet',         path: '05_FORMS/LG_Crisis_Resources_Sheet.docx' },
+      { name: 'Group Agreements',                path: '05_FORMS/LG_Group_Agreements.docx' },
+      { name: 'Session Attendance Log',          path: '05_FORMS/LG_Session_Attendance_Log.docx' },
+      { name: 'Session Feedback Form',           path: '05_FORMS/LG_Session_Feedback_Form.docx' },
+      { name: 'Facilitator Reflection Log',      path: '05_FORMS/LG_Facilitator_Reflection_Log.docx' },
+      { name: 'Critical Incident Report',        path: '05_FORMS/LG_Critical_Incident_Report.docx' },
       { name: 'Scenario Cards — Modules 8 & 9', path: '05_FORMS/LG_Scenario_Cards_Modules_8_9.docx' },
     ],
   },
 ];
 
-/* ── Training Manual definitions — exact paths from storage ── */
-const TRAINING_MANUALS: Record<number, string> = {
-  1: '03_TRAINING/LG_Facilitator_Certification_Training_Manual_Book1_FINAL.docx',
-  2: '03_TRAINING/LG_Facilitator_Certification_Training_Manual_Book2_FINAL.docx',
-  3: '03_TRAINING/LG_Facilitator_Certification_Training_Manual_Book3_FINAL.docx',
-  4: '03_TRAINING/LG_Facilitator_Certification_Training_Manual_Book4_FINAL.docx',
-};
-
-/* ── Answer Key definitions — exact paths from restricted-documents bucket ── */
-// Book 1 has NO answer key here — it is embedded in the Founders Only document (admin-only)
-// Books 2-4 only
+// Answer Keys — restricted-documents only (Books 2-4; Book 1 is admin-only)
 const ANSWER_KEYS: Record<number, string> = {
   2: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx',
   3: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx',
@@ -216,7 +127,6 @@ export async function GET(req: NextRequest) {
 
   const booksAuthorized: number[] = isOwner ? [1, 2, 3, 4] : (profile?.books_authorized_to_train ?? []);
 
-  /* ── Helper: generate signed URL, return null on any error ── */
   async function signedUrl(bucket: string, path: string, expiresIn = 3600): Promise<string | null> {
     try {
       const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn);
@@ -227,29 +137,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  /* ════════════════════════════════════
+  /* ══════════════════════════════════════
      GROUP 1 — Trainer-Specific Documents
-  ═════════════════════════════════════*/
+     Answer keys only — no training manuals
+     (books are physical; not served digitally)
+  ═══════════════════════════════════════*/
   const trainerSections: Section[] = [];
 
   for (const bookNum of booksAuthorized.sort((a, b) => a - b)) {
     const bookName = BOOK_NAMES[bookNum] ?? `Book ${bookNum}`;
     const bookDocs: Document[] = [];
 
-    // Training Manual — facilitator-documents/03_TRAINING/
-    const tmPath = TRAINING_MANUALS[bookNum];
-    if (tmPath) {
-      const tmUrl = await signedUrl(FAC_BUCKET, tmPath);
-      bookDocs.push({
-        name: `Facilitator Certification Training Manual — Book ${bookNum}: ${bookName}`,
-        url: tmUrl,
-        confidential: false,
-        bucket: FAC_BUCKET,
-        path: tmPath,
-      });
-    }
-
-    // Assessment Participant Copy — facilitator-documents/03_CERTIFICATION/
+    // Assessment Participant Copy
     const assessPath = `03_CERTIFICATION/LG_Assessment_Book${bookNum}_Participant_Copy.docx`;
     const assessUrl = await signedUrl(FAC_BUCKET, assessPath);
     bookDocs.push({
@@ -260,10 +159,10 @@ export async function GET(req: NextRequest) {
       path: assessPath,
     });
 
-    // Answer Key — restricted-documents/03_CERTIFICATION/
+    // Answer Key (restricted-documents, 60s TTL)
     const akPath = ANSWER_KEYS[bookNum];
     if (akPath) {
-      const akUrl = await signedUrl(RESTRICTED_BUCKET, akPath, 60); // 60s only — confidential
+      const akUrl = await signedUrl(RESTRICTED_BUCKET, akPath, 60);
       bookDocs.push({
         name: `Trainer Answer Key — Book ${bookNum}: ${bookName}`,
         url: akUrl,
@@ -281,8 +180,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // General trainer documents (not book-specific)
-  // trainer-documents bucket — exact paths verified 2026-03-29
+  // General trainer documents
   const generalTrainerDocs: Document[] = [
     {
       name: 'Certified Trainer Agreement',
@@ -301,17 +199,16 @@ export async function GET(req: NextRequest) {
   ];
   trainerSections.push({ title: 'General Trainer Documents', documents: generalTrainerDocs });
 
-  /* ════════════════════════════════════
+  /* ══════════════════════════════════════
      GROUP 2 — Facilitator Resources
-     Trainers get full access, no cert gate
-  ═════════════════════════════════════*/
+     Non-book docs only
+  ═══════════════════════════════════════*/
   const facilitatorSections: Section[] = [];
 
   for (const secDef of FACILITATOR_SECTIONS) {
     const docs: Document[] = [];
     for (const docDef of secDef.docs) {
       const url = await signedUrl(FAC_BUCKET, docDef.path);
-      // Include even if url is null — UI shows "unavailable" rather than hiding section entirely
       docs.push({
         name: docDef.name,
         url,
@@ -324,15 +221,16 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
+    physicalMaterialsNotice: 'Physical program materials are provided at certification training. Digital access coming soon.',
     sections: [
       {
         groupTitle: 'Trainer Documents',
-        groupDesc: 'Training manuals, assessment copies, and confidential answer keys for your authorized books.',
+        groupDesc: 'Assessment copies and confidential answer keys for your authorized books.',
         sections: trainerSections,
       },
       {
         groupTitle: 'Facilitator Resources',
-        groupDesc: 'Full facilitator curriculum and support documents. Trainers have access to all books.',
+        groupDesc: 'Program and support documents.',
         sections: facilitatorSections,
       },
     ],

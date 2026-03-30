@@ -256,12 +256,17 @@ function DocumentsLibrary({ profile }: { profile: Profile | null }) {
   const [loading, setLoading]     = useState(true);
   const [search, setSearch]       = useState('');
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [physicalNotice, setPhysicalNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile) return;
     fetch('/api/hub/documents', { credentials: 'include' })
       .then(r => r.json())
-      .then(data => { setSections(data.sections ?? []); setLoading(false); })
+      .then(data => {
+        setSections(data.sections ?? []);
+        setPhysicalNotice(data.physicalMaterialsNotice ?? null);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, [profile]);
 
@@ -303,6 +308,19 @@ function DocumentsLibrary({ profile }: { profile: Profile | null }) {
           style={{ ...inp, width: 220, fontSize: '0.8rem', padding: '0.4rem 0.65rem' }}
         />
       </div>
+
+      {physicalNotice && !loading && (
+        <div style={{
+          background: '#F9F7F3', border: `1px solid ${C.goldLt}`, borderRadius: 8,
+          padding: '0.75rem 1rem', marginBottom: '1rem',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: '1rem' }}>📚</span>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, margin: 0 }}>
+            {physicalNotice}
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <p style={{ color: C.muted, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem' }}>Loading documents...</p>
@@ -3802,7 +3820,7 @@ function OrientationPanel({ onDismiss }: { onDismiss: () => void }) {
       <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.75 }}>
         <p style={{ margin: '0 0 0.5rem' }}>Here is everything you need to know:</p>
         <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
-          <li><strong>Library tab:</strong> your Master Facilitator Manual and Reference Guide are here. Additional documents unlock as you complete certification for each book.</li>
+          <li><strong>Library tab:</strong> forms, outcome tracking, certification materials, and reference documents are here. Physical program materials are provided at certification training.</li>
           <li><strong>Forms tab:</strong> submit incident reports, session feedback, reflections, and cohort summaries digitally. All submissions are logged.</li>
           <li><strong>Get Support tab:</strong> send a consultation request to Tri-Pillars™ any time.</li>
           <li>Your reflections are private. Everything else is logged for program records.</li>

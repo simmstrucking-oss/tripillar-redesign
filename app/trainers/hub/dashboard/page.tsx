@@ -708,6 +708,7 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
   const [groups, setGroups] = useState<ResourceGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [physicalNotice, setPhysicalNotice] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ name: string; url: string } | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
@@ -726,6 +727,7 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
       .then(data => {
         if (data.error) { setError(data.error); setLoading(false); return; }
         setGroups(data.sections ?? []);
+        setPhysicalNotice(data.physicalMaterialsNotice ?? null);
         setLoading(false);
       })
       .catch(() => { setError('Failed to load resources.'); setLoading(false); });
@@ -784,6 +786,18 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
 
   return (
     <>
+      {physicalNotice && (
+        <div style={{
+          background: '#F9F7F3', border: '1px solid #E5D9B6', borderRadius: 8,
+          padding: '0.75rem 1rem', marginBottom: '1.25rem',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: '1rem' }}>📚</span>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: '#1B2B4B', margin: 0 }}>
+            {physicalNotice}
+          </p>
+        </div>
+      )}
       {groups.map((group, gi) => (
         <div key={gi} style={{ marginBottom: '2rem' }}>
           {/* Group header */}
