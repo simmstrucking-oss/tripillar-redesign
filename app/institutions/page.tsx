@@ -52,34 +52,34 @@ const included = [
 
 const tiers = [
   {
-    name: "Pilot",
+    name: "Community",
     price: "Contact for Pricing",
-    desc: "For organizations ready to run a limited-scope pilot before broader rollout.",
+    desc: "For community organizations, faith communities, and nonprofits ready to run ongoing cohorts and build internal capacity.",
     includes: [
-      "One facilitator trained",
-      "One cohort (adult or youth)",
+      "Up to 2 facilitators trained",
+      "Adult or youth program",
       "Full curriculum access",
-      "Implementation check-ins",
+      "Implementation support",
     ],
     highlight: false,
   },
   {
-    name: "Community",
+    name: "Standard Organization",
     price: "Contact for Pricing",
-    desc: "For organizations ready to run ongoing cohorts and build internal capacity.",
+    desc: "For healthcare systems, schools, and mid-size organizations running both adult and youth programs.",
     includes: [
-      "Up to 3 facilitators trained",
+      "Up to 4 facilitators trained",
       "Adult and youth programs",
       "Annual curriculum updates",
       "Quarterly support calls",
-      "Community of practice access",
+      "Facilitator Hub access",
     ],
     highlight: true,
   },
   {
-    name: "Enterprise",
+    name: "Multi-Site",
     price: "Contact for Pricing",
-    desc: "For larger systems or networks wanting to embed grief support across multiple sites or divisions.",
+    desc: "For larger systems or networks embedding grief support across multiple sites or divisions.",
     includes: [
       "Unlimited facilitator training",
       "Multi-site deployment",
