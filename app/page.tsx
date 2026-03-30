@@ -399,7 +399,8 @@ export default function HomePage() {
       </section>
 
       {/* Program Reach — live metrics (SSR + count-up) */}
-      <PublicMetricsSection />
+      {/* showMetrics={false} — change to true when ready to display real data */}
+      {false && <PublicMetricsSection />}
 
       {/* Founders story */}
       <section className="py-24 bg-section-alt">

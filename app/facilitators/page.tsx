@@ -3,30 +3,32 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Become a Facilitator | Tri-Pillars™",
+  title: "Become a Facilitator | Live and Grieve™",
   description:
-    "Get certified to facilitate Live and Grieve groups. Community, Professional, and Ministry tracks available. No clinical license required.",
+    "Become a Live and Grieve™ Certified Facilitator. No clinical license required — only preparation, presence, and a willingness to walk alongside people in their grief.",
 };
 
-const adultTracks = [
-  { name: "Community Track", desc: "For lay leaders, church volunteers, and community members who want to hold space for grieving people in their neighborhood." },
-  { name: "Professional Track", desc: "For social workers, counselors, chaplains, and healthcare professionals adding structured grief support to their practice." },
-  { name: "Ministry Track", desc: "For pastors, deacons, and ministry leaders integrating evidence-based grief care into their congregational work." },
-];
-
-const youthTracks = [
-  { name: "Elementary Facilitator", desc: "Ages 5 to 11. Developmentally appropriate activities, caregiver communication, and creating safe spaces for young children." },
-  { name: "Middle-High Facilitator", desc: "Ages 12 to 18. Navigating adolescent grief, peer dynamics, mandated reporter obligations, and boundary-setting." },
-  { name: "Combined", desc: "Both tracks in a single certification for organizations serving the full K-12 range." },
-];
-
-const training = [
-  "Trauma-informed facilitation techniques",
-  "Group dynamics and safety protocols",
-  "All six research frameworks in practice",
-  "Holding space without overstepping",
-  "Session-by-session guidance for the full program",
-  "Handling difficult moments and crisis referrals",
+const steps = [
+  {
+    number: "01",
+    title: "Apply",
+    desc: "Express interest through the contact form. Wayne or a Certified Trainer will reach out to discuss whether Live and Grieve™ is the right fit for you and your community.",
+  },
+  {
+    number: "02",
+    title: "Prepare",
+    desc: "Complete pre-training preparation through the Facilitator Hub — the Inner Work Guide, the Participant Appropriateness Guide, and Week 1 of your Facilitator Manual. This is not optional. You need to have done this work before training day.",
+  },
+  {
+    number: "03",
+    title: "Train",
+    desc: "Complete a two-day facilitator certification training — delivered virtually or in person by Wayne, Jamie, or a Certified Trainer. 14 contact hours. Assessment included.",
+  },
+  {
+    number: "04",
+    title: "Facilitate",
+    desc: "Launch your first group. You will have full access to the Facilitator Hub — structured session guides, digital forms, consultation support, and a direct line to Tri-Pillars™ whenever you need it.",
+  },
 ];
 
 export default function FacilitatorsPage() {
@@ -46,75 +48,66 @@ export default function FacilitatorsPage() {
             Facilitator Certification
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-tight mb-6">
-            You don&apos;t need a license.{" "}
-            <span className="gold-text">You need to care.</span>
+            Become a Live and Grieve<sup className="text-2xl ml-0.5">™</sup>{" "}
+            Certified Facilitator
           </h1>
           <p className="text-xl text-muted max-w-2xl leading-relaxed">
-            Live and Grieve facilitators are trained laypeople, not therapists.
-            The program provides the structure. The curriculum provides the
-            content. You provide the presence.
+            You don&apos;t need a clinical license. You need preparation,
+            presence, and a willingness to walk alongside people in their
+            grief.
           </p>
         </div>
       </section>
 
-      {/* Adult Certification */}
-      <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
+      {/* Who This Is For */}
+      <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6">
         <FadeIn>
           <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-            Adult Program
+            Who This Is For
           </p>
-          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-            Adult facilitator certification.
+          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8 leading-snug">
+            Who facilitators are.
           </h2>
-          <p className="text-muted text-sm mb-4">
-            Includes 2-day training, all materials, and ongoing support.
+          <p className="text-muted leading-relaxed text-lg max-w-3xl">
+            Live and Grieve™ facilitators come from every background — social
+            workers, chaplains, nurses, teachers, community organizers, and
+            people who have walked through loss themselves and want to give
+            others what they needed. What they share is not a credential. It
+            is a calling to show up, consistently, for people who are
+            grieving. If that describes you, this is for you.
           </p>
-          <p className="text-muted text-sm mb-4">
-            Certification pricing available on inquiry. Contact us to discuss rates for your organization.
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block border border-card-border text-muted hover:text-navy hover:border-navy/30 px-5 py-2.5 rounded-md text-sm transition-colors mb-10"
-          >
-            Contact Us →
-          </Link>
         </FadeIn>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {adultTracks.map((track, i) => (
-            <FadeIn key={i} delay={i * 80}>
-              <div className="bg-card-bg border border-card-border shadow-sm rounded-xl p-6 h-full">
-                <div className="w-8 h-0.5 bg-gold mb-4" />
-                <h3 className="font-serif text-lg text-navy mb-3">{track.name}</h3>
-                <p className="text-muted text-sm leading-relaxed">{track.desc}</p>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
       </section>
 
-      {/* Youth Certification */}
+      {/* The Certification Process */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-              Youth Program
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-              Youth facilitator certification.
-            </h2>
-            <p className="text-muted text-sm mb-10">
-              Pricing available on inquiry. Contact us for organizational rates.
-            </p>
+            <div className="text-center mb-16">
+              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+                The Certification Process
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-navy">
+                Four steps from interest to facilitation.
+              </h2>
+            </div>
           </FadeIn>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {youthTracks.map((track, i) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, i) => (
               <FadeIn key={i} delay={i * 80}>
-                <div className="bg-card-bg border border-card-border shadow-sm rounded-xl p-6 h-full">
-                  <div className="w-8 h-0.5 bg-gold mb-4" />
-                  <h3 className="font-serif text-lg text-navy mb-3">{track.name}</h3>
-                  <p className="text-muted text-sm leading-relaxed">{track.desc}</p>
+                <div className="flex flex-col">
+                  <div className="w-12 h-12 rounded-full border border-gold/30 flex items-center justify-center mb-5">
+                    <span className="text-gold text-sm font-bold">
+                      {step.number}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-xl text-navy mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted text-sm leading-relaxed flex-1">
+                    {step.desc}
+                  </p>
                 </div>
               </FadeIn>
             ))}
@@ -122,45 +115,74 @@ export default function FacilitatorsPage() {
         </div>
       </section>
 
-      {/* What You Learn */}
-      <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      {/* Your Facilitator Hub */}
+      <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+            Your Facilitator Hub
+          </p>
+          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8 leading-snug">
+            Everything you need, in one place.
+          </h2>
+          <p className="text-muted leading-relaxed text-lg max-w-3xl">
+            Every certified facilitator gets access to the Live and
+            Grieve™ Facilitator Hub — a private platform with everything you
+            need to run your groups well. Session preparation materials,
+            digital forms for incident reports and feedback, a private
+            reflection log, cohort tracking, and direct consultation with
+            Tri-Pillars™. It is not a resource library. It is your
+            operational home base.
+          </p>
+        </FadeIn>
+      </section>
+
+      {/* Investment */}
+      <section className="py-24 bg-section-alt">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-              Training
+              Investment
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">
-              What you learn in two days.
+            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8 leading-snug">
+              What certification costs.
             </h2>
-            <ul className="space-y-3">
-              {training.map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-muted text-sm">
-                  <span className="text-gold mt-0.5 flex-shrink-0">◆</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </FadeIn>
-
-          <FadeIn delay={150}>
-            <div className="bg-card-bg border border-card-border rounded-2xl p-8">
-              <h3 className="font-serif text-2xl text-navy mb-4">
-                Next training: Spring 2026
-              </h3>
-              <p className="text-muted mb-6 text-sm leading-relaxed">
-                Our next facilitator certification event is in the last week
-                of April 2026. Organizational cohort training is also available
-                on request.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
-              >
-                Get in Touch →
-              </Link>
-            </div>
+            <p className="text-muted leading-relaxed text-lg max-w-3xl">
+              Facilitator certification is $450 per person per book. This is
+              typically paid by your organization as part of your licensing
+              agreement — not by you individually. Annual renewal is $150. If
+              you are an independent facilitator seeking a Group Use License,
+              contact us to discuss your path.
+            </p>
           </FadeIn>
         </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <div className="text-center">
+            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
+              Next Steps
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">
+              Ready to Take the Next Step?
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
+              >
+                Apply to Become a Facilitator
+              </Link>
+              <Link
+                href="/login/facilitator"
+                className="inline-flex items-center justify-center border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3.5 rounded-md text-sm font-medium transition-colors"
+              >
+                Facilitator Login
+              </Link>
+            </div>
+          </div>
+        </FadeIn>
       </section>
     </>
   );

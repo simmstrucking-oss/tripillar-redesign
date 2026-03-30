@@ -104,7 +104,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <span className="font-serif text-lg font-bold text-white">
-              Tri&#8209;Pillars<sup className="text-xs text-gold-light">™</sup> Studio
+              Tri&#8209;Pillars<sup className="text-xs text-gold-light">™</sup> LLC
             </span>
             <p className="text-white/60 text-sm mt-3 leading-relaxed">
               Kentucky-based, nationally reaching. Grief support that honors
@@ -161,8 +161,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/40">
-          <p>&copy; {new Date().getFullYear()} Tri&#8209;Pillars™ Studio. All rights reserved.</p>
-          <p>Live and Grieve™ and Live and Grieve Youth™ are trademarks of Tri&#8209;Pillars™ Studio.</p>
+          <p>&copy; {new Date().getFullYear()} Tri&#8209;Pillars™ LLC. All rights reserved.</p>
+          <p>Live and Grieve™ and Live and Grieve Youth™ are trademarks of Tri&#8209;Pillars™ LLC.</p>
         </div>
       </div>
     </footer>
