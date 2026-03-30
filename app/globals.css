@@ -14,6 +14,11 @@
   --card-bg: #ffffff;
   --card-border: #e8e4dc;
   --section-alt: #f2efe9;
+  /* Book pastel palette */
+  --book1: #c6cbcd;
+  --book2: #d0c2c3;
+  --book3: #becec3;
+  --book4: #d4c8b4;
 }
 
 @theme inline {
@@ -28,6 +33,10 @@
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-section-alt: var(--section-alt);
+  --color-book1: var(--book1);
+  --color-book2: var(--book2);
+  --color-book3: var(--book3);
+  --color-book4: var(--book4);
 }
 
 * {
@@ -114,6 +123,17 @@ body {
   background: var(--card-border);
   border-radius: 3px;
 }
+
+/* Book pastel accent borders */
+.book1-accent { border-top: 4px solid var(--book1); }
+.book2-accent { border-top: 4px solid var(--book2); }
+.book3-accent { border-top: 4px solid var(--book3); }
+.book4-accent { border-top: 4px solid var(--book4); }
+
+.book1-bg { background-color: var(--book1); }
+.book2-bg { background-color: var(--book2); }
+.book3-bg { background-color: var(--book3); }
+.book4-bg { background-color: var(--book4); }
 
 /* Forest green texture — applied to nav, hero, footer dark sections */
 .bg-texture {

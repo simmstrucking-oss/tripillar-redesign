@@ -149,15 +149,18 @@ export default function TrainersPage() {
 
                   {t.books_authorized.length > 0 && (
                     <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      {t.books_authorized.map((b) => (
-                        <span key={b} style={{
-                          background: '#EEF2FF', color: '#3730A3',
-                          border: '1px solid #C7D2FE', borderRadius: 6,
-                          padding: '0.2rem 0.6rem', fontSize: '0.75rem',
-                        }}>
-                          {bookLabel(b)}
-                        </span>
-                      ))}
+                      {t.books_authorized.map((b) => {
+                        const bookBg = ['#c6cbcd','#d0c2c3','#becec3','#d4c8b4'][b-1] ?? '#e8e4dc';
+                        return (
+                          <span key={b} style={{
+                            background: bookBg, color: '#1c3028',
+                            border: `1px solid ${bookBg}`, borderRadius: 6,
+                            padding: '0.2rem 0.6rem', fontSize: '0.75rem', fontWeight: 500,
+                          }}>
+                            {bookLabel(b)}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

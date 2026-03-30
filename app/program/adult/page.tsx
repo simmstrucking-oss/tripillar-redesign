@@ -212,7 +212,7 @@ export default function AdultProgramPage() {
         <div className="grid sm:grid-cols-2 gap-6">
           {books.map((book, i) => (
             <FadeIn key={i} delay={i * 100}>
-              <div className="card-hover bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col">
+              <div className={`card-hover bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col book${i + 1}-accent`}>
                 <div className="flex items-start justify-between mb-4">
                   <span className="font-serif text-3xl text-gold/40 font-bold">
                     {book.number}
