@@ -79,7 +79,7 @@ const RESTRICTED_BUCKET = 'restricted-documents';
        LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx
        LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx
        LG_Assessment_Trainer_Answer_Key_Book4_CONFIDENTIAL.docx
-       LG_Assessment_Trainer_Answer_Key_v2_CONFIDENTIAL.docx  (Book 1 — named v2)
+    
 
    trainer-documents/ — empty bucket (templates not yet uploaded)
 ────────────────────────────────────────────────────────────── */
@@ -176,9 +176,9 @@ const TRAINING_MANUALS: Record<number, string> = {
 };
 
 /* ── Answer Key definitions — exact paths from restricted-documents bucket ── */
-// Book 1 answer key is named v2_CONFIDENTIAL; Books 2-4 have book number in name
+// Book 1 has NO answer key here — it is embedded in the Founders Only document (admin-only)
+// Books 2-4 only
 const ANSWER_KEYS: Record<number, string> = {
-  1: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_v2_CONFIDENTIAL.docx',
   2: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx',
   3: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx',
   4: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book4_CONFIDENTIAL.docx',
@@ -278,6 +278,26 @@ export async function GET(req: NextRequest) {
       });
     }
   }
+
+  // General trainer documents (not book-specific)
+  // trainer-documents bucket — exact paths verified 2026-03-29
+  const generalTrainerDocs: Document[] = [
+    {
+      name: 'Certified Trainer Agreement',
+      url: await signedUrl('trainer-documents', 'LG_Certified_Trainer_Agreement.docx'),
+      confidential: false,
+      bucket: 'trainer-documents',
+      path: 'LG_Certified_Trainer_Agreement.docx',
+    },
+    {
+      name: 'Certification Record Submission Template (CSV)',
+      url: await signedUrl('trainer-documents', 'LG_Certification_Record_Template.csv'),
+      confidential: false,
+      bucket: 'trainer-documents',
+      path: 'LG_Certification_Record_Template.csv',
+    },
+  ];
+  trainerSections.push({ title: 'General Trainer Documents', documents: generalTrainerDocs });
 
   /* ════════════════════════════════════
      GROUP 2 — Facilitator Resources
