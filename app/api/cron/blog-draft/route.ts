@@ -163,11 +163,9 @@ export async function GET(req: NextRequest) {
     // Save to Supabase
     const saved = await saveDraftToSupabase(draft);
 
-    // Get Telegram bot token from env
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    if (!botToken) {
-      console.warn('TELEGRAM_BOT_TOKEN not configured; skipping notification');
-    } else {
+    // Get Telegram bot token — env var preferred, fallback to hardcoded
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8702053141:AAF0MaOOFfbSnpuhu2u_K59NtZ9k56X6Wxs';
+    {
       // Notify Wayne
       const notified = await notifyWayne(
         saved.title,
