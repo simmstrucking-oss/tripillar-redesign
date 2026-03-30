@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const tracks = [
   {
     name: "Elementary Track",
-    ages: "Ages 6–11",
+    ages: "Ages 8–12",
     desc: "Concrete, age-appropriate language and activities. This track uses story, art, and play-based approaches to help younger children understand and express loss in ways that match how they actually process the world.",
     highlights: [
       "Shorter, activity-rich sessions",
@@ -21,7 +21,7 @@ const tracks = [
   },
   {
     name: "Middle & High School Track",
-    ages: "Ages 12–18",
+    ages: "Ages 13–17",
     desc: "Teens need more than reassurance. They need space to process without performance. This track creates honest, peer-connected dialogue that respects where adolescents actually are.",
     highlights: [
       "Peer-led discussion elements",

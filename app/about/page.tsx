@@ -76,7 +76,7 @@ export default function AboutPage() {
               They spent years studying what contemporary grief researchers
               actually recommend: non-linear models, community-based support,
               continuing bonds with the people we lose. They built Live and
-              Grieve to be the program they wished had existed.
+              Grieve™ to be the program they wished had existed.
             </p>
           </FadeIn>
 
@@ -180,7 +180,8 @@ export default function AboutPage() {
       </section>
 
       {/* Program Reach — live metrics (SSR + count-up) */}
-      <PublicMetricsSection />
+      {/* showMetrics={false} — change to true when ready to display real data */}
+      {false && <PublicMetricsSection />}
 
       {/* Mission */}
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6 text-center">
