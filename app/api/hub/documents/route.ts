@@ -127,12 +127,23 @@ const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    title: 'Trainer Resources',
+    title: 'Trainer Pathway',
     folder: '02_FACILITATOR',
     program_type: 'adult',
     docs: [
+      { name: 'LG_Trainer_Certification_Pathway.docx', path: '02_FACILITATOR/LG_Trainer_Certification_Pathway.docx' },
       { name: 'LG_Scenario_Cards_Modules_8_9.docx', path: '02_FACILITATOR/LG_Scenario_Cards_Modules_8_9.docx', trainerOnly: true },
-      { name: 'LG_Trainer_Certification_Pathway.docx', path: '02_FACILITATOR/LG_Trainer_Certification_Pathway.docx', trainerOnly: true },
+    ],
+  },
+  {
+    title: 'Outcome Tracking Forms',
+    folder: '04_OUTCOMES',
+    program_type: 'adult',
+    docs: [
+      { name: 'LG_Outcome_Tracking_Form_Book1.docx', path: '04_OUTCOMES/LG_Outcome_Tracking_Form_Book1.docx' },
+      { name: 'LG_Outcome_Tracking_Form_Book2.docx', path: '04_OUTCOMES/LG_Outcome_Tracking_Form_Book2.docx' },
+      { name: 'LG_Outcome_Tracking_Form_Book3.docx', path: '04_OUTCOMES/LG_Outcome_Tracking_Form_Book3.docx' },
+      { name: 'LG_Outcome_Tracking_Form_Book4.docx', path: '04_OUTCOMES/LG_Outcome_Tracking_Form_Book4.docx' },
     ],
   },
 ];

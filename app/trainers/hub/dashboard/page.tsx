@@ -122,14 +122,21 @@ interface ImpactStats {
 
 interface ResourceDoc {
   name: string;
-  url: string;
+  url: string | null;
   confidential: boolean;
+  bucket?: string;
+  path?: string;
 }
 
 interface ResourceSection {
-  book_number: number | null;
   title: string;
   documents: ResourceDoc[];
+}
+
+interface ResourceGroup {
+  groupTitle: string;
+  groupDesc: string;
+  sections: ResourceSection[];
 }
 
 /* ── Status Badge ── */
@@ -695,16 +702,22 @@ function CertificationTab({ profile }: { profile: TrainerProfile }) {
 /* ════════════════════════════════════════════════════════════
    TAB 5 — Resources
 ═════════════════════════════════════════════════════════════*/
-function ResourcesTab({ profile }: { profile: TrainerProfile }) {
-  const [sections, setSections] = useState<ResourceSection[]>([]);
+function ResourcesTab({ profile: _profile }: { profile: TrainerProfile }) {
+  const [groups, setGroups] = useState<ResourceGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [confirmModal, setConfirmModal] = useState<{ name: string; url: string } | null>(null);
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetch('/api/trainer/resources', { credentials: 'include' })
       .then(r => r.json())
-      .then(data => { setSections(data.sections ?? []); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then(data => {
+        if (data.error) { setError(data.error); setLoading(false); return; }
+        setGroups(data.sections ?? []);
+        setLoading(false);
+      })
+      .catch(() => { setError('Failed to load resources.'); setLoading(false); });
   }, []);
 
   async function handleConfirmDownload() {
@@ -716,94 +729,147 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ document_name: confirmModal.name }),
       });
-    } catch { /* log attempt failed, still allow download */ }
+    } catch { /* logging failure — still allow download */ }
     window.open(confirmModal.url, '_blank');
     setConfirmModal(null);
   }
 
-  if (loading) return <div style={{ ...card, color: C.muted, fontFamily: 'Inter, sans-serif' }}>Loading resources...</div>;
+  function toggleSection(key: string) {
+    setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  }
 
-  /* Split into book sections vs general */
-  const bookSections = sections.filter(s => s.book_number != null);
-  const generalSections = sections.filter(s => s.book_number == null);
+  if (loading) return (
+    <div style={{ ...card, color: C.muted, fontFamily: 'Inter, sans-serif' }}>Loading resources…</div>
+  );
+
+  if (error) return (
+    <div style={{ ...card, color: C.danger, fontFamily: 'Inter, sans-serif' }}>{error}</div>
+  );
+
+  if (groups.length === 0) return (
+    <div style={{ ...card, color: C.muted, fontFamily: 'Inter, sans-serif', textAlign: 'center', padding: '2rem' }}>
+      No resources available.
+    </div>
+  );
 
   return (
     <>
-      {bookSections.map((sec, idx) => (
-        <div key={idx} style={card}>
-          <h2 style={sectionTitle}>{sec.title}</h2>
-          {sec.documents.length === 0 ? (
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted }}>No documents available.</div>
-          ) : (
-            sec.documents.map((doc, di) => (
-              <div key={di} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '0.6rem 0', borderBottom: di < sec.documents.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy }}>
-                  {doc.name}
-                  {doc.confidential && (
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', color: C.danger,
-                      fontWeight: 600, marginLeft: 8 }}>CONFIDENTIAL</span>
-                  )}
-                </span>
-                {doc.confidential ? (
-                  <button style={btn(C.navy, '#fff', true)}
-                    onClick={() => setConfirmModal({ name: doc.name, url: doc.url })}>
-                    Download
-                  </button>
-                ) : (
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                    <button style={btn(C.gold, '#fff', true)}>Download</button>
-                  </a>
+      {groups.map((group, gi) => (
+        <div key={gi} style={{ marginBottom: '2rem' }}>
+          {/* Group header */}
+          <div style={{
+            background: gi === 0 ? C.navy : C.goldLt,
+            borderRadius: 8,
+            padding: '1rem 1.25rem',
+            marginBottom: '1rem',
+            borderLeft: `4px solid ${gi === 0 ? C.gold : C.gold}`,
+          }}>
+            <div style={{
+              fontFamily: 'Playfair Display, serif',
+              fontSize: '1.1rem',
+              fontWeight: 700,
+              color: gi === 0 ? C.gold : C.navy,
+              marginBottom: '0.3rem',
+            }}>
+              {group.groupTitle}
+            </div>
+            <div style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.82rem',
+              color: gi === 0 ? 'rgba(255,255,255,.75)' : C.muted,
+              lineHeight: 1.5,
+            }}>
+              {group.groupDesc}
+            </div>
+          </div>
+
+          {/* Sections within this group */}
+          {group.sections.map((sec, si) => {
+            const sectionKey = `${gi}-${si}`;
+            const collapsed = collapsedSections[sectionKey] ?? false;
+            const availableDocs = sec.documents.filter(d => d.url !== null);
+            if (availableDocs.length === 0) return null;
+
+            return (
+              <div key={si} style={{ ...card, marginBottom: '0.75rem' }}>
+                {/* Section header — collapsible */}
+                <div
+                  onClick={() => toggleSection(sectionKey)}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    cursor: 'pointer', userSelect: 'none',
+                  }}
+                >
+                  <h3 style={{ ...sectionTitle, margin: 0, fontSize: '1rem' }}>{sec.title}</h3>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.muted }}>
+                    {availableDocs.length} doc{availableDocs.length !== 1 ? 's' : ''} {collapsed ? '▸' : '▾'}
+                  </span>
+                </div>
+
+                {!collapsed && (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    {availableDocs.map((doc, di) => (
+                      <div
+                        key={di}
+                        style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '0.6rem 0',
+                          borderBottom: di < availableDocs.length - 1 ? `1px solid ${C.border}` : 'none',
+                        }}
+                      >
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, flex: 1, paddingRight: '1rem' }}>
+                          {doc.name}
+                          {doc.confidential && (
+                            <span style={{
+                              fontFamily: 'Inter, sans-serif', fontSize: '0.68rem',
+                              color: '#fff', background: C.danger,
+                              fontWeight: 700, marginLeft: 8,
+                              padding: '2px 7px', borderRadius: 4, letterSpacing: '0.04em',
+                            }}>
+                              CONFIDENTIAL
+                            </span>
+                          )}
+                        </span>
+                        {doc.confidential ? (
+                          <button
+                            style={btn(C.navy, '#fff', true)}
+                            onClick={() => doc.url && setConfirmModal({ name: doc.name, url: doc.url })}
+                          >
+                            Download
+                          </button>
+                        ) : (
+                          <a href={doc.url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <button style={btn(C.gold, '#fff', true)}>Download</button>
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
       ))}
 
-      {generalSections.length > 0 && generalSections.map((sec, idx) => (
-        <div key={`gen-${idx}`} style={card}>
-          <h2 style={sectionTitle}>{sec.title || 'General Documents'}</h2>
-          {sec.documents.map((doc, di) => (
-            <div key={di} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '0.6rem 0', borderBottom: di < sec.documents.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy }}>
-                {doc.name}
-              </span>
-              {doc.confidential ? (
-                <button style={btn(C.navy, '#fff', true)}
-                  onClick={() => setConfirmModal({ name: doc.name, url: doc.url })}>
-                  Download
-                </button>
-              ) : (
-                <a href={doc.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                  <button style={btn(C.gold, '#fff', true)}>Download</button>
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {sections.length === 0 && (
-        <div style={{ ...card, color: C.muted, fontFamily: 'Inter, sans-serif', textAlign: 'center', padding: '2rem' }}>
-          No resources available.
-        </div>
-      )}
-
-      {/* Confidential download modal */}
+      {/* Confidential download confirmation modal */}
       {confirmModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+        }}>
           <div style={{ ...card, maxWidth: 480, margin: '1rem' }}>
             <h3 style={sectionTitle}>Confidential Document</h3>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.6 }}>
-              This document is confidential. Do not share, reproduce, or distribute under any circumstances.
-              By downloading you accept full responsibility for its security.
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.6, marginBottom: '0.75rem' }}>
+              <strong>{confirmModal.name}</strong>
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.6 }}>
+              This document is confidential. Do not share, reproduce, or distribute under any circumstances.
+              This download will be logged. By proceeding you accept full responsibility for its security.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
               <button style={btn(C.border, C.navy, true)} onClick={() => setConfirmModal(null)}>Cancel</button>
-              <button style={btn(C.danger)} onClick={handleConfirmDownload}>Confirm Download</button>
+              <button style={btn(C.danger)} onClick={handleConfirmDownload}>I Understand — Download</button>
             </div>
           </div>
         </div>
