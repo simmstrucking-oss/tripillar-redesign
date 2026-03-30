@@ -82,9 +82,12 @@ export default function TrainersPage() {
           )}
 
           {!loading && !error && trainers.length === 0 && (
-            <div style={{ textAlign: 'center', color: C.muted, padding: '3rem 0' }}>
-              <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>No trainers are currently listed in the public registry.</p>
-              <p>Interested in becoming a Trainer? <a href="/trainers/apply" style={{ color: C.gold }}>Learn more.</a></p>
+            <div style={{ textAlign: 'center', color: C.muted, padding: '3rem 0', maxWidth: 520, margin: '0 auto' }}>
+              <p style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: C.navy, fontFamily: 'Playfair Display, serif' }}>Certified trainers will be listed here as the program launches.</p>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>Trainer certifications are issued by Tri-Pillars™ LLC. Check back as our network grows.</p>
+              <p style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
+                Questions? <a href="/contact" style={{ color: C.gold, textDecoration: 'underline' }}>Contact us.</a>
+              </p>
             </div>
           )}
 

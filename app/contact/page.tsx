@@ -196,15 +196,7 @@ export default function ContactPage() {
                 you&apos;re looking for a partner wherever you are, we&apos;d love to
                 talk.
               </p>
-              <div className="border-t border-card-border pt-4">
-                <p className="text-gold text-xs uppercase tracking-wider mb-2 font-medium">
-                  Inaugural Pilot
-                </p>
-                <p className="text-muted text-sm">
-                  May 2026. Hampshire County Community Action Center,
-                  West Virginia
-                </p>
-              </div>
+
             </div>
           </FadeIn>
 

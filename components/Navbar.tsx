@@ -13,9 +13,12 @@ const programsLinks = [
 ];
 
 const resourcesLinks = [
-  { href: "/content",    label: "Content" },
-  { href: "/support",    label: "Support" },
-  { href: "/free-guide", label: "Free Guide" },
+  { href: "/content",         label: "Content" },
+  { href: "/content/blog",    label: "Blog" },
+  { href: "/content/news",    label: "News" },
+  { href: "/content/resources", label: "Resources" },
+  { href: "/support",         label: "Support" },
+  { href: "/free-guide",      label: "Free Guide" },
 ];
 
 // Simple links that need no dropdown
@@ -45,6 +48,9 @@ const mobileLinks = [
   { href: "/facilitators",                    label: "Facilitators" },
   { href: "/institutions",                    label: "Institutions" },
   { href: "/content",                         label: "Content" },
+  { href: "/content/blog",                    label: "Content — Blog" },
+  { href: "/content/news",                    label: "Content — News" },
+  { href: "/content/resources",               label: "Content — Resources" },
   { href: "/support",                         label: "Support" },
   { href: "/free-guide",                      label: "Free Guide" },
   { href: "/contact",                         label: "Contact" },
