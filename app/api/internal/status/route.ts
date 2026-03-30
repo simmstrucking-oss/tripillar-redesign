@@ -14,44 +14,60 @@ const COMPLETED_SESSIONS = [
   { session: 7,  date: '2026-03-28', summary: 'Codes tab in Hub. gate.html code redemption UI (LGS- prefix). redeem-code API. supplement-access.html.' },
   { session: 8,  date: '2026-03-28', summary: 'Admin code activity visibility. 15/15 E2E tests passed. Solo Companion four access states in index.html.' },
   { session: 9,  date: '2026-03-28', summary: 'Hub Data Entry UI. 5 reporting API endpoints. PDF generation (pdfkit AFM fix). /admin/dashboard lifetime view. /org/dashboard reporting. Hub Reports tab. 15/15 E2E passed.' },
-  { session: 10, date: '2026-03-29', summary: 'Kit sequences + tags for website. Free Guide PDF + subscribe flow. Contact form (Resend). Solo Companion links. Memorial Wall. /start landing page. Cross-surface navigation. Main nav Solo Companion + Facilitator Login.' },
-  { session: 11, date: '2026-03-29', summary: 'Debug audit (clean). Cache issue resolved (re-alias). /start page + cross-surface nav. Pricing locked: $24.99 one-time, $9.99×3 installment.' },
+  { session: 10, date: '2026-03-29', summary: 'Kit sequences + tags for website. Free Guide PDF + subscribe flow. Contact form (Resend). Solo Companion links. Memorial Wall. /start landing page. Cross-surface navigation.' },
+  { session: 11, date: '2026-03-29', summary: 'Debug audit (clean). Cache issue resolved. /start page + cross-surface nav. Pricing locked: $24.99 one-time, $9.99×3 installment.' },
   { session: 12, date: '2026-03-29', summary: 'Critical Incident Report. Session Feedback. Facilitator Reflection Log (private RLS). Cohort Summary form. Document Library: 109 files in 3 buckets, Hub UI, /admin/documents, access logging.' },
-  { session: 13, date: '2026-03-29', summary: 'Task 7: Facilitator onboarding checklist (7 items, Phase 1), orientation panel (Phase 2), digital signatures (Phase 3) — Code of Conduct, Cert Acknowledgment, Group Use License. DB: facilitator_signatures table + 6 onboarding columns on facilitator_profiles. Verification audit (8 checks). Fix 1: RESEND_API_KEY trailing newline removed; Resend DNS records identified for Namecheap. Fix 2: IP disclosure added to SignatureField.tsx. Fix 3: Status endpoint updated.' },
+  { session: 13, date: '2026-03-29', summary: 'Task 7: Facilitator onboarding checklist (7 items), orientation panel, digital signatures (Code of Conduct, Cert Acknowledgment, Group Use License). DB: facilitator_signatures table + 6 onboarding columns.' },
+  { session: 14, date: '2026-03-29', summary: 'Task 8: Org Hub onboarding. 7 new columns on organizations. 8 API routes under /api/org/. Hub 5-tab UI. Task 9: Prospect system (5 DB tables, /explore/[code], ILA e-signature, /admin/agreements). Task 10 Parts A–D: Trainer Tier platform — 7 new facilitator_profiles columns, trainer_events + trainer_certifications tables, admin trainer UI, Trainer Hub 5-tab dashboard, 6 API routes /api/trainer/, answer keys with 60s signed URLs, 6 Kit custom fields, cert ID format LG-T-YYYY-XXXX.' },
+  { session: 15, date: '2026-03-30', summary: 'Login fix: non-www POST 307 dropped body. Fix 1: next.config.ts www redirect. Fix 2: cookie domain .tripillarstudio.com. Confirmed live. Test facilitator account created. Role Preview Mode (Fix 2): Wayne/Jamie topbar dropdown for all 6 roles, gold banner, no DB writes. Onboarding Wizard (Fix 2): 8-screen wizard replaces checklist, DB onboarding_step column, progress bar. Book names locked (4 books only).' },
+  { session: 16, date: '2026-03-30', summary: 'Fix 3: Correct book names everywhere, Books 5/6 removed from all selectors. Fix 4: Storage path fixes — 40/40 OK, trainer-documents bucket populated, invented filenames removed. Fix 5: dismissed_trainer_orientation column added. Jamie override verified in all OWNER_EMAILS checks. 37 DB indexes deployed. LGY Parts 1–6: 4 DB columns, storage placeholders, /api/hub/lgy-documents, /api/trainer/lgy-resources, admin LGY fields, Youth tab in Facilitator Hub, LGY Resources in Trainer Hub.' },
+  { session: 17, date: '2026-03-30', summary: 'LGY storage upload complete: 37/37 files uploaded (facilitator-documents/lgy/ 31 files, admin-documents/lgy/ 6 files). Wayne/Jamie login diagnostic confirmed. Passwords force-reset via admin API. Login debug ongoing — HTTP 307 on non-www POST.' },
+  { session: 18, date: '2026-03-30', summary: 'FM1 Week 1 content extracted for onboarding wizard Step 6 (full structured JSON). Wayne/Jamie name audit: 8 files changed, 22 replacements — all user-facing "Wayne/Jamie" → "Tri-Pillars™" or "your trainer". Document integrity audit: 48 files, 47 PASS, 1 FLAG (CSV headers-only — expected). Render audit: 48/48 PASS via signed URLs.' },
+  { session: 19, date: '2026-03-30', summary: 'Book removal from facilitator-documents: 38 files deleted (4 CFRG, 4 FM, 4 TM, 13 LGY Elementary S1–S13, 13 LGY Middle/High S1–S13). 3 API routes updated to remove all book references: /api/hub/documents, /api/hub/lgy-documents, /api/trainer/resources. physicalMaterialsNotice added to all 3 route responses. Physical materials notice banner deployed in Facilitator Hub Documents tab and Trainer Hub Resources tab. Final render audit: 38/38 PASS (non-book docs only). All files 8.6–19.5 KB, clean CT, valid PK magic bytes, no encoding issues, tables intact.' },
 ];
 
 const LIVE_FEATURES = [
-  { feature: 'Solo Companion app',                   url: 'https://solo.tripillarstudio.com',             date: '2026-03-27' },
-  { feature: 'Stripe payment gate (one-time + installment)', url: 'https://solo.tripillarstudio.com/gate', date: '2026-03-27' },
-  { feature: 'Stripe webhook (Supabase + Kit)',       url: '/api/webhook/stripe',                           date: '2026-03-27' },
-  { feature: 'Solo Companion 7-day unlock logic',     url: 'https://solo.tripillarstudio.com',             date: '2026-03-28' },
-  { feature: 'Access code redemption (LGS- prefix)',  url: '/api/redeem-code',                              date: '2026-03-28' },
-  { feature: 'Facilitator Hub dashboard',             url: 'https://tripillarstudio.com/facilitators/hub', date: '2026-03-28' },
-  { feature: 'Facilitator Hub document library',      url: '/facilitators/hub/dashboard (Documents tab)',   date: '2026-03-29' },
-  { feature: 'Admin panel /admin/facilitators',       url: 'https://tripillarstudio.com/admin/facilitators',date: '2026-03-28' },
-  { feature: 'Admin document library',               url: 'https://tripillarstudio.com/admin/documents',   date: '2026-03-29' },
-  { feature: 'Admin dashboard /admin/dashboard',      url: 'https://tripillarstudio.com/admin/dashboard',  date: '2026-03-28' },
-  { feature: 'Hub reporting (quarterly + annual PDFs)', url: '/facilitators/hub/dashboard (Reports tab)',  date: '2026-03-28' },
-  { feature: 'Critical Incident Report form',         url: '/facilitators/hub/dashboard',                  date: '2026-03-29' },
-  { feature: 'Session Feedback form + weekly digest', url: '/facilitators/hub/dashboard',                  date: '2026-03-29' },
-  { feature: 'Facilitator Reflection Log (private)',  url: '/facilitators/hub/dashboard',                  date: '2026-03-29' },
-  { feature: 'Cohort Summary + completion API',       url: '/facilitators/hub/dashboard',                  date: '2026-03-29' },
-  { feature: 'Memorial Wall (approval via Supabase)', url: 'https://tripillarstudio.com/memorial',         date: '2026-03-29' },
-  { feature: 'Free Guide page + subscribe flow',      url: 'https://tripillarstudio.com/free-guide',       date: '2026-03-29' },
-  { feature: 'Contact form (Resend)',                 url: 'https://tripillarstudio.com/contact',          date: '2026-03-29' },
-  { feature: '/start landing page',                  url: 'https://tripillarstudio.com/start',            date: '2026-03-29' },
-  { feature: 'Document access logging',              url: 'document_access_log table',                     date: '2026-03-29' },
-  { feature: 'Facilitator onboarding checklist (Phase 1 + 2)', url: '/facilitators/hub/dashboard',          date: '2026-03-29' },
-  { feature: 'Digital signatures (Code of Conduct, Cert Ack, Group Use License)', url: '/api/hub/sign',    date: '2026-03-29' },
-  { feature: 'Internal context/status/documents API', url: '/api/internal/*',                               date: '2026-03-29' },
+  { feature: 'Solo Companion app',                               url: 'https://solo.tripillarstudio.com',                     date: '2026-03-27' },
+  { feature: 'Stripe payment gate (one-time + installment)',     url: 'https://solo.tripillarstudio.com/gate',               date: '2026-03-27' },
+  { feature: 'Stripe webhook (Supabase + Kit)',                  url: '/api/webhook/stripe',                                  date: '2026-03-27' },
+  { feature: 'Solo Companion 7-day unlock logic',                url: 'https://solo.tripillarstudio.com',                     date: '2026-03-28' },
+  { feature: 'Access code redemption (LGS- prefix)',             url: '/api/redeem-code',                                     date: '2026-03-28' },
+  { feature: 'Facilitator Hub dashboard',                        url: 'https://tripillarstudio.com/facilitators/hub',         date: '2026-03-28' },
+  { feature: 'Facilitator Hub document library (non-book only)', url: '/facilitators/hub/dashboard (Documents tab)',          date: '2026-03-30' },
+  { feature: 'Facilitator onboarding wizard (8 screens)',        url: '/facilitators/hub/dashboard',                          date: '2026-03-30' },
+  { feature: 'Digital signatures (CoC, Cert Ack, Group Use)',    url: '/api/hub/sign',                                        date: '2026-03-29' },
+  { feature: 'Youth (LGY) tab in Facilitator Hub',              url: '/facilitators/hub/dashboard (Youth tab)',              date: '2026-03-30' },
+  { feature: 'Admin panel /admin/facilitators',                  url: 'https://tripillarstudio.com/admin/facilitators',       date: '2026-03-28' },
+  { feature: 'Admin document library',                           url: 'https://tripillarstudio.com/admin/documents',          date: '2026-03-29' },
+  { feature: 'Admin dashboard /admin/dashboard',                 url: 'https://tripillarstudio.com/admin/dashboard',          date: '2026-03-28' },
+  { feature: 'Admin prospect management',                        url: 'https://tripillarstudio.com/admin/prospects',          date: '2026-03-29' },
+  { feature: 'Admin agreements + renewals',                      url: '/admin/agreements | /admin/renewals',                  date: '2026-03-29' },
+  { feature: 'Prospect landing pages (/explore/[code])',         url: 'https://tripillarstudio.com/explore/[code]',           date: '2026-03-29' },
+  { feature: 'ILA e-signature flow',                             url: '/sign/[token]',                                        date: '2026-03-29' },
+  { feature: 'Org Hub (5-tab)',                                  url: 'https://tripillarstudio.com/org/hub',                  date: '2026-03-29' },
+  { feature: 'Trainer Tier platform (full)',                     url: 'https://tripillarstudio.com/trainers/hub/dashboard',   date: '2026-03-30' },
+  { feature: 'Public Trainer Registry',                          url: 'https://tripillarstudio.com/trainers',                 date: '2026-03-30' },
+  { feature: 'LGY Hub (facilitator + trainer)',                  url: '/facilitators/hub/dashboard (Youth tab)',              date: '2026-03-30' },
+  { feature: 'Four login portals',                               url: '/login/facilitator | /login/trainer | /login/organization | /login/participant', date: '2026-03-30' },
+  { feature: 'Role Preview Mode (Wayne/Jamie only)',             url: '/facilitators/hub/dashboard (topbar)',                  date: '2026-03-30' },
+  { feature: 'Physical materials notice in all doc libraries',   url: 'Hub Documents + Trainer Resources tabs',               date: '2026-03-30' },
+  { feature: 'Hub reporting (quarterly + annual PDFs)',          url: '/facilitators/hub/dashboard (Reports tab)',            date: '2026-03-28' },
+  { feature: 'Memorial Wall',                                    url: 'https://tripillarstudio.com/memorial',                 date: '2026-03-29' },
+  { feature: 'Free Guide page + subscribe flow',                 url: 'https://tripillarstudio.com/free-guide',               date: '2026-03-29' },
+  { feature: 'Contact form (Resend)',                            url: 'https://tripillarstudio.com/contact',                  date: '2026-03-29' },
+  { feature: '/start landing page',                             url: 'https://tripillarstudio.com/start',                    date: '2026-03-29' },
+  { feature: 'Internal context/status/documents API',            url: '/api/internal/*',                                      date: '2026-03-29' },
+  { feature: '37 DB indexes deployed',                           url: 'Supabase — all major tables indexed',                  date: '2026-03-30' },
 ];
 
 const PENDING_TASKS = [
   { priority: 1, task: 'Kit sequences 2701221/2701223/2701225 — placeholder emails only, real copy not written' },
-  { priority: 2, task: 'Kit test subscribers (ember-test-*) — bulk-delete from Kit dashboard' },
-  { priority: 3, task: '/api/hub/consultation-requests — confirm if still needed or superseded' },
-  { priority: 4, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay' },
-  { priority: 5, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
+  { priority: 2, task: 'Kit test subscribers (ember-test-*) — bulk-delete from Kit dashboard at Wayne\'s convenience' },
+  { priority: 3, task: 'FM1 Week 1 inline content in onboarding wizard Step 6 — JSON extracted, build not yet started' },
+  { priority: 4, task: 'Inner Work Guide inline content in onboarding wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification' },
+  { priority: 5, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay' },
+  { priority: 6, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
+  { priority: 7, task: '/api/hub/consultation-requests — confirm if still needed or superseded by org flow' },
 ];
 
 export async function GET(req: NextRequest) {
@@ -59,7 +75,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Live counts from Supabase
   let live_counts: Record<string, number> = {};
   try {
     const sb = createClient(
@@ -67,13 +82,11 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
-    const tables = ['facilitator_profiles', 'organizations', 'cohorts', 'purchases', 'memorial_entries'];
+    const tables = ['facilitator_profiles', 'organizations', 'cohorts', 'purchases', 'memorial_entries', 'prospects', 'agreements'];
     const results = await Promise.all(
       tables.map(t => sb.from(t).select('*', { count: 'exact', head: true }))
     );
-    tables.forEach((t, i) => {
-      live_counts[t] = results[i].count ?? 0;
-    });
+    tables.forEach((t, i) => { live_counts[t] = results[i].count ?? 0; });
   } catch (_) {
     live_counts = { error: -1 };
   }
