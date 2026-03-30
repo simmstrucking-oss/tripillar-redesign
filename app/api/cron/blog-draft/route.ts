@@ -52,7 +52,7 @@ function generateBlogDraft() {
 
   const title = topicData.topic;
   const category = topicData.category as 'News' | 'Grief Education' | 'Program Updates' | 'Pilot Stories';
-  const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${year}${String(month + 1).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+  const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${year}${String(month + 1).padStart(2, '0')}${String(day).padStart(2, '0')}-${Date.now().toString(36)}`;
 
   // Generate warm, grounded body in Live and Grieve™ voice
   const body = `<p>Grief is not a linear journey, and there's no prescribed timeline for healing. What many people don't realize is that grief isn't something we "get over"—it's something we integrate into our lives, learning to carry it with compassion and presence.</p>
