@@ -63,12 +63,12 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-section-alt">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-navy bg-texture">
         <div
           className="absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse at 30% 50%, rgba(184,148,47,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(184,148,47,0.04) 0%, transparent 50%)",
+              "radial-gradient(ellipse at 30% 50%, rgba(184,148,47,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(184,148,47,0.05) 0%, transparent 50%)",
           }}
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-20">
@@ -80,11 +80,11 @@ export default function HomePage() {
             className="mx-auto mb-8 h-36 w-auto"
             priority
           />
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold text-navy leading-tight mb-6">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-tight mb-6">
             You&apos;re not <br />
             <span className="gold-text">grieving wrong.</span>
           </h1>
-          <p className="text-lg sm:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
             Grief isn&apos;t a problem to fix. It&apos;s something you carry. Our
             programs give communities the tools to walk alongside loss,
             together, for as long as it takes.
@@ -98,7 +98,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/program/adult"
-              className="border border-card-border text-muted hover:text-navy hover:border-navy/30 font-medium px-8 py-3.5 rounded-md transition-colors text-sm"
+              className="border border-white/30 text-white hover:border-white/60 font-medium px-8 py-3.5 rounded-md transition-colors text-sm"
             >
               Explore Programs
             </Link>

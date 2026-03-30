@@ -29,11 +29,11 @@ export default async function NewsPage() {
 
   return (
     <>
-      <section className="relative min-h-[40vh] flex items-end pb-12 pt-32 overflow-hidden">
-        <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 60% 30%, rgba(201,168,76,0.07) 0%, transparent 60%)' }} />
+      <section className="relative min-h-[40vh] flex items-end pb-12 pt-32 overflow-hidden bg-navy bg-texture">
+        <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 60% 30%, rgba(201,168,76,0.08) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
           <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">News</p>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-navy leading-tight mb-4">
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white leading-tight mb-4">
             Field <span className="gold-text">News</span>
           </h1>
         </div>

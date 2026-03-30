@@ -79,10 +79,12 @@ function DesktopDropdown({
   label,
   links,
   isActive,
+  transparent,
 }: {
   label: string;
   links: { href: string; label: string; external?: boolean }[];
   isActive: boolean;
+  transparent?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
@@ -106,7 +108,7 @@ function DesktopDropdown({
       <button
         onClick={() => setOpen((p) => !p)}
         className={`flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap select-none ${
-          isActive || open ? "text-gold font-medium" : "text-muted hover:text-navy"
+          isActive || open ? "text-gold font-medium" : transparent ? "text-white/80 hover:text-white" : "text-muted hover:text-navy"
         }`}
       >
         {label}
@@ -236,7 +238,7 @@ export default function Navbar() {
           className="flex items-center gap-2.5 group flex-shrink-0"
         >
           <Image src="/logo.png" alt="Live and Grieve" width={28} height={42} className="h-9 w-auto" priority />
-          <span className="font-serif text-xl font-bold text-navy group-hover:text-gold transition-colors">
+          <span className={`font-serif text-xl font-bold group-hover:text-gold transition-colors ${scrolled || open ? "text-navy" : "text-white"}`}>
             Tri&#8209;Pillars<sup className="text-xs text-gold">™</sup>
           </span>
         </Link>
@@ -249,7 +251,7 @@ export default function Navbar() {
             <Link
               href="/about"
               className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                pathname === "/about" ? "text-gold font-medium" : "text-muted hover:text-navy"
+                pathname === "/about" ? "text-gold font-medium" : scrolled || open ? "text-muted hover:text-navy" : "text-white/80 hover:text-white"
               }`}
             >
               About
@@ -261,7 +263,7 @@ export default function Navbar() {
             <Link
               href="/our-approach"
               className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                pathname === "/our-approach" ? "text-gold font-medium" : "text-muted hover:text-navy"
+                pathname === "/our-approach" ? "text-gold font-medium" : scrolled || open ? "text-muted hover:text-navy" : "text-white/80 hover:text-white"
               }`}
             >
               Our Approach
@@ -269,17 +271,17 @@ export default function Navbar() {
           </li>
 
           {/* Programs dropdown */}
-          <DesktopDropdown label="Programs" links={programsLinks} isActive={programsActive} />
+          <DesktopDropdown label="Programs" links={programsLinks} isActive={programsActive} transparent={!scrolled && !open} />
 
           {/* Resources dropdown */}
-          <DesktopDropdown label="Resources" links={resourcesLinks} isActive={resourcesActive} />
+          <DesktopDropdown label="Resources" links={resourcesLinks} isActive={resourcesActive} transparent={!scrolled && !open} />
 
           {/* Facilitators */}
           <li>
             <Link
               href="/facilitators"
               className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                pathname === "/facilitators" ? "text-gold font-medium" : "text-muted hover:text-navy"
+                pathname === "/facilitators" ? "text-gold font-medium" : scrolled || open ? "text-muted hover:text-navy" : "text-white/80 hover:text-white"
               }`}
             >
               Facilitators
@@ -291,7 +293,7 @@ export default function Navbar() {
             <Link
               href="/institutions"
               className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                pathname === "/institutions" ? "text-gold font-medium" : "text-muted hover:text-navy"
+                pathname === "/institutions" ? "text-gold font-medium" : scrolled || open ? "text-muted hover:text-navy" : "text-white/80 hover:text-white"
               }`}
             >
               Institutions
@@ -303,7 +305,7 @@ export default function Navbar() {
             <Link
               href="/contact"
               className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                pathname === "/contact" ? "text-gold font-medium" : "text-muted hover:text-navy"
+                pathname === "/contact" ? "text-gold font-medium" : scrolled || open ? "text-muted hover:text-navy" : "text-white/80 hover:text-white"
               }`}
             >
               Contact
@@ -374,7 +376,7 @@ export default function Navbar() {
           onTouchEnd={handleTouchEnd}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="md:hidden relative z-[60] flex items-center justify-center w-12 h-12 -mr-2 rounded-md text-navy"
+          className={`md:hidden relative z-[60] flex items-center justify-center w-12 h-12 -mr-2 rounded-md ${scrolled || open ? "text-navy" : "text-white"}`}
           style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
         >
           <span className="pointer-events-none relative w-5 h-5">
