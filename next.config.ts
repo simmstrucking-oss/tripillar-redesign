@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
         destination: '/login/facilitator',
         permanent: true,
       },
+      // Canonical: redirect bare domain to www so POST bodies are never dropped
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'tripillarstudio.com' }],
+        destination: 'https://www.tripillarstudio.com/:path*',
+        permanent: false, // 307 — preserves POST method
+      },
     ];
   },
 

@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
               secure: process.env.NODE_ENV === 'production',
               sameSite: 'lax',
               path: '/',
+              domain: process.env.NODE_ENV === 'production' ? '.tripillarstudio.com' : undefined,
             });
           });
         },
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.tripillarstudio.com' : undefined,
     });
   });
 
