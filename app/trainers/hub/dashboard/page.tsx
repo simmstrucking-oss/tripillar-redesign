@@ -77,6 +77,7 @@ interface TrainerProfile {
   trainer_cert_issued?: string;
   trainer_cert_renewal?: string;
   books_authorized_to_train?: number[];
+  dismissed_orientation?: boolean;
 }
 
 interface Facilitator {
@@ -877,9 +878,10 @@ export default function TrainerHubDashboard() {
           return;
         }
 
-        setProfile(prof as TrainerProfile);
-        // Show welcome on first visit (no localStorage key set)
-        if (typeof window !== 'undefined' && !localStorage.getItem('lg-trainer-welcomed')) {
+        const trainerProf = prof as TrainerProfile;
+        setProfile(trainerProf);
+        // Show welcome if dismissed_orientation is not set in DB
+        if (!trainerProf.dismissed_orientation) {
           setShowWelcome(true);
         }
         setLoading(false);
@@ -975,9 +977,14 @@ export default function TrainerHubDashboard() {
                 Your authorization is active. Before you schedule your first certification event, review your Trainer Agreement in the Resources tab — specifically the fee remittance timeline, assessment administration procedures, and Answer Key confidentiality requirements. Everything else you need is in the tabs above. If you have questions before your first event, use the support contact in your Hub.
               </p>
               <button
-                onClick={() => {
-                  if (typeof window !== 'undefined') localStorage.setItem('lg-trainer-welcomed', '1');
+                onClick={async () => {
                   setShowWelcome(false);
+                  await fetch('/api/hub/onboarding', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ dismissed_orientation: true }),
+                  });
                 }}
                 style={{ background: '#1B2B4B', color: '#F8F4EE', border: 'none', borderRadius: 6,
                   padding: '0.5rem 1.25rem', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}

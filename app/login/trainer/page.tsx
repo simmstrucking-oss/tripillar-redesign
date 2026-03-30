@@ -38,7 +38,7 @@ function LoginForm() {
       const role = data.role as string | null;
       if (role === 'community' || role === 'professional' || role === 'ministry') {
         window.location.href = '/facilitators/hub/dashboard';
-      } else if (role === 'super_admin' || role === 'org_contact') {
+      } else if (role === 'org_contact') {
         window.location.href = '/org/hub';
       } else {
         // trainer, or no profile — trainer hub

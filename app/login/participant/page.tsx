@@ -38,9 +38,11 @@ function LoginForm() {
       const role = data.role as string | null;
       if (role === 'community' || role === 'professional' || role === 'ministry') {
         window.location.href = '/facilitators/hub/dashboard';
+      } else if (role === 'super_admin') {
+        window.location.href = '/facilitators/hub/dashboard';
       } else if (role === 'trainer') {
         window.location.href = '/trainers/hub/dashboard';
-      } else if (role === 'super_admin' || role === 'org_contact') {
+      } else if (role === 'org_contact') {
         window.location.href = '/org/hub';
       } else {
         // No profile — default for participant

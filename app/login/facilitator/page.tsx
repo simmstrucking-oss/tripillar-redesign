@@ -38,9 +38,11 @@ function LoginForm() {
       }
       // Role-based redirect: role wins over login page default
       const role = data.role as string | null;
-      if (role === 'trainer') {
+      if (role === 'super_admin') {
+        window.location.href = '/facilitators/hub/dashboard';
+      } else if (role === 'trainer') {
         window.location.href = '/trainers/hub/dashboard';
-      } else if (role === 'super_admin' || role === 'org_contact') {
+      } else if (role === 'org_contact') {
         window.location.href = '/org/hub';
       } else {
         // community, professional, ministry, or no profile — facilitator hub
