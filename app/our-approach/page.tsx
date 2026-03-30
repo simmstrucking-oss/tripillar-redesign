@@ -307,7 +307,7 @@ export default function OurApproachPage() {
               </p>
               <div className="flex flex-col gap-3">
                 <Link
-                  href="/contact"
+                  href="/free-guide"
                   className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm text-center"
                 >
                   Get the Free Guide
