@@ -163,6 +163,8 @@ const FACILITATOR_SECTIONS: FacSectionDef[] = [
       { name: 'Session Feedback Form', path: '05_FORMS/LG_Session_Feedback_Form.docx' },
       { name: 'Facilitator Reflection Log', path: '05_FORMS/LG_Facilitator_Reflection_Log.docx' },
       { name: 'Critical Incident Report', path: '05_FORMS/LG_Critical_Incident_Report.docx' },
+      // Trainer-only: confirmed at 05_FORMS/ (not 02_FACILITATOR/)
+      { name: 'Scenario Cards — Modules 8 & 9', path: '05_FORMS/LG_Scenario_Cards_Modules_8_9.docx' },
     ],
   },
 ];

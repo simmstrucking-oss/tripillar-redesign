@@ -3631,7 +3631,7 @@ export default function HubDashboard() {
     ? {
         ...profile,
         role: 'facilitator',
-        books_certified: previewRole === 'facilitator_book1' ? [1] : [1, 2, 3, 4, 5, 6],
+        books_certified: previewRole === 'facilitator_book1' ? [1] : [1, 2, 3, 4],
       }
     : profile;
 

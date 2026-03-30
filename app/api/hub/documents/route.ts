@@ -125,7 +125,8 @@ const SECTIONS: SectionDef[] = [
     program_type: 'adult',
     docs: [
       { name: 'LG_Trainer_Certification_Pathway.docx', path: '03_CERTIFICATION/LG_Trainer_Certification_Pathway.docx' },
-      // LG_Scenario_Cards_Modules_8_9.docx removed — file does not exist in storage
+      // Verified path: 05_FORMS/ (not 02_FACILITATOR/) — confirmed in storage 2026-03-29
+      { name: 'LG_Scenario_Cards_Modules_8_9.docx', path: '05_FORMS/LG_Scenario_Cards_Modules_8_9.docx', trainerOnly: true },
     ],
   },
   {

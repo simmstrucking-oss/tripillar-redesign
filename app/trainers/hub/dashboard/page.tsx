@@ -75,7 +75,7 @@ interface TrainerProfile {
   trainer_cert_issued?: string;
   trainer_cert_renewal?: string;
   books_authorized_to_train?: number[];
-  dismissed_orientation?: boolean;
+  dismissed_trainer_orientation?: boolean;
 }
 
 interface Facilitator {
@@ -944,8 +944,8 @@ export default function TrainerHubDashboard() {
 
         const trainerProf = prof as TrainerProfile;
         setProfile(trainerProf);
-        // Show welcome if dismissed_orientation is not set in DB
-        if (!trainerProf.dismissed_orientation) {
+        // Show welcome if dismissed_trainer_orientation is not set in DB
+        if (!trainerProf.dismissed_trainer_orientation) {
           setShowWelcome(true);
         }
         setLoading(false);
@@ -1061,7 +1061,7 @@ export default function TrainerHubDashboard() {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ dismissed_orientation: true }),
+                    body: JSON.stringify({ dismissed_trainer_orientation: true }),
                   });
                 }}
                 style={{ background: '#1B2B4B', color: '#F8F4EE', border: 'none', borderRadius: 6,
