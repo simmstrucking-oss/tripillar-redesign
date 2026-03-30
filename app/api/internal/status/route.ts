@@ -61,13 +61,15 @@ const LIVE_FEATURES = [
 ];
 
 const PENDING_TASKS = [
-  { priority: 1, task: 'Kit sequences 2701221/2701223/2701225 — placeholder emails only, real copy not written' },
-  { priority: 2, task: 'Kit test subscribers (ember-test-*) — bulk-delete from Kit dashboard at Wayne\'s convenience' },
-  { priority: 3, task: 'FM1 Week 1 inline content in onboarding wizard Step 6 — JSON extracted, build not yet started' },
-  { priority: 4, task: 'Inner Work Guide inline content in onboarding wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification' },
-  { priority: 5, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay' },
-  { priority: 6, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
-  { priority: 7, task: '/api/hub/consultation-requests — confirm if still needed or superseded by org flow' },
+  { priority: 1, task: 'Solo Companion Books 2-4 content build' },
+  { priority: 2, task: 'Org Hub youth licensing' },
+  { priority: 3, task: 'Task 9 external activation pending ILA attorney review' },
+  { priority: 4, task: 'KDP price dashboard update (Wayne manual task)' },
+  { priority: 5, task: 'NP Clinical Advisor Agreement physical signature (Wayne manual task)' },
+  { priority: 6, task: 'FM1 Week 1 inline content in onboarding wizard Step 6 — JSON extracted, build not yet started' },
+  { priority: 7, task: 'Inner Work Guide inline content in onboarding wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification' },
+  { priority: 8, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay' },
+  { priority: 9, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
 ];
 
 export async function GET(req: NextRequest) {

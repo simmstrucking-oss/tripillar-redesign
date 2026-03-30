@@ -8,18 +8,41 @@ export const metadata: Metadata = {
     "News, blog posts, and curated resources from the founders of Live and Grieve.",
 };
 
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  excerpt: string;
+  published_at: string;
+}
+
+async function fetchPosts(category?: string): Promise<BlogPost[]> {
+  try {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000');
+    const url = category ? `${base}/api/blog?category=${category}` : `${base}/api/blog`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 const sections = [
   {
     label: "News",
     title: "Program updates and milestones.",
     desc: "Pilot launches, publishing updates, training announcements, and everything happening at Tri-Pillars.",
-    href: "/content/news",
+    href: "/news",
   },
   {
     label: "Blog",
     title: "Writing about grief and research.",
     desc: "Wayne and Jamie share what they have learned about grief, community, and what it takes to build something from loss.",
-    href: "/content/blog",
+    href: "/blog",
   },
   {
     label: "Resources",
@@ -44,7 +67,13 @@ const lessonVideos = [
 const CHANNEL_URL = "https://www.youtube.com/@liveandgrieve_3";
 const INTRO_VIDEO_ID = "H-zcSdzm9jg";
 
-export default function ContentPage() {
+export default async function ContentPage() {
+  const [newsPosts, blogPosts] = await Promise.all([
+    fetchPosts('News'),
+    fetchPosts(),
+  ]);
+  const latestNews = newsPosts.slice(0, 3);
+  const latestBlog = blogPosts.slice(0, 3);
   return (
     <>
       {/* Hero */}
@@ -169,6 +198,67 @@ export default function ContentPage() {
           </div>
         </FadeIn>
       </section>
+
+      {/* Latest Blog Posts */}
+      {latestBlog.length > 0 && (
+        <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-gold text-xs uppercase tracking-widest mb-2 font-medium">Blog</p>
+                <h2 className="font-serif text-2xl sm:text-3xl text-navy">Latest posts</h2>
+              </div>
+              <Link href="/blog" className="text-gold text-sm font-medium hover:underline">View All →</Link>
+            </div>
+          </FadeIn>
+          <div className="space-y-6">
+            {latestBlog.map((post, i) => (
+              <FadeIn key={post.id} delay={i * 80}>
+                <Link href={`/blog/${post.slug}`} className="block group">
+                  <div className="bg-card-bg border border-card-border rounded-xl p-6 card-hover">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gold/10 text-gold">{post.category}</span>
+                      <span className="text-muted text-xs">{new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                    <h3 className="font-serif text-xl text-navy group-hover:text-gold transition-colors">{post.title}</h3>
+                    {post.excerpt && <p className="text-muted text-sm mt-1">{post.excerpt}</p>}
+                  </div>
+                </Link>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Latest News */}
+      {latestNews.length > 0 && (
+        <section className="py-20 bg-navy">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <FadeIn>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <p className="text-gold text-xs uppercase tracking-widest mb-2 font-medium">News</p>
+                  <h2 className="font-serif text-2xl sm:text-3xl text-white">Field News</h2>
+                </div>
+                <Link href="/news" className="text-gold text-sm font-medium hover:underline">View All →</Link>
+              </div>
+            </FadeIn>
+            <div className="space-y-6">
+              {latestNews.map((post, i) => (
+                <FadeIn key={post.id} delay={i * 80}>
+                  <Link href={`/blog/${post.slug}`} className="block group">
+                    <div className="border border-white/10 rounded-xl p-6 hover:border-gold/30 transition-colors">
+                      <span className="text-white/50 text-xs">{new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <h3 className="font-serif text-xl text-white group-hover:text-gold transition-colors mt-1">{post.title}</h3>
+                      {post.excerpt && <p className="text-white/60 text-sm mt-1">{post.excerpt}</p>}
+                    </div>
+                  </Link>
+                </FadeIn>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Three sections */}
       <section className="py-24 bg-section-alt">
