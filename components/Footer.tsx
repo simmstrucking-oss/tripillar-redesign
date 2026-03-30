@@ -133,6 +133,7 @@ export default function Footer() {
               <li><Link href="/login/facilitator" className="hover:text-gold-light transition-colors">Facilitator Login</Link></li>
               <li><Link href="/facilitators" className="hover:text-gold-light transition-colors">Become a Facilitator</Link></li>
               <li><Link href="/facilitators/hub" className="hover:text-gold-light transition-colors">Facilitator Hub</Link></li>
+              <li><Link href="/login/organization" className="hover:text-gold-light transition-colors">Partner Portal</Link></li>
             </ul>
           </div>
 
