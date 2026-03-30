@@ -921,7 +921,7 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
                     lgyTracks.includes('elementary') ? 'Elementary (Ages 8–12)' : null,
                     lgyTracks.includes('middle_high') ? 'Middle/High (Ages 13–17)' : null,
                   ].filter(Boolean).join(', ')}`
-                : 'LGY Trainer — no tracks assigned yet. Contact Wayne.'}
+                : 'LGY Trainer — no tracks assigned yet. Contact Tri-Pillars\u2122.'}
             </div>
           </div>
 
@@ -934,7 +934,7 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
           {!lgyLoading && !lgyError && lgyDocs.length === 0 && (
             <div style={{ background: '#F9F7F3', border: '1px solid #E5E0D8', borderRadius: 8,
               padding: '1rem 1.25rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted }}>
-              LGY training documents will appear here once Wayne uploads them to the system.
+              LGY training documents will appear here once Tri-Pillars™ uploads them to the system.
             </div>
           )}
           {!lgyLoading && lgyDocs.length > 0 && (

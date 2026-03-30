@@ -48,7 +48,7 @@ export default function SignAgreement() {
           );
         } else if (data.error === 'already_signed') {
           setError(
-            'This agreement has already been signed. You will receive the fully executed copy by email once Wayne co-signs.'
+            'This agreement has already been signed. You will receive the fully executed copy by email once Tri-Pillars\u2122 co-signs.'
           );
         } else if (data.agreement) {
           setAgreement(data.agreement);
@@ -163,7 +163,7 @@ export default function SignAgreement() {
               Signature Received
             </h1>
             <p style={{ fontSize: '16px', color: '#333', lineHeight: 1.6 }}>
-              Your signature has been received. Wayne will co-sign and you will
+              Your signature has been received. Tri-Pillars™ will co-sign and you will
               receive a fully executed copy by email within 1 business day.
             </p>
             <p style={{ marginTop: '30px' }}>

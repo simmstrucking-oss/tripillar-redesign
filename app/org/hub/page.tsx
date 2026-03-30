@@ -80,7 +80,7 @@ export default function OrgHub() {
               Welcome to the Live and Grieve™ Partner Hub.
             </h2>
             <p className="text-sm mb-4" style={{ color: '#2D3142', lineHeight: '1.7' }}>
-              Your license is active. The steps below will get your organization ready to launch your first cohort. Each step matters — completing them in order means your facilitator arrives at certification training prepared and your first group starts on solid ground. Wayne is available throughout this process. Use the Support tab any time.
+              Your license is active. The steps below will get your organization ready to launch your first cohort. Each step matters — completing them in order means your facilitator arrives at certification training prepared and your first group starts on solid ground. Tri-Pillars™ is available throughout this process. Use the Support tab any time.
             </p>
             <button
               onClick={handleDismissOrientation}

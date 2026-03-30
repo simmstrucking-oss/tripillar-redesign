@@ -318,7 +318,7 @@ export default function OrgOnboardingPage() {
             }}
           >
             {allComplete
-              ? 'Launch preparation complete. Your facilitator certification training will be confirmed by Wayne shortly.'
+              ? 'Launch preparation complete. Your facilitator certification training will be confirmed by Tri-Pillars™ shortly.'
               : `${completedCount} of 7 steps complete`}
           </div>
 

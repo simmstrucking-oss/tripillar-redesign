@@ -25,7 +25,7 @@ export default function BlogPage() {
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-tight mb-6">
             Writing from{" "}
-            <span className="gold-text">Wayne and Jamie.</span>
+            <span className="gold-text">the founders.</span>
           </h1>
         </div>
       </section>

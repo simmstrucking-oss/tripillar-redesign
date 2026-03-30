@@ -850,7 +850,7 @@ function PostProgramForm({ cohortId, preCount, existing, onSaved }: {
         </p>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: '#166534', margin: '0 0 1rem' }}>
           Your Cohort Summary Report will be available in the Reports tab once generated.
-          Wayne has been notified.
+          Tri-Pillars™ has been notified.
         </p>
         <button
           onClick={() => window.open('/facilitators/hub/dashboard?tab=reports', '_self')}
@@ -966,7 +966,7 @@ function CohortSummaryForm({ cohortId, facilitatorId, onCompleted }: {
     });
     setSaving(false);
     if (res.ok) {
-      setMsg('Cohort marked complete. Wayne has been notified.');
+      setMsg('Cohort marked complete. Tri-Pillars™ has been notified.');
       onCompleted();
     } else {
       const d = await res.json();
@@ -1005,7 +1005,7 @@ function CohortSummaryForm({ cohortId, facilitatorId, onCompleted }: {
       </h3>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.muted,
         margin: '0 0 1rem', fontStyle: 'italic' }}>
-        Completing this form will mark the cohort as finished. Wayne will receive a notification.
+        Completing this form will mark the cohort as finished. Tri-Pillars™ will receive a notification.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -2545,7 +2545,7 @@ function YouthTab({ profile }: { profile: Profile }) {
         </h2>
         <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: 0 }}>
           {tracks.length === 0
-            ? 'No LGY tracks assigned. Contact Wayne to add your certification.'
+            ? 'No LGY tracks assigned. Contact Tri-Pillars™ to add your certification.'
             : `Certified tracks: ${[
                 hasElementary ? 'Elementary (Ages 8–12)' : null,
                 hasMH ? 'Middle/High (Ages 13–17)' : null,
@@ -2556,7 +2556,7 @@ function YouthTab({ profile }: { profile: Profile }) {
       {tracks.length === 0 && (
         <div style={{ background: '#FFF9EC', border: '1px solid #C9A84C', borderRadius: 8,
           padding: '1rem 1.25rem', color: '#6B4F0A', fontSize: '0.875rem' }}>
-          Your Youth certification tracks will appear here once Wayne assigns them after your LGY training is complete.
+          Your Youth certification tracks will appear here once Tri-Pillars™ assigns them after your LGY training is complete.
         </div>
       )}
 
@@ -2655,13 +2655,13 @@ function SupportTab() {
         <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem',
           color: C.navy, marginBottom: '0.25rem' }}>Request Consultation Support</h3>
         <p style={{ color: C.muted, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-          Wayne or Jamie will follow up within 2 business days.
+          your Tri-Pillars™ support team will follow up within 2 business days.
         </p>
 
         {submitted ? (
           <div style={{ background: '#F0F7F0', border: '1px solid #B8D8B8', borderRadius: 8,
             padding: '1rem', color: '#2E5D2E', fontSize: '0.9rem' }}>
-            ✅ Your request has been sent. Wayne or Jamie will follow up within 2 business days.
+            ✅ Your request has been sent. your Tri-Pillars™ support team will follow up within 2 business days.
             <button onClick={() => setSubmitted(false)}
               style={{ display: 'block', marginTop: '0.75rem', background: 'none', border: 'none',
                 color: C.gold, cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}>
@@ -2883,13 +2883,13 @@ function IncidentTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[]
         <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem',
           color: C.navy, marginBottom: '0.25rem' }}>Critical Incident Report</h3>
         <p style={{ color: C.muted, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-          Use this form to report any critical incident that occurred during a session. Wayne will be notified immediately.
+          Use this form to report any critical incident that occurred during a session. Tri-Pillars™ will be notified immediately.
         </p>
 
         {submitted ? (
           <div style={{ background: '#F0F7F0', border: '1px solid #B8D8B8', borderRadius: 8,
             padding: '1rem', color: '#2E5D2E', fontSize: '0.9rem' }}>
-            Your report has been submitted and Wayne has been notified. Keep a printed copy for your records.
+            Your report has been submitted and Tri-Pillars™ has been notified. Keep a printed copy for your records.
             <button onClick={() => setSubmitted(false)}
               style={{ display: 'block', marginTop: '0.75rem', background: 'none', border: 'none',
                 color: C.gold, cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}>
@@ -3691,7 +3691,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             ) : (
               <>
                 <p style={{ color: C.navy, fontSize: '0.95rem', fontFamily: 'Inter, sans-serif', lineHeight: 1.7, margin: '0 0 1.25rem' }}>
-                  Your book assignment will be confirmed by Wayne before training day. Once assigned, your Week 1 session will appear here. Check back after you hear from Wayne.
+                  Your book assignment will be confirmed by your trainer before training day. Once assigned, your Week 1 session will appear here. Check back after you hear from your trainer.
                 </p>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.9rem', color: C.navy,
                   fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
@@ -3747,7 +3747,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(7)}
             {heading("Step 7 of 7 \u2014 You are ready.")}
-            {body("Pre-training preparation is complete. Wayne and Jamie will see you at certification training. If anything comes up before then \u2014 questions, concerns, anything at all \u2014 use the Get Support tab. That is what it is there for.")}
+            {body("Pre-training preparation is complete. Tri-Pillars\u2122 will see you at certification training. If anything comes up before then \u2014 questions, concerns, anything at all \u2014 use the Get Support tab. That is what it is there for.")}
             <button onClick={completeOnboarding}
               style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
               Enter your Hub.
@@ -3804,7 +3804,7 @@ function OrientationPanel({ onDismiss }: { onDismiss: () => void }) {
         <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
           <li><strong>Library tab:</strong> your Master Facilitator Manual and Reference Guide are here. Additional documents unlock as you complete certification for each book.</li>
           <li><strong>Forms tab:</strong> submit incident reports, session feedback, reflections, and cohort summaries digitally. All submissions are logged.</li>
-          <li><strong>Get Support tab:</strong> send a consultation request directly to Wayne and Jamie any time.</li>
+          <li><strong>Get Support tab:</strong> send a consultation request to Tri-Pillars™ any time.</li>
           <li>Your reflections are private. Everything else is logged for program records.</li>
           <li>Questions? Use the Get Support tab.</li>
         </ul>

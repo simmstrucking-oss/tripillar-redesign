@@ -223,7 +223,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-serif text-xl text-navy mb-2">Message sent.</h3>
                 <p className="text-muted text-sm leading-relaxed">
-                  Thank you, {name.split(" ")[0]}. Wayne and Jamie read every message personally. They&apos;ll be in touch soon.
+                  Thank you, {name.split(" ")[0]}. Our team reads every message personally. We&apos;ll be in touch soon.
                 </p>
               </div>
             ) : (

@@ -380,7 +380,7 @@ export default function ProspectLandingPage({
             textAlign: 'center',
             marginBottom: '40px'
           }}>
-            Wayne Simms, Co-Founder, would love to talk.
+            Our team would love to talk.
           </p>
 
           {formSubmitted ? (
@@ -397,7 +397,7 @@ export default function ProspectLandingPage({
                 lineHeight: '1.6',
                 marginBottom: '20px'
               }}>
-                Thank you. Wayne will be in touch shortly. In the meantime, feel free to explore more at{' '}
+                Thank you. Our team will be in touch shortly. In the meantime, feel free to explore more at{' '}
                 <a href="https://tripillarstudio.com" style={{ color: '#B8942F', textDecoration: 'underline' }}>
                   tripillarstudio.com
                 </a>.
