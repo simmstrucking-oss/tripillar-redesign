@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile, error } = await sb()
     .from('facilitator_profiles')
-    .select('id, cert_status, onboarding_checklist, onboarding_complete, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
+    .select('id, cert_status, onboarding_checklist, onboarding_complete, onboarding_step, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
     .eq('user_id', user.id)
     .single();
 
@@ -90,7 +90,29 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true, onboarding_complete: !!update.onboarding_complete });
   }
 
-  // Case 3: Dismiss orientation
+  // Case 3: Update onboarding step
+  if (body.step !== undefined) {
+    const { error } = await supabase
+      .from('facilitator_profiles')
+      .update({ onboarding_step: body.step })
+      .eq('id', profile.id);
+
+    if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Case 4: Mark onboarding complete
+  if (body.complete === true) {
+    const { error } = await supabase
+      .from('facilitator_profiles')
+      .update({ onboarding_complete: true })
+      .eq('id', profile.id);
+
+    if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    return NextResponse.json({ ok: true, onboarding_complete: true });
+  }
+
+  // Case 5: Dismiss orientation
   if (body.dismissed_orientation) {
     const { error } = await supabase
       .from('facilitator_profiles')

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 
 /* ── Fonts ── */
@@ -1029,6 +1029,20 @@ export default function TrainerHubDashboard() {
 
         {/* Content */}
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '1.5rem 1.25rem' }}>
+          {/* Preview mode banner */}
+          {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1' && (
+            <div style={{
+              background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 8,
+              padding: '0.75rem 1.1rem', marginBottom: '1.25rem',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.gold, fontWeight: 600,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span>Preview mode: viewing as Trainer.</span>
+              <a href="/facilitators/hub/dashboard" style={{
+                color: C.navy, fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none',
+              }}>Exit preview →</a>
+            </div>
+          )}
           {/* Trainer Welcome Banner — first login only */}
           {showWelcome && (
             <div style={{

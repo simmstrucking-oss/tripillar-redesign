@@ -3126,6 +3126,7 @@ interface OnboardingState {
   cert_status?: string;
   onboarding_checklist: Record<string, boolean>;
   onboarding_complete: boolean;
+  onboarding_step?: number;
   training_date: string | null;
   training_location: string | null;
   training_confirmed: boolean;
@@ -3133,236 +3134,316 @@ interface OnboardingState {
   books_certified?: number[];
 }
 
-const CHECKLIST_ITEMS = [
-  { num: 1, label: "Read the Facilitator Inner Work Guide", why: "This is the foundation of everything. It will ask you to look at your own grief before you sit with anyone else\u2019s. That is not coincidental.", hasDoc: true, docDesc: "Open Document" },
-  { num: 2, label: "Complete the Grief Inventory from Chapter 1", why: "You do not submit this. It is for you. Do it honestly. Come to training day having sat with your own answers." },
-  { num: 3, label: "Review Week 1 of your Master Facilitator Manual", why: "You are not expected to have memorized it. You are expected to have read it. Know the structure of the first session before you walk into the room.", hasDoc: true, docDesc: "Open Document" },
-  { num: 4, label: "Read the Facilitator Code of Conduct", why: "This governs everything you do in this role. Read it before you sign it.", hasDoc: true, docDesc: "Open Document" },
-  { num: 5, label: "Sign the Facilitator Code of Conduct", why: "Your digital signature is legally binding and is on file with Tri-Pillars\u2122.", hasSignature: true },
-  { num: 6, label: "Review the Participant Appropriateness Guide", why: "You need to understand who this program is and is not designed for before you sit across from someone who wants to enroll.", hasDoc: true, docDesc: "Open Document" },
-  { num: 7, label: "Confirm your training details", why: "Confirm your training date, location, and that you understand what to bring.", hasTraining: true },
-];
-
-const DOC_PATHS: Record<number, { bucket: string; file: string }> = {
-  1: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Inner_Work_Guide.docx' },
-  3: { bucket: 'facilitator-documents', file: '02_FACILITATOR/FM/LG_Master_Facilitator_Manual_Book1_FINAL.docx' },
-  4: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Code_of_Conduct.docx' },
-  6: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Participant_Appropriateness_Guide.docx' },
-};
-
-function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
+/* ── Onboarding Wizard (replaces checklist) ── */
+function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview = false }: {
+  profile: Profile;
   onboarding: OnboardingState;
   onUpdate: (ob: Partial<OnboardingState>) => void;
-  onContinue: () => void;
+  onComplete: () => void;
+  isPreview?: boolean;
 }) {
-  const checklist = onboarding.onboarding_checklist ?? {};
+  const [step, setStep] = useState(onboarding.onboarding_step ?? 0);
+  const [checked, setChecked] = useState(false);
+  const [signed, setSigned] = useState(false);
   const [trainingDate, setTrainingDate] = useState(onboarding.training_date ?? '');
   const [trainingLocation, setTrainingLocation] = useState(onboarding.training_location ?? '');
-  const [trainingUnderstood, setTrainingUnderstood] = useState(onboarding.training_confirmed ?? false);
+  const [trainingUnderstood, setTrainingUnderstood] = useState(false);
   const [savingTraining, setSavingTraining] = useState(false);
-  const [openingDoc, setOpeningDoc] = useState<number | null>(null);
+  const [trainingSaved, setTrainingSaved] = useState(false);
+  const [openingDoc, setOpeningDoc] = useState(false);
 
-  async function toggleItem(num: number, checked: boolean) {
-    await fetch('/api/hub/onboarding', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ item: num, checked }),
-    });
-    const updated = { ...checklist, [String(num)]: checked };
-    onUpdate({ onboarding_checklist: updated });
+  // Reset per-step state when step changes
+  useEffect(() => {
+    setChecked(false);
+    setSigned(false);
+    setTrainingSaved(false);
+  }, [step]);
+
+  async function advance() {
+    const newStep = step + 1;
+    setStep(newStep);
+    if (!isPreview) {
+      await fetch('/api/hub/onboarding', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ step: newStep }),
+      });
+    }
+    onUpdate({ onboarding_step: newStep });
   }
 
-  async function openDoc(itemNum: number) {
-    const doc = DOC_PATHS[itemNum];
-    if (!doc) return;
-    setOpeningDoc(itemNum);
+  async function findAndOpenDoc(pathFragment: string) {
+    setOpeningDoc(true);
     try {
-      const res = await fetch(`/api/hub/documents`, { credentials: 'include' });
+      const res = await fetch('/api/hub/documents', { credentials: 'include' });
       const data = await res.json();
       const sections = data.sections ?? [];
-      let url: string | null = null;
-      const fileName = doc.file.split('/').pop()!.replace('.docx', '');
       for (const s of sections) {
         const found = s.documents?.find((d: { path: string; url: string | null }) =>
-          d.path.includes(fileName)
+          d.path.includes(pathFragment)
         );
-        if (found?.url) { url = found.url; break; }
+        if (found?.url) { window.open(found.url, '_blank'); setOpeningDoc(false); return; }
       }
-      if (url) window.open(url, '_blank');
-      else alert('Document not available. Please contact wayne@tripillarstudio.com');
+      alert('Document not available yet. Please check back later.');
     } catch { alert('Failed to load document.'); }
-    setOpeningDoc(null);
-  }
-
-  async function openFM(bookNum: number) {
-    setOpeningDoc(3);
-    try {
-      const res = await fetch(`/api/hub/documents`, { credentials: 'include' });
-      const data = await res.json();
-      const sections = data.sections ?? [];
-      let url: string | null = null;
-      for (const s of sections) {
-        const found = s.documents?.find((d: { name: string; url: string | null }) =>
-          d.name.toLowerCase().includes(`fm_book_${bookNum}`) || d.name.toLowerCase().includes(`fm${bookNum}`)
-        );
-        if (found?.url) { url = found.url; break; }
-      }
-      if (url) window.open(url, '_blank');
-      else alert('Manual not available yet. Contact wayne@tripillarstudio.com');
-    } catch { alert('Failed to load document.'); }
-    setOpeningDoc(null);
+    setOpeningDoc(false);
   }
 
   async function saveTraining() {
     if (!trainingDate || !trainingLocation || !trainingUnderstood) return;
     setSavingTraining(true);
-    const res = await fetch('/api/hub/onboarding', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ training_date: trainingDate, training_location: trainingLocation, training_confirmed: true }),
-    });
-    const data = await res.json();
-    setSavingTraining(false);
+    if (!isPreview) {
+      await fetch('/api/hub/onboarding', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ training_date: trainingDate, training_location: trainingLocation, training_confirmed: true }),
+      });
+    }
     onUpdate({ training_date: trainingDate, training_location: trainingLocation, training_confirmed: true });
-    if (!checklist['7']) toggleItem(7, true);
-    if (data.onboarding_complete) onUpdate({ onboarding_complete: true });
+    setSavingTraining(false);
+    setTrainingSaved(true);
   }
 
-  function handleSignSuccess() {
-    toggleItem(5, true);
+  async function completeOnboarding() {
+    if (!isPreview) {
+      await fetch('/api/hub/onboarding', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ complete: true }),
+      });
+    }
+    onUpdate({ onboarding_complete: true });
+    onComplete();
   }
 
-  const completedCount = CHECKLIST_ITEMS.filter(i => checklist[String(i.num)]).length;
+  const progressBar = (currentStep: number) => (
+    <div style={{ marginBottom: '2rem' }}>
+      <div style={{ fontSize: '0.8rem', color: C.muted, fontFamily: 'Inter, sans-serif', marginBottom: 8, textAlign: 'center' }}>
+        Step {currentStep} of 7
+      </div>
+      <div style={{ display: 'flex', gap: 4 }}>
+        {Array.from({ length: 7 }, (_, i) => (
+          <div key={i} style={{
+            flex: 1, height: 6, borderRadius: 3,
+            background: i < currentStep ? C.gold : C.border,
+            transition: 'background .3s',
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+
+  const heading = (text: string) => (
+    <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: C.navy, margin: '0 0 1rem' }}>
+      {text}
+    </h1>
+  );
+
+  const body = (text: string) => (
+    <p style={{ color: C.navy, fontSize: '0.95rem', lineHeight: 1.75, fontFamily: 'Inter, sans-serif', margin: '0 0 1.5rem' }}>
+      {text}
+    </p>
+  );
+
+  const nextBtn = (disabled: boolean) => (
+    <button onClick={advance} disabled={disabled}
+      style={{ ...btn(C.gold, '#fff'), opacity: disabled ? 0.4 : 1, marginTop: '1rem' }}>
+      Next →
+    </button>
+  );
+
+  const checkboxRow = (label: string) => (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
+      fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
+      <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
+        style={{ width: 18, height: 18, accentColor: C.gold, flexShrink: 0 }} />
+      {label}
+    </label>
+  );
+
+  const firstBook = (profile.books_certified?.length ?? 0) > 0 ? profile.books_certified![0] : null;
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '2.5rem 1.25rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.65rem', color: C.navy, margin: '0 0 0.75rem' }}>
-            Welcome to the Live and Grieve™ Facilitator Hub.
-          </h1>
-          <p style={{ color: C.muted, fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 560, margin: '0 auto' }}>
-            Before your certification training, there are specific things you need to complete. This is not optional preparation — it is expected. Facilitators who arrive on training day having completed these items have a significantly better experience and are better equipped to serve the people in their groups.
-          </p>
-        </div>
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '2.5rem 1.25rem' }}>
 
-        <div style={{ background: C.goldLt, borderRadius: 8, padding: '0.6rem 1rem', marginBottom: '1.5rem',
-          fontSize: '0.85rem', color: C.gold, fontWeight: 600, textAlign: 'center' }}>
-          {completedCount} of 7 complete
-        </div>
+        {/* Step 0 — Intro */}
+        {step === 0 && (
+          <div style={{ textAlign: 'center' }}>
+            {heading("Before we begin.")}
+            {body("This Hub is your home base for everything Live and Grieve\u2122. Before your certification training, we are going to walk you through seven steps. Each one matters. Take your time with each screen before moving forward.")}
+            <button onClick={advance}
+              style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
+              I am ready. Let&apos;s begin.
+            </button>
+          </div>
+        )}
 
-        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: C.navy, marginBottom: '0.5rem' }}>
-          Complete before training day:
-        </div>
+        {/* Step 1 — Inner Work Guide */}
+        {step === 1 && (
+          <div>
+            {progressBar(1)}
+            {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
+            {body("This is the foundation of everything you are about to do. Before you can hold space for someone else\u2019s grief, you need to have sat with your own. Read the Inner Work Guide in full before your training day.")}
+            <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
+              disabled={openingDoc}
+              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+              {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
+            </button>
+            {checkboxRow("I have read the Facilitator Inner Work Guide.")}
+            {nextBtn(!checked)}
+          </div>
+        )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {CHECKLIST_ITEMS.map(item => {
-            const checked = !!checklist[String(item.num)];
-            return (
-              <div key={item.num} style={{ ...card, marginBottom: 0, opacity: checked ? 0.85 : 1 }}>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  {!item.hasSignature && !item.hasTraining && (
-                    <input type="checkbox" checked={checked}
-                      onChange={e => toggleItem(item.num, e.target.checked)}
-                      style={{ width: 18, height: 18, marginTop: 2, accentColor: C.gold, flexShrink: 0 }} />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, color: C.navy, fontSize: '0.9rem', marginBottom: 4 }}>
-                      {item.num}. {item.label}
-                    </div>
+        {/* Step 2 — Grief Inventory */}
+        {step === 2 && (
+          <div>
+            {progressBar(2)}
+            {heading("Step 2 of 7 \u2014 Your Grief Inventory")}
+            {body("Chapter 1 of the Inner Work Guide contains a Grief Inventory. Complete it before training day. You do not submit it \u2014 it is for you. But you need to have done it. Come to training having sat with your own answers. This is not optional.")}
+            {checkboxRow("I have completed the Grief Inventory from Chapter 1.")}
+            {nextBtn(!checked)}
+          </div>
+        )}
 
-                    {item.why && (
-                      <p style={{ fontSize: '0.8rem', color: C.muted, margin: '4px 0 0', fontStyle: 'italic' }}>
-                        {item.why}
-                      </p>
-                    )}
+        {/* Step 3 — Participant Appropriateness Guide */}
+        {step === 3 && (
+          <div>
+            {progressBar(3)}
+            {heading("Step 3 of 7 \u2014 Who This Program Serves")}
+            {body("Before you sit across from someone who wants to enroll in Live and Grieve\u2122, you need to understand who this program is and is not designed for. Read the Participant Appropriateness Guide now.")}
+            <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
+              disabled={openingDoc}
+              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+              {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
+            </button>
+            {checkboxRow("I have read the Participant Appropriateness Guide.")}
+            {nextBtn(!checked)}
+          </div>
+        )}
 
-                    {item.hasDoc && DOC_PATHS[item.num] && (
-                      <button onClick={() => openDoc(item.num)}
-                        disabled={openingDoc === item.num}
-                        style={{ ...btn(C.navy, '#fff', true), marginTop: 8, opacity: openingDoc === item.num ? 0.6 : 1 }}>
-                        {openingDoc === item.num ? 'Loading...' : item.docDesc ?? 'Open Document'}
-                      </button>
-                    )}
-
-                    {item.hasSignature && (
-                      <div style={{ marginTop: 10 }}>
-                        {checked ? (
-                          <div style={{ color: C.success, fontSize: '0.85rem', fontWeight: 600 }}>
-                            &#10003; Code of Conduct signed
-                          </div>
-                        ) : (
-                          <SignatureField documentName="Facilitator Code of Conduct" onSuccess={handleSignSuccess} />
-                        )}
-                      </div>
-                    )}
-
-                    {item.hasTraining && (
-                      <div style={{ marginTop: 10 }}>
-                        {onboarding.training_confirmed ? (
-                          <div style={{ color: C.success, fontSize: '0.85rem', fontWeight: 600 }}>
-                            &#10003; Training confirmed — {onboarding.training_date}, {onboarding.training_location}
-                          </div>
-                        ) : (
-                          <div style={{ display: 'grid', gap: '0.6rem', maxWidth: 400 }}>
-                            <div>
-                              <label style={fieldLabel}>Training Date</label>
-                              <input type="date" style={inp} value={trainingDate}
-                                onChange={e => setTrainingDate(e.target.value)} />
-                            </div>
-                            <div>
-                              <label style={fieldLabel}>Training Location</label>
-                              <input type="text" style={inp} placeholder="City, State or venue name"
-                                value={trainingLocation}
-                                onChange={e => setTrainingLocation(e.target.value)} />
-                            </div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
-                              <input type="checkbox" checked={trainingUnderstood}
-                                onChange={e => setTrainingUnderstood(e.target.checked)}
-                                style={{ width: 16, height: 16, accentColor: C.gold }} />
-                              I understand what to bring
-                            </label>
-                            <button onClick={saveTraining}
-                              disabled={!trainingDate || !trainingLocation || !trainingUnderstood || savingTraining}
-                              style={{ ...btn(C.gold, '#fff', true),
-                                opacity: (!trainingDate || !trainingLocation || !trainingUnderstood) ? 0.5 : 1,
-                                width: 'fit-content' }}>
-                              {savingTraining ? 'Saving...' : 'Save Training Details'}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+        {/* Step 4 — Code of Conduct */}
+        {step === 4 && (
+          <div>
+            {progressBar(4)}
+            {heading("Step 4 of 7 \u2014 The Code of Conduct")}
+            {body("This governs everything you do in this role. Read it carefully before you sign it.")}
+            <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
+              disabled={openingDoc}
+              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+              {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
+            </button>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
+              fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
+              <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
+                style={{ width: 18, height: 18, accentColor: C.gold, flexShrink: 0 }} />
+              I have read the Facilitator Code of Conduct in full.
+            </label>
+            {checked && (
+              <div style={{ marginTop: '1rem' }}>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.05rem', color: C.navy, margin: '0 0 0.75rem' }}>
+                  Sign below to confirm your agreement.
+                </h3>
+                <SignatureField documentName="Facilitator Code of Conduct" onSuccess={() => setSigned(true)} />
               </div>
-            );
-          })}
-        </div>
+            )}
+            {nextBtn(!(checked && signed))}
+          </div>
+        )}
 
-        <p style={{ color: C.muted, fontFamily: "Inter, sans-serif", fontSize: "0.9rem", marginTop: 20, fontStyle: "italic" }}>
-          Wayne and Jamie are available if you have questions before training day. Use the Get Support tab any time.
-        </p>
+        {/* Step 5 — Week 1 Preview */}
+        {step === 5 && (
+          <div>
+            {progressBar(5)}
+            {heading("Step 5 of 7 \u2014 Your First Session")}
+            {body("You are not expected to have memorized the Master Facilitator Manual. You are expected to have read Week 1 before training day. Know the structure of the first session before you walk into the room.")}
+            {firstBook ? (
+              <button onClick={() => {
+                findAndOpenDoc(`FM`);
+              }}
+                disabled={openingDoc}
+                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                {openingDoc ? 'Loading...' : `Open Master Facilitator Manual \u2014 Book ${firstBook}`}
+              </button>
+            ) : (
+              <p style={{ color: C.muted, fontSize: '0.9rem', fontStyle: 'italic', fontFamily: 'Inter, sans-serif' }}>
+                Your book assignment is pending. Wayne will confirm this before training day — check back here once confirmed.
+              </p>
+            )}
+            {firstBook
+              ? checkboxRow("I have reviewed Week 1 of the Master Facilitator Manual.")
+              : (
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
+                  fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
+                  <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
+                    style={{ width: 18, height: 18, accentColor: C.gold, flexShrink: 0 }} />
+                  My book is not yet assigned. I understand I need to review Week 1 once it is confirmed.
+                </label>
+              )
+            }
+            {nextBtn(!checked)}
+          </div>
+        )}
 
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <button onClick={onContinue}
-            style={{ ...btn(C.navy, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
-            Continue to Hub →
-          </button>
-        </div>
+        {/* Step 6 — Training Details */}
+        {step === 6 && (
+          <div>
+            {progressBar(6)}
+            {heading("Step 6 of 7 \u2014 Your Training Day")}
+            {body("Confirm your training details below so we know you are ready.")}
+            <div style={{ display: 'grid', gap: '0.75rem', maxWidth: 400 }}>
+              <div>
+                <label style={fieldLabel}>Training Date</label>
+                <input type="date" style={inp} value={trainingDate}
+                  onChange={e => setTrainingDate(e.target.value)} />
+              </div>
+              <div>
+                <label style={fieldLabel}>Training Location</label>
+                <input type="text" style={inp} placeholder="City, State or venue name"
+                  value={trainingLocation}
+                  onChange={e => setTrainingLocation(e.target.value)} />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
+                <input type="checkbox" checked={trainingUnderstood}
+                  onChange={e => setTrainingUnderstood(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: C.gold }} />
+                I understand what to bring and what is expected of me before I arrive.
+              </label>
+              <button onClick={saveTraining}
+                disabled={!trainingDate || !trainingLocation || !trainingUnderstood || savingTraining || trainingSaved}
+                style={{ ...btn(C.gold, '#fff', true),
+                  opacity: (!trainingDate || !trainingLocation || !trainingUnderstood) ? 0.5 : 1,
+                  width: 'fit-content' }}>
+                {savingTraining ? 'Saving...' : trainingSaved ? 'Saved' : 'Save & Continue'}
+              </button>
+            </div>
+            {nextBtn(!trainingSaved)}
+          </div>
+        )}
+
+        {/* Step 7 — Complete */}
+        {step === 7 && (
+          <div>
+            {progressBar(7)}
+            {heading("Step 7 of 7 \u2014 You are ready.")}
+            {body("Pre-training preparation is complete. Wayne and Jamie will see you at certification training. If anything comes up before then \u2014 questions, concerns, anything at all \u2014 use the Get Support tab. That is what it is there for.")}
+            <button onClick={completeOnboarding}
+              style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
+              Enter your Hub.
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 /* ── Persistent onboarding banner ── */
-function OnboardingBanner({ checklist }: { checklist: Record<string, boolean> }) {
-  const count = CHECKLIST_ITEMS.filter(i => checklist[String(i.num)]).length;
-  const complete = count === 7;
-
-  if (complete) return null;
+function OnboardingBanner({ onboardingStep }: { onboardingStep: number }) {
+  if (onboardingStep >= 7) return null;
 
   return (
     <div style={{
@@ -3370,7 +3451,7 @@ function OnboardingBanner({ checklist }: { checklist: Record<string, boolean> })
       padding: '0.75rem 1.1rem', marginBottom: '1.25rem',
       fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.gold, fontWeight: 600,
     }}>
-      Pre-training preparation: {count} of 7 complete
+      Pre-training preparation: step {onboardingStep} of 7
     </div>
   );
 }
@@ -3451,6 +3532,22 @@ function GroupUseLicenseCard() {
 /* ════════════════════════════════════════════════════════════
    ROOT DASHBOARD
 ═════════════════════════════════════════════════════════════*/
+const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
+
+type PreviewRole = 'admin' | 'facilitator_book1' | 'facilitator_all' | 'trainer' | 'org_contact' | 'participant';
+const PREVIEW_ROLES: { value: PreviewRole; label: string }[] = [
+  { value: 'admin', label: 'Admin' },
+  { value: 'facilitator_book1', label: 'Facilitator — Book 1 only' },
+  { value: 'facilitator_all', label: 'Facilitator — All Books' },
+  { value: 'trainer', label: 'Trainer' },
+  { value: 'org_contact', label: 'Organization Contact' },
+  { value: 'participant', label: 'Participant' },
+];
+
+function previewRoleLabel(role: PreviewRole): string {
+  return PREVIEW_ROLES.find(r => r.value === role)?.label ?? role;
+}
+
 type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections';
 
 export default function HubDashboard() {
@@ -3473,6 +3570,11 @@ export default function HubDashboard() {
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [dismissedOrientation, setDismissedOrientation] = useState(false);
+
+  /* ── Role preview (owners only) ── */
+  const [previewRole, setPreviewRole] = useState<PreviewRole>('admin');
+  const isOwner = !!profile && OWNER_EMAILS.includes(profile.email);
+  const isPreviewActive = isOwner && previewRole !== 'admin';
 
   const loadHub = useCallback(async () => {
     const [profRes, cohortsRes, obRes] = await Promise.all([
@@ -3516,6 +3618,23 @@ export default function HubDashboard() {
     setOnboarding(prev => prev ? { ...prev, ...partial } : prev);
   }
 
+  function handlePreviewChange(role: PreviewRole) {
+    if (role === 'participant') {
+      window.open('https://solo.tripillarstudio.com?owner=tripillar-owner-2024', '_blank');
+      return; // stay on admin
+    }
+    setPreviewRole(role);
+  }
+
+  // Build a preview profile for facilitator previews
+  const previewProfile: Profile | null = profile && isPreviewActive && (previewRole === 'facilitator_book1' || previewRole === 'facilitator_all')
+    ? {
+        ...profile,
+        role: 'facilitator',
+        books_certified: previewRole === 'facilitator_book1' ? [1] : [1, 2, 3, 4, 5, 6],
+      }
+    : profile;
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex',
       alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: C.muted }}>
@@ -3552,10 +3671,12 @@ export default function HubDashboard() {
               fontWeight: 700, fontSize: '1.05rem' }}>Live and Grieve™</span>
             <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>Log out</button>
           </div>
-          <OnboardingWelcome
+          <OnboardingWizard
+            profile={profile}
             onboarding={onboarding}
             onUpdate={updateOnboarding}
-            onContinue={() => setShowWelcome(false)}
+            onComplete={() => setShowWelcome(false)}
+            isPreview={false}
           />
         </div>
       </>
@@ -3574,7 +3695,6 @@ export default function HubDashboard() {
   );
 
   /* ── Onboarding banner: show if pending + not all 7 done ── */
-  const obChecklist = onboarding?.onboarding_checklist ?? {};
   const showBanner = isPending && !onboarding?.onboarding_complete;
 
   return (
@@ -3600,6 +3720,23 @@ export default function HubDashboard() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {isOwner && (
+              <select
+                value={previewRole}
+                onChange={e => handlePreviewChange(e.target.value as PreviewRole)}
+                style={{
+                  background: 'rgba(255,255,255,.12)', color: C.goldLt, border: `1px solid rgba(255,255,255,.2)`,
+                  borderRadius: 4, padding: '4px 8px', fontSize: '0.78rem', fontFamily: 'Inter, sans-serif',
+                  cursor: 'pointer', appearance: 'auto' as const,
+                }}
+              >
+                {PREVIEW_ROLES.map(r => (
+                  <option key={r.value} value={r.value} style={{ color: '#222', background: '#fff' }}>
+                    {r.value === 'admin' ? 'Viewing as: Admin' : r.label}
+                  </option>
+                ))}
+              </select>
+            )}
             <a href="https://tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
               ← tripillarstudio.com
             </a>
@@ -3626,45 +3763,102 @@ export default function HubDashboard() {
 
         {/* Content */}
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '1.5rem 1.25rem' }}>
-          <CertBanner status={profile.cert_status} renewal={profile.cert_renewal} />
 
-          {/* Onboarding banner */}
-          {showBanner && <OnboardingBanner checklist={obChecklist} />}
-
-          {/* Onboarding complete banner */}
-          {onboarding?.onboarding_complete && isPending && (
-            <div style={{ background: C.success + '12', border: `1px solid ${C.success}40`, borderRadius: 8,
-              padding: '0.85rem 1.1rem', marginBottom: '1.25rem', fontSize: '0.875rem',
-              fontWeight: 500, color: C.success, fontFamily: 'Inter, sans-serif' }}>
-              Pre-training preparation complete. Your training day is going to be great. ✓
+          {/* Preview mode banner */}
+          {isPreviewActive && (
+            <div style={{
+              background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 8,
+              padding: '0.75rem 1.1rem', marginBottom: '1.25rem',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.gold, fontWeight: 600,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span>Preview mode: viewing as {previewRoleLabel(previewRole)}. Your data is not affected.</span>
+              <button onClick={() => setPreviewRole('admin')}
+                style={{ ...btn(C.navy, '#fff', true), marginLeft: 12 }}>
+                Exit Preview
+              </button>
             </div>
           )}
 
-          {/* Orientation Panel (Phase 2) */}
-          {showOrientation && (
-            <OrientationPanel onDismiss={() => setDismissedOrientation(true)} />
+          {/* Trainer / Org Contact preview cards */}
+          {isPreviewActive && previewRole === 'trainer' && (
+            <div style={{ ...card, borderLeft: `4px solid ${C.gold}` }}>
+              <h2 style={sectionTitle}>Trainer Hub preview</h2>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.muted, lineHeight: 1.7, margin: 0 }}>
+                This is how the Trainer Hub appears. Trainers see their authorized facilitators, certification events, impact metrics, and training resources.
+              </p>
+              <a href="/trainers/hub/dashboard?preview=1" target="_blank" rel="noopener noreferrer"
+                style={{ ...btn(C.navy, '#fff', true), display: 'inline-block', marginTop: '1rem', textDecoration: 'none' }}>
+                Open full Trainer Hub preview →
+              </a>
+            </div>
+          )}
+          {isPreviewActive && previewRole === 'org_contact' && (
+            <div style={{ ...card, borderLeft: `4px solid ${C.gold}` }}>
+              <h2 style={sectionTitle}>Organization Hub preview</h2>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.muted, lineHeight: 1.7, margin: 0 }}>
+                This is how the Organization Hub appears. Organization contacts see their facilitators, cohorts, licensing status, and program usage reports.
+              </p>
+            </div>
           )}
 
-          {tab === 'overview' && (
+          {/* Facilitator preview: show onboarding wizard */}
+          {isPreviewActive && (previewRole === 'facilitator_book1' || previewRole === 'facilitator_all') && previewProfile && (
             <>
-              <AnnouncementsCard announcements={announcements} />
-              <CertCard profile={profile} />
-              <CertAcknowledgmentCard />
+              <div style={{ ...card, borderLeft: `4px solid ${C.gold}`, marginBottom: '1.25rem' }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '0 0 0.5rem' }}>
+                  Previewing as: <strong>{previewRoleLabel(previewRole)}</strong> — books certified: {previewProfile.books_certified?.join(', ') ?? 'none'}
+                </p>
+              </div>
+              <CertCard profile={previewProfile} />
+              <DocumentsLibrary profile={previewProfile} />
             </>
           )}
-          {tab === 'documents' && (
+
+          {/* Normal content (hidden during preview) */}
+          {!isPreviewActive && (
             <>
-              <DocumentsLibrary profile={profile} />
-              <GroupUseLicenseCard />
+              <CertBanner status={profile.cert_status} renewal={profile.cert_renewal} />
+
+              {/* Onboarding banner */}
+              {showBanner && <OnboardingBanner onboardingStep={onboarding?.onboarding_step ?? 0} />}
+
+              {/* Onboarding complete banner */}
+              {onboarding?.onboarding_complete && isPending && (
+                <div style={{ background: C.success + '12', border: `1px solid ${C.success}40`, borderRadius: 8,
+                  padding: '0.85rem 1.1rem', marginBottom: '1.25rem', fontSize: '0.875rem',
+                  fontWeight: 500, color: C.success, fontFamily: 'Inter, sans-serif' }}>
+                  Pre-training preparation complete. Your training day is going to be great. ✓
+                </div>
+              )}
+
+              {/* Orientation Panel (Phase 2) */}
+              {showOrientation && (
+                <OrientationPanel onDismiss={() => setDismissedOrientation(true)} />
+              )}
+
+              {tab === 'overview' && (
+                <>
+                  <AnnouncementsCard announcements={announcements} />
+                  <CertCard profile={profile} />
+                  <CertAcknowledgmentCard />
+                </>
+              )}
+              {tab === 'documents' && (
+                <>
+                  <DocumentsLibrary profile={profile} />
+                  <GroupUseLicenseCard />
+                </>
+              )}
+              {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} profile={profile} onAdded={loadHub} />}
+              {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
+              {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}
+              {tab === 'reports'   && <ReportsTab profile={profile} />}
+              {tab === 'support'  && <SupportTab />}
+              {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
+              {tab === 'reflections' && <ReflectionTab profile={profile} cohorts={cohorts} />}
             </>
           )}
-          {tab === 'cohorts'   && <CohortsCard cohorts={cohorts} profile={profile} onAdded={loadHub} />}
-          {tab === 'codes'     && <CodesCard profile={profile} cohorts={cohorts} />}
-          {tab === 'feedback'  && <FeedbackTab profile={profile} cohorts={cohorts} />}
-          {tab === 'reports'   && <ReportsTab profile={profile} />}
-          {tab === 'support'  && <SupportTab />}
-          {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
-          {tab === 'reflections' && <ReflectionTab profile={profile} cohorts={cohorts} />}
         </div>
       </div>
     </>
