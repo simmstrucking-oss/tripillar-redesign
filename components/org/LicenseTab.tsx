@@ -147,7 +147,7 @@ export default function LicenseTab() {
 
       {/* License Info Card */}
       <div className="p-6 rounded border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2DDD7' }}>
-        <h3 className="text-lg font-bold mb-4" style={{ color: '#2D3142' }}>
+        <h3 className="text-lg font-bold mb-4" style={{ color: '#1c3028' }}>
           License Details
         </h3>
 
@@ -156,7 +156,7 @@ export default function LicenseTab() {
             <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>
               License Tier
             </p>
-            <p className="text-base font-semibold" style={{ color: '#2D3142' }}>
+            <p className="text-base font-semibold" style={{ color: '#1c3028' }}>
               {data.license_type}
             </p>
           </div>
@@ -165,7 +165,7 @@ export default function LicenseTab() {
             <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>
               Status
             </p>
-            <p className="text-base font-semibold" style={{ color: '#2D3142' }}>
+            <p className="text-base font-semibold" style={{ color: '#1c3028' }}>
               {data.license_status}
             </p>
           </div>
@@ -174,7 +174,7 @@ export default function LicenseTab() {
             <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>
               Start Date
             </p>
-            <p className="text-base" style={{ color: '#2D3142' }}>
+            <p className="text-base" style={{ color: '#1c3028' }}>
               {licenseStartDate}
             </p>
           </div>
@@ -183,7 +183,7 @@ export default function LicenseTab() {
             <p className="text-sm font-medium mb-1" style={{ color: '#7A7264' }}>
               Renewal Date
             </p>
-            <p className="text-base" style={{ color: '#2D3142' }}>
+            <p className="text-base" style={{ color: '#1c3028' }}>
               {renewalDate}
             </p>
           </div>
@@ -206,11 +206,11 @@ export default function LicenseTab() {
 
       {/* Contact Info */}
       <div className="p-6 rounded border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2DDD7' }}>
-        <h3 className="text-lg font-bold mb-4" style={{ color: '#2D3142' }}>
+        <h3 className="text-lg font-bold mb-4" style={{ color: '#1c3028' }}>
           Organization Contact
         </h3>
         <p className="mb-2">
-          <span className="font-medium" style={{ color: '#2D3142' }}>{data.contact_name}</span>
+          <span className="font-medium" style={{ color: '#1c3028' }}>{data.contact_name}</span>
         </p>
         <p style={{ color: '#7A7264' }}>
           {data.contact_email}

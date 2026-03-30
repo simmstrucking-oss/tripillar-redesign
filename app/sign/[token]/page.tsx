@@ -129,7 +129,7 @@ export default function SignAgreement() {
               textAlign: 'center',
             }}
           >
-            <h1 style={{ color: '#2D3142', marginBottom: '20px' }}>
+            <h1 style={{ color: '#1c3028', marginBottom: '20px' }}>
               Live and Grieve™
             </h1>
             <p style={{ fontSize: '16px', color: '#7A7264', lineHeight: 1.6 }}>
@@ -322,7 +322,7 @@ Description: ${tierDesc}`;
       >
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ color: '#2D3142', fontSize: '24px', marginBottom: '8px' }}>
+          <h1 style={{ color: '#1c3028', fontSize: '24px', marginBottom: '8px' }}>
             Live and Grieve™
           </h1>
           <p style={{ color: '#7A7264', fontSize: '16px' }}>
@@ -381,7 +381,7 @@ Description: ${tierDesc}`;
                 display: 'block',
                 marginBottom: '8px',
                 fontWeight: 'bold',
-                color: '#2D3142',
+                color: '#1c3028',
               }}
             >
               Type your full legal name to sign

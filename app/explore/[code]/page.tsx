@@ -191,7 +191,7 @@ export default function ProspectLandingPage({
           textAlign: 'center',
           border: '1px solid #E2DDD7'
         }}>
-          <h1 style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif', fontSize: '28px', marginBottom: '20px' }}>
+          <h1 style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif', fontSize: '28px', marginBottom: '20px' }}>
             Link Not Valid
           </h1>
           <p style={{ color: '#7A7264', fontSize: '16px', lineHeight: '1.6' }}>
@@ -217,7 +217,7 @@ export default function ProspectLandingPage({
           textAlign: 'center',
           border: '1px solid #E2DDD7'
         }}>
-          <h1 style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif', fontSize: '28px', marginBottom: '20px' }}>
+          <h1 style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif', fontSize: '28px', marginBottom: '20px' }}>
             Link Expired
           </h1>
           <p style={{ color: '#7A7264', fontSize: '16px', lineHeight: '1.6' }}>
@@ -245,7 +245,7 @@ export default function ProspectLandingPage({
         <h1 style={{
           fontFamily: 'Playfair Display, serif',
           fontSize: '32px',
-          color: '#2D3142',
+          color: '#1c3028',
           marginBottom: '30px',
           textAlign: 'center'
         }}>
@@ -255,7 +255,7 @@ export default function ProspectLandingPage({
         <h2 style={{
           fontFamily: 'Playfair Display, serif',
           fontSize: '24px',
-          color: '#2D3142',
+          color: '#1c3028',
           marginBottom: '30px',
           textAlign: 'center'
         }}>
@@ -295,7 +295,7 @@ export default function ProspectLandingPage({
           <h2 style={{
             fontFamily: 'Playfair Display, serif',
             fontSize: '28px',
-            color: '#2D3142',
+            color: '#1c3028',
             marginBottom: '20px',
             textAlign: 'center'
           }}>
@@ -327,7 +327,7 @@ export default function ProspectLandingPage({
                 <h3 style={{
                   fontSize: '16px',
                   fontWeight: '600',
-                  color: '#2D3142',
+                  color: '#1c3028',
                   marginBottom: '10px',
                   margin: '0 0 10px 0'
                 }}>
@@ -359,7 +359,7 @@ export default function ProspectLandingPage({
 
       {/* Section 3: Request a Conversation */}
       <section style={{
-        backgroundColor: '#2D3142',
+        backgroundColor: '#1c3028',
         padding: '60px 20px',
         marginTop: '40px'
       }}>

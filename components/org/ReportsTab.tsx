@@ -76,7 +76,7 @@ export default function ReportsTab() {
             className="p-4 rounded text-center"
             style={{ backgroundColor: '#FDF8EE', border: '1px solid #E2DDD7' }}
           >
-            <div className="text-2xl font-bold" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
+            <div className="text-2xl font-bold" style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif' }}>
               {s.value}
             </div>
             <div className="text-xs mt-1" style={{ color: '#7A7264' }}>{s.label}</div>

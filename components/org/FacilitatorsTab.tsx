@@ -50,17 +50,17 @@ export default function FacilitatorsTab() {
       <table className="w-full text-sm">
         <thead>
           <tr style={{ borderBottom: '2px solid #E2DDD7' }}>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Name</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Cert Track</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Status</th>
-            <th className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>Expiry</th>
+            <th className="text-left p-3 font-semibold" style={{ color: '#1c3028' }}>Name</th>
+            <th className="text-left p-3 font-semibold" style={{ color: '#1c3028' }}>Cert Track</th>
+            <th className="text-left p-3 font-semibold" style={{ color: '#1c3028' }}>Status</th>
+            <th className="text-left p-3 font-semibold" style={{ color: '#1c3028' }}>Expiry</th>
           </tr>
         </thead>
         <tbody>
           {facilitators.map(f => (
             <tr key={f.id} style={{ borderBottom: '1px solid #E2DDD7' }}>
-              <td className="p-3" style={{ color: '#2D3142' }}>{f.name}</td>
-              <td className="p-3" style={{ color: '#2D3142' }}>{f.books_certified} books</td>
+              <td className="p-3" style={{ color: '#1c3028' }}>{f.name}</td>
+              <td className="p-3" style={{ color: '#1c3028' }}>{f.books_certified} books</td>
               <td className="p-3">
                 <span
                   className="px-2 py-1 rounded text-xs font-medium"
@@ -72,7 +72,7 @@ export default function FacilitatorsTab() {
                   {f.cert_status}
                 </span>
               </td>
-              <td className="p-3" style={{ color: '#2D3142' }}>
+              <td className="p-3" style={{ color: '#1c3028' }}>
                 {new Date(f.cert_expiry).toLocaleDateString()}
               </td>
             </tr>

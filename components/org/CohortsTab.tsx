@@ -70,7 +70,7 @@ export default function CohortsTab() {
           <thead>
             <tr style={{ borderBottom: '2px solid #E2DDD7' }}>
               {['Book', 'Facilitator', 'Start Date', 'Status', 'Enrolled', 'Completion'].map(h => (
-                <th key={h} className="text-left p-3 font-semibold" style={{ color: '#2D3142' }}>{h}</th>
+                <th key={h} className="text-left p-3 font-semibold" style={{ color: '#1c3028' }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -86,12 +86,12 @@ export default function CohortsTab() {
                   className="cursor-pointer hover:bg-gray-50"
                   style={{ borderBottom: '1px solid #E2DDD7' }}
                 >
-                  <td className="p-3" style={{ color: '#2D3142' }}>{c.book_module || '\u2014'}</td>
-                  <td className="p-3" style={{ color: '#2D3142' }}>{c.facilitator_name || '\u2014'}</td>
-                  <td className="p-3" style={{ color: '#2D3142' }}>{c.start_date ? new Date(c.start_date).toLocaleDateString() : '\u2014'}</td>
-                  <td className="p-3" style={{ color: '#2D3142' }}>{c.status || '\u2014'}</td>
-                  <td className="p-3" style={{ color: '#2D3142' }}>{c.total_enrolled ?? 0}</td>
-                  <td className="p-3" style={{ color: '#2D3142' }}>{rate}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{c.book_module || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{c.facilitator_name || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{c.start_date ? new Date(c.start_date).toLocaleDateString() : '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{c.status || '\u2014'}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{c.total_enrolled ?? 0}</td>
+                  <td className="p-3" style={{ color: '#1c3028' }}>{rate}</td>
                 </tr>
               )
             })}
@@ -104,7 +104,7 @@ export default function CohortsTab() {
       {detail && !detailLoading && (
         <div className="p-6 rounded border" style={{ backgroundColor: '#FDF8EE', borderColor: '#B8942F' }}>
           <div className="flex justify-between items-start mb-4">
-            <h4 className="font-bold" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
+            <h4 className="font-bold" style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif' }}>
               {detail.book_module} — Detail
             </h4>
             <button onClick={() => setDetail(null)} className="text-lg" style={{ color: '#7A7264' }}>&times;</button>

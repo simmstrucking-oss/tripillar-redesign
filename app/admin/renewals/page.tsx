@@ -139,7 +139,7 @@ function RenewalsContent() {
 
   return (
     <div style={{ padding: '40px', backgroundColor: '#F4F1EC', minHeight: '100vh' }}>
-      <h1 style={{ color: '#2D3142', marginBottom: '30px' }}>
+      <h1 style={{ color: '#1c3028', marginBottom: '30px' }}>
         License Renewals
       </h1>
 
@@ -188,7 +188,7 @@ function RenewalsContent() {
               gridTemplateColumns: '1.5fr 1fr 1.2fr 1fr 1.2fr 1.2fr 1fr',
               gap: '12px',
               padding: '12px',
-              backgroundColor: '#2D3142',
+              backgroundColor: '#1c3028',
               color: 'white',
               fontWeight: 'bold',
               fontSize: '12px',
@@ -223,7 +223,7 @@ function RenewalsContent() {
                 }}
               >
                 <div>
-                  <strong style={{ color: '#2D3142' }}>{renewal.name}</strong>
+                  <strong style={{ color: '#1c3028' }}>{renewal.name}</strong>
                 </div>
                 <div>{renewal.license_type}</div>
                 <div>{new Date(renewal.license_renewal).toLocaleDateString()}</div>

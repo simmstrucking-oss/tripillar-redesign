@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 const C = {
-  navy: '#2D3142', gold: '#B8942F', goldLt: '#F5EDD5', bg: '#F5F4F0',
+  navy: '#1c3028', gold: '#B8942F', goldLt: '#F5EDD5', bg: '#F5F4F0',
   white: '#FFFFFF', border: '#DDD9D0', muted: '#6B7280',
   danger: '#DC2626', success: '#16A34A',
 };

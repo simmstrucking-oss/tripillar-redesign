@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const C = {
-  navy:   '#2D3142',
+  navy:   '#1c3028',
   gold:   '#B8942F',
   goldLt: '#F5EDD5',
   bg:     '#F5F4F0',

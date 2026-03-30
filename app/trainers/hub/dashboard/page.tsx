@@ -9,7 +9,7 @@ const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wgh
 
 /* ── Design tokens ── */
 const C = {
-  navy:   '#2D3142',
+  navy:   '#1c3028',
   gold:   '#B8942F',
   goldLt: '#F5EDD5',
   bg:     '#F5F4F0',
@@ -1193,7 +1193,7 @@ export default function TrainerHubDashboard() {
               <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#1B2B4B', margin: '0 0 0.75rem' }}>
                 Welcome to the Live and Grieve™ Trainer Hub.
               </h2>
-              <p style={{ color: '#2D3142', fontSize: '0.9rem', lineHeight: 1.7, margin: '0 0 1rem' }}>
+              <p style={{ color: '#1c3028', fontSize: '0.9rem', lineHeight: 1.7, margin: '0 0 1rem' }}>
                 Your authorization is active. Before you schedule your first certification event, review your Trainer Agreement in the Resources tab — specifically the fee remittance timeline, assessment administration procedures, and Answer Key confidentiality requirements. Everything else you need is in the tabs above. If you have questions before your first event, use the support contact in your Hub.
               </p>
               <button

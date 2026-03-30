@@ -51,7 +51,7 @@ export default function SupportTab() {
             type="text" value={subject} onChange={e => setSubject(e.target.value)}
             required
             className="w-full rounded border p-2 text-sm"
-            style={{ borderColor: '#E2DDD7', color: '#2D3142' }}
+            style={{ borderColor: '#E2DDD7', color: '#1c3028' }}
           />
         </div>
 
@@ -61,7 +61,7 @@ export default function SupportTab() {
             value={message} onChange={e => setMessage(e.target.value)}
             required rows={5}
             className="w-full rounded border p-2 text-sm"
-            style={{ borderColor: '#E2DDD7', color: '#2D3142', resize: 'vertical' }}
+            style={{ borderColor: '#E2DDD7', color: '#1c3028', resize: 'vertical' }}
           />
         </div>
 
@@ -70,7 +70,7 @@ export default function SupportTab() {
           <select
             value={contact} onChange={e => setContact(e.target.value)}
             className="w-full rounded border p-2 text-sm"
-            style={{ borderColor: '#E2DDD7', color: '#2D3142' }}
+            style={{ borderColor: '#E2DDD7', color: '#1c3028' }}
           >
             <option>Email</option>
             <option>Phone</option>

@@ -7,7 +7,7 @@ export default function StartPage() {
     <div className="min-h-screen flex flex-col" style={{ background: "#F8F4EE", fontFamily: "Inter, sans-serif" }}>
 
       {/* Minimal header — logo only */}
-      <header style={{ background: "#2D3142", padding: "1rem 1.5rem" }}>
+      <header style={{ background: "#1c3028", padding: "1rem 1.5rem" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <Link href="/" style={{ fontFamily: "'Playfair Display', serif", color: "#B8942F", fontWeight: 700, fontSize: "1.15rem", textDecoration: "none", letterSpacing: "-0.01em" }}>
             Tri&#8209;Pillars<sup style={{ fontSize: "0.65rem", verticalAlign: "super" }}>™</sup> Studio
@@ -16,7 +16,7 @@ export default function StartPage() {
       </header>
 
       {/* Hero */}
-      <section style={{ background: "#2D3142", padding: "4rem 1.5rem 3.5rem" }}>
+      <section style={{ background: "#1c3028", padding: "4rem 1.5rem 3.5rem" }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "#B8942F", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1.25rem" }}>
             Live and Grieve™
@@ -39,7 +39,7 @@ export default function StartPage() {
             <p style={{ color: "#B8942F", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.75rem" }}>
               I&apos;m grieving
             </p>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#2D3142", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#1c3028", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
               For individuals
             </h2>
             <p style={{ color: "#5a5a6a", fontSize: "0.9rem", lineHeight: 1.65, marginBottom: "1.75rem", flex: 1 }}>
@@ -49,7 +49,7 @@ export default function StartPage() {
               href="https://solo.tripillarstudio.com"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: "block", background: "#2D3142", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem", transition: "opacity 0.2s" }}
+              style={{ display: "block", background: "#1c3028", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem", transition: "opacity 0.2s" }}
             >
               Begin for $24.99
             </a>
@@ -66,7 +66,7 @@ export default function StartPage() {
             <p style={{ color: "#B8942F", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.75rem" }}>
               I lead an organization
             </p>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#2D3142", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#1c3028", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
               For communities
             </h2>
             <p style={{ color: "#5a5a6a", fontSize: "0.9rem", lineHeight: 1.65, marginBottom: "1.75rem", flex: 1 }}>
@@ -74,7 +74,7 @@ export default function StartPage() {
             </p>
             <a
               href="/contact?inquiry_type=institution"
-              style={{ display: "block", background: "#2D3142", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem" }}
+              style={{ display: "block", background: "#1c3028", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem" }}
             >
               Talk to us
             </a>
@@ -91,7 +91,7 @@ export default function StartPage() {
             <p style={{ color: "#B8942F", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.75rem" }}>
               I want to facilitate
             </p>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#2D3142", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#1c3028", fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.3, marginBottom: "0.85rem" }}>
               For facilitators
             </h2>
             <p style={{ color: "#5a5a6a", fontSize: "0.9rem", lineHeight: 1.65, marginBottom: "1.75rem", flex: 1 }}>
@@ -99,7 +99,7 @@ export default function StartPage() {
             </p>
             <Link
               href="/facilitators"
-              style={{ display: "block", background: "#2D3142", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem" }}
+              style={{ display: "block", background: "#1c3028", color: "#F8F4EE", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", padding: "0.85rem 1rem", borderRadius: 7, textDecoration: "none", marginBottom: "0.85rem" }}
             >
               Learn about certification
             </Link>
@@ -114,7 +114,7 @@ export default function StartPage() {
       </section>
 
       {/* Solo Companion navy feature section — mirror of home page */}
-      <section style={{ background: "#2D3142", padding: "4.5rem 1.5rem" }}>
+      <section style={{ background: "#1c3028", padding: "4.5rem 1.5rem" }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <p style={{ color: "#B8942F", fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1rem" }}>
@@ -161,7 +161,7 @@ export default function StartPage() {
       </section>
 
       {/* Minimal footer */}
-      <footer style={{ background: "#2D3142", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "1.5rem", textAlign: "center" }}>
+      <footer style={{ background: "#1c3028", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "1.5rem", textAlign: "center" }}>
         <div style={{ marginBottom: "0.5rem" }}>
           <Link href="/" style={{ fontFamily: "'Playfair Display', serif", color: "#B8942F", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>
             Tri&#8209;Pillars<sup style={{ fontSize: "0.6rem", verticalAlign: "super" }}>™</sup> Studio

@@ -72,7 +72,7 @@ function Tile({
           fontFamily: 'Inter, sans-serif',
           fontSize: '0.8rem',
           fontWeight: 600,
-          color: '#2D3142',
+          color: '#1c3028',
           marginTop: '0.4rem',
           textTransform: 'uppercase',
           letterSpacing: '0.07em',

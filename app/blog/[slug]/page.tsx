@@ -80,7 +80,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <section className="pb-24 max-w-3xl mx-auto px-4 sm:px-6">
         <article
           className="prose prose-lg prose-navy max-w-none"
-          style={{ color: '#2D3142', lineHeight: 1.8 }}
+          style={{ color: '#1c3028', lineHeight: 1.8 }}
           dangerouslySetInnerHTML={{ __html: post.body }}
         />
       </section>

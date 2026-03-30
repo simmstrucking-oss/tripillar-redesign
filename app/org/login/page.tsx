@@ -51,7 +51,7 @@ export default function OrgLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F4F1EC' }}>
       <div className="w-full max-w-md" style={{ padding: '40px', backgroundColor: '#FFFFFF', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        <h1 className="text-3xl font-bold mb-2" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif' }}>
           Partner Login
         </h1>
         <p className="text-sm mb-8" style={{ color: '#7A7264' }}>
@@ -60,7 +60,7 @@ export default function OrgLogin() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2D3142' }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#1c3028' }}>
               Email
             </label>
             <input
@@ -69,13 +69,13 @@ export default function OrgLogin() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-2 border rounded"
-              style={{ borderColor: '#E2DDD7', color: '#2D3142' }}
+              style={{ borderColor: '#E2DDD7', color: '#1c3028' }}
               placeholder="your@email.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2D3142' }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#1c3028' }}>
               Password
             </label>
             <input
@@ -84,7 +84,7 @@ export default function OrgLogin() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full px-4 py-2 border rounded"
-              style={{ borderColor: '#E2DDD7', color: '#2D3142' }}
+              style={{ borderColor: '#E2DDD7', color: '#1c3028' }}
               placeholder="••••••••"
             />
           </div>

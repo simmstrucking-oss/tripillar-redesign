@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
 
 const C = {
-  navy:   '#2D3142',
+  navy:   '#1c3028',
   gold:   '#B8942F',
   goldLt: '#F5EDD5',
   bg:     '#F5F4F0',

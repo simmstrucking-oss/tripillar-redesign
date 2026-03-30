@@ -76,10 +76,10 @@ export default function OrgHub() {
         {/* Orientation Panel */}
         {!dismissed && (
           <div className="mb-8 p-6 rounded border-l-4" style={{ backgroundColor: '#FFFBF0', borderColor: '#B8942F' }}>
-            <h2 className="text-xl font-bold mb-3" style={{ color: '#2D3142', fontFamily: 'Playfair Display, serif' }}>
+            <h2 className="text-xl font-bold mb-3" style={{ color: '#1c3028', fontFamily: 'Playfair Display, serif' }}>
               Welcome to the Live and Grieve™ Partner Hub.
             </h2>
-            <p className="text-sm mb-4" style={{ color: '#2D3142', lineHeight: '1.7' }}>
+            <p className="text-sm mb-4" style={{ color: '#1c3028', lineHeight: '1.7' }}>
               Your license is active. The steps below will get your organization ready to launch your first cohort. Each step matters — completing them in order means your facilitator arrives at certification training prepared and your first group starts on solid ground. Tri-Pillars™ is available throughout this process. Use the Support tab any time.
             </p>
             <button

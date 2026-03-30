@@ -145,7 +145,7 @@ function AgreementsInner({
 
   return (
     <div style={{ padding: '40px', backgroundColor: '#F4F1EC', minHeight: '100vh' }}>
-      <h1 style={{ color: '#2D3142', marginBottom: '30px' }}>
+      <h1 style={{ color: '#1c3028', marginBottom: '30px' }}>
         Institutional License Agreements
       </h1>
 
@@ -190,7 +190,7 @@ function AgreementsInner({
                   gridTemplateColumns: '1fr 1fr 1fr 1fr auto',
                   gap: '12px',
                   padding: '12px',
-                  backgroundColor: '#2D3142',
+                  backgroundColor: '#1c3028',
                   color: 'white',
                   fontWeight: 'bold',
                   fontSize: '12px',
@@ -257,7 +257,7 @@ function AgreementsInner({
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               }}
             >
-              <h2 style={{ color: '#2D3142', marginBottom: '20px' }}>
+              <h2 style={{ color: '#1c3028', marginBottom: '20px' }}>
                 {selectedAgreement.org_name}
               </h2>
 

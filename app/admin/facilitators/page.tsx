@@ -7,7 +7,7 @@ const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wgh
 
 /* ── Design tokens ── */
 const C = {
-  navy:    '#2D3142',
+  navy:    '#1c3028',
   gold:    '#B8942F',
   goldLt:  '#F5EDD5',
   bg:      '#F5F4F0',
@@ -1499,11 +1499,11 @@ export default function AdminFacilitatorsPage() {
           )}
           {tab === 'documents' && (
             <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #DDD9D0', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#2D3142', fontWeight: 700, margin: '0 0 0.75rem' }}>Document Library</h2>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#1c3028', fontWeight: 700, margin: '0 0 0.75rem' }}>Document Library</h2>
               <p style={{ fontFamily: 'Inter, sans-serif', color: '#6B7280', fontSize: '0.9rem', marginBottom: '1rem' }}>
                 View and download all 109 documents across 3 storage buckets (facilitator-documents, admin-documents, restricted-documents).
               </p>
-              <a href="/admin/documents" style={{ display: 'inline-block', background: '#2D3142', color: '#fff', borderRadius: 6, padding: '0.6rem 1.25rem', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', textDecoration: 'none' }}>
+              <a href="/admin/documents" style={{ display: 'inline-block', background: '#1c3028', color: '#fff', borderRadius: 6, padding: '0.6rem 1.25rem', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', textDecoration: 'none' }}>
                 Open Document Library →
               </a>
             </div>
