@@ -69,6 +69,9 @@ interface Facilitator {
   cert_issued: string; cert_renewal: string;
   organization_id?: string; books_certified?: number[];
   created_at: string; last_active?: string;
+  lgy_certified_tracks?: string[] | null;
+  lgy_trainer?: boolean;
+  lgy_authorized_tracks?: string[] | null;
 }
 
 /* ── Helpers ── */
@@ -478,12 +481,18 @@ function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
   onClose: () => void;
   onUpdate: () => void;
 }) {
-  const [newPw,      setNewPw]      = useState('');
-  const [pwLoading,  setPwLoading]  = useState(false);
-  const [pwMsg,      setPwMsg]      = useState('');
-  const [tagLoading, setTagLoading] = useState('');
-  const [tagMsg,     setTagMsg]     = useState('');
-  const [deactLoad,  setDeactLoad]  = useState(false);
+  const [newPw,        setNewPw]        = useState('');
+  const [pwLoading,    setPwLoading]    = useState(false);
+  const [pwMsg,        setPwMsg]        = useState('');
+  const [tagLoading,   setTagLoading]   = useState('');
+  const [tagMsg,       setTagMsg]       = useState('');
+  const [deactLoad,    setDeactLoad]    = useState(false);
+  // LGY state
+  const [lgyTracks,    setLgyTracks]    = useState<string[]>(f.lgy_certified_tracks ?? []);
+  const [lgyTrainer,   setLgyTrainer]   = useState<boolean>(f.lgy_trainer ?? false);
+  const [lgyAuthTracks,setLgyAuthTracks]= useState<string[]>(f.lgy_authorized_tracks ?? []);
+  const [lgySaving,    setLgySaving]    = useState(false);
+  const [lgyMsg,       setLgyMsg]       = useState('');
 
   const org = orgs.find(o => o.id === f.organization_id);
 
@@ -523,6 +532,31 @@ function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
     setDeactLoad(false);
     onUpdate();
     onClose();
+  }
+
+  function toggleLgyTrack(t: string) {
+    setLgyTracks(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+  function toggleLgyAuthTrack(t: string) {
+    setLgyAuthTracks(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+
+  async function saveLgy(e: React.FormEvent) {
+    e.preventDefault();
+    setLgySaving(true); setLgyMsg('');
+    const res = await fetch('/api/admin/facilitators', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: f.user_id,
+        lgy_certified_tracks: lgyTracks,
+        lgy_trainer: lgyTrainer,
+        lgy_authorized_tracks: lgyTrainer ? lgyAuthTracks : [],
+      }),
+    });
+    setLgySaving(false);
+    if (res.ok) { setLgyMsg('LGY settings saved.'); onUpdate(); }
+    else { const d = await res.json(); setLgyMsg('Error: ' + d.error); }
   }
 
   return (
@@ -620,6 +654,87 @@ function FacilitatorProfile({ f, orgs, onClose, onUpdate }: {
             Access Codes
           </h3>
           <FacCodesSummary facilProfileId={f.id} />
+        </div>
+
+        <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />
+
+        {/* LGY Certification */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: 700, color: C.navy, marginBottom: '0.25rem' }}>
+            Live and Grieve™ Youth (LGY) Certification
+          </h3>
+          <p style={{ fontSize: '0.78rem', color: C.muted, margin: '0 0 0.9rem', fontFamily: 'Inter, sans-serif' }}>
+            Assign after the facilitator completes LGY certification training. Youth section of the Hub becomes visible automatically.
+          </p>
+          <form onSubmit={saveLgy}>
+            {/* Certified tracks */}
+            <div style={{ marginBottom: '0.85rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: C.navy, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6, fontFamily: 'Inter, sans-serif' }}>
+                Certified Tracks
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {[
+                  { value: 'elementary', label: 'Elementary (Ages 8–12)' },
+                  { value: 'middle_high', label: 'Middle/High (Ages 13–17)' },
+                ].map(t => (
+                  <label key={t.value} style={{ display: 'flex', alignItems: 'center', gap: 7,
+                    fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, cursor: 'pointer',
+                    padding: '0.45rem 0.85rem', borderRadius: 6,
+                    background: lgyTracks.includes(t.value) ? C.goldLt : C.bg,
+                    border: `1px solid ${lgyTracks.includes(t.value) ? C.gold : C.border}`,
+                  }}>
+                    <input type="checkbox" checked={lgyTracks.includes(t.value)}
+                      onChange={() => toggleLgyTrack(t.value)}
+                      style={{ accentColor: C.gold, width: 15, height: 15 }} />
+                    {t.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* LGY Trainer toggle */}
+            <div style={{ marginBottom: '0.85rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10,
+                fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, cursor: 'pointer' }}>
+                <input type="checkbox" checked={lgyTrainer} onChange={e => setLgyTrainer(e.target.checked)}
+                  style={{ accentColor: C.gold, width: 15, height: 15 }} />
+                <span>Authorized as <strong>LGY Trainer</strong> (can deliver LGY certification training)</span>
+              </label>
+            </div>
+
+            {/* LGY Trainer authorized tracks — only shown when lgyTrainer is checked */}
+            {lgyTrainer && (
+              <div style={{ marginBottom: '0.85rem', marginLeft: '1.5rem', padding: '0.75rem',
+                background: C.goldLt, borderRadius: 8, border: `1px solid ${C.gold}40` }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: C.gold, textTransform: 'uppercase',
+                  letterSpacing: '0.04em', marginBottom: 6, fontFamily: 'Inter, sans-serif' }}>
+                  Tracks Authorized to Train
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {[
+                    { value: 'elementary', label: 'Elementary' },
+                    { value: 'middle_high', label: 'Middle/High' },
+                  ].map(t => (
+                    <label key={t.value} style={{ display: 'flex', alignItems: 'center', gap: 7,
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={lgyAuthTracks.includes(t.value)}
+                        onChange={() => toggleLgyAuthTrack(t.value)}
+                        style={{ accentColor: C.gold, width: 15, height: 15 }} />
+                      {t.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button type="submit" disabled={lgySaving} style={{ ...btn(C.navy, '#fff', true), marginTop: 4 }}>
+              {lgySaving ? 'Saving…' : 'Save LGY Settings'}
+            </button>
+            {lgyMsg && (
+              <p style={{ fontSize: '0.8rem', color: lgyMsg.startsWith('Error') ? C.danger : C.success,
+                margin: '0.4rem 0 0', fontFamily: 'Inter, sans-serif' }}>{lgyMsg}</p>
+            )}
+          </form>
         </div>
 
         <hr style={{ border: 'none', borderTop: `1px solid ${C.border}`, margin: '1.25rem 0' }} />

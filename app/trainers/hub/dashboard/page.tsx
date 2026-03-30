@@ -76,6 +76,8 @@ interface TrainerProfile {
   trainer_cert_renewal?: string;
   books_authorized_to_train?: number[];
   dismissed_trainer_orientation?: boolean;
+  lgy_trainer?: boolean;
+  lgy_authorized_tracks?: string[] | null;
 }
 
 interface Facilitator {
@@ -700,12 +702,23 @@ function CertificationTab({ profile }: { profile: TrainerProfile }) {
 /* ════════════════════════════════════════════════════════════
    TAB 5 — Resources
 ═════════════════════════════════════════════════════════════*/
-function ResourcesTab({ profile: _profile }: { profile: TrainerProfile }) {
+interface LgyTrainerDoc { path: string; label: string; url: string; track: string; }
+
+function ResourcesTab({ profile }: { profile: TrainerProfile }) {
   const [groups, setGroups] = useState<ResourceGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirmModal, setConfirmModal] = useState<{ name: string; url: string } | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  // LGY resources (only fetched if lgy_trainer = true)
+  const [lgyDocs, setLgyDocs] = useState<LgyTrainerDoc[]>([]);
+  const [lgyLoading, setLgyLoading] = useState(false);
+  const [lgyError, setLgyError] = useState('');
+  const [lgyConfirmModal, setLgyConfirmModal] = useState<{ name: string; url: string } | null>(null);
+
+  const isLgyTrainer = profile.lgy_trainer === true;
+  const lgyTracks = profile.lgy_authorized_tracks ?? [];
 
   useEffect(() => {
     fetch('/api/trainer/resources', { credentials: 'include' })
@@ -717,6 +730,25 @@ function ResourcesTab({ profile: _profile }: { profile: TrainerProfile }) {
       })
       .catch(() => { setError('Failed to load resources.'); setLoading(false); });
   }, []);
+
+  useEffect(() => {
+    if (!isLgyTrainer) return;
+    setLgyLoading(true);
+    fetch('/api/trainer/lgy-resources', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setLgyError(data.error); setLgyLoading(false); return; }
+        setLgyDocs(data.docs ?? []);
+        setLgyLoading(false);
+      })
+      .catch(() => { setLgyError('Failed to load LGY resources.'); setLgyLoading(false); });
+  }, [isLgyTrainer]);
+
+  async function handleLgyConfirmDownload() {
+    if (!lgyConfirmModal) return;
+    window.open(lgyConfirmModal.url, '_blank');
+    setLgyConfirmModal(null);
+  }
 
   async function handleConfirmDownload() {
     if (!confirmModal) return;
@@ -868,6 +900,91 @@ function ResourcesTab({ profile: _profile }: { profile: TrainerProfile }) {
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
               <button style={btn(C.border, C.navy, true)} onClick={() => setConfirmModal(null)}>Cancel</button>
               <button style={btn(C.danger)} onClick={handleConfirmDownload}>I Understand — Download</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── LGY Resources Section — only shown when lgy_trainer = true ── */}
+      {isLgyTrainer && (
+        <div style={{ marginTop: '2.5rem' }}>
+          <div style={{ background: '#2E6B4F', borderRadius: 8, padding: '1rem 1.25rem',
+            marginBottom: '1rem', borderLeft: '4px solid #C9A84C' }}>
+            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem',
+              fontWeight: 700, color: '#C9A84C', marginBottom: '0.3rem' }}>
+              Live and Grieve™ Youth — Training Resources
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem',
+              color: 'rgba(255,255,255,.8)', lineHeight: 1.5 }}>
+              {lgyTracks.length > 0
+                ? `Authorized tracks: ${[
+                    lgyTracks.includes('elementary') ? 'Elementary (Ages 8–12)' : null,
+                    lgyTracks.includes('middle_high') ? 'Middle/High (Ages 13–17)' : null,
+                  ].filter(Boolean).join(', ')}`
+                : 'LGY Trainer — no tracks assigned yet. Contact Wayne.'}
+            </div>
+          </div>
+
+          {lgyLoading && (
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted }}>Loading LGY resources…</p>
+          )}
+          {lgyError && (
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.danger }}>{lgyError}</p>
+          )}
+          {!lgyLoading && !lgyError && lgyDocs.length === 0 && (
+            <div style={{ background: '#F9F7F3', border: '1px solid #E5E0D8', borderRadius: 8,
+              padding: '1rem 1.25rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted }}>
+              LGY training documents will appear here once Wayne uploads them to the system.
+            </div>
+          )}
+          {!lgyLoading && lgyDocs.length > 0 && (
+            <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 8, padding: '1.25rem' }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: C.danger,
+                fontWeight: 600, margin: '0 0 1rem', padding: '0.5rem 0.75rem',
+                background: '#FEF2F2', borderRadius: 6, border: '1px solid #FECACA' }}>
+                ⚠ Confidential. These documents are for authorized LGY Trainers only. Do not share or distribute. All downloads are logged.
+              </p>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                {lgyDocs.map((doc: LgyTrainerDoc) => (
+                  <button
+                    key={doc.path}
+                    onClick={() => setLgyConfirmModal({ name: doc.label, url: doc.url })}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      padding: '0.65rem 1rem', borderRadius: 8, textDecoration: 'none',
+                      background: '#F0FFF4', border: '1px solid #86EFAC',
+                      color: '#14532D', fontSize: '0.875rem', fontWeight: 500,
+                      cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+                    <span style={{ fontSize: '1.1rem' }}>🔒</span>
+                    {doc.label}
+                    <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#6B7280' }}>
+                      {doc.track === 'elementary' ? 'Elementary' : doc.track === 'middle_high' ? 'Middle/High' : 'Both Tracks'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* LGY confirm download modal */}
+      {lgyConfirmModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: '1.75rem',
+            maxWidth: 440, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,.2)' }}>
+            <h3 style={{ fontFamily: 'Playfair Display, serif', color: C.navy, margin: '0 0 0.75rem' }}>
+              Confidential LGY Document
+            </h3>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy,
+              fontWeight: 600, margin: '0 0 0.5rem' }}>{lgyConfirmModal.name}</p>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.6 }}>
+              This is a confidential LGY training document. Do not share, reproduce, or distribute.
+              This download will be logged. By proceeding you accept full responsibility for its security.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
+              <button style={btn(C.border, C.navy, true)} onClick={() => setLgyConfirmModal(null)}>Cancel</button>
+              <button style={btn(C.danger)} onClick={handleLgyConfirmDownload}>I Understand — Download</button>
             </div>
           </div>
         </div>

@@ -67,6 +67,9 @@ interface Profile {
   training_location?: string;
   training_confirmed?: boolean;
   dismissed_orientation?: boolean;
+  lgy_certified_tracks?: string[] | null;
+  lgy_trainer?: boolean;
+  lgy_authorized_tracks?: string[] | null;
 }
 interface Cohort {
   id: string; book_number: number; start_date: string; end_date?: string;
@@ -2506,6 +2509,97 @@ const REQUEST_TYPES = [
   'Other',
 ] as const;
 
+/* ── Youth (LGY) Tab ── */
+function YouthTab({ profile }: { profile: Profile }) {
+  const tracks: string[] = profile.lgy_certified_tracks ?? [];
+  const hasElementary = tracks.includes('elementary');
+  const hasMH = tracks.includes('middle_high');
+
+  interface LgyDoc { path: string; label: string; url: string; category: string; }
+  interface LgySections { [key: string]: { label: string; docs: LgyDoc[] }; }
+  const [sections, setSections]     = useState<LgySections>({});
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
+
+  useEffect(() => {
+    fetch('/api/hub/lgy-documents', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(d => setSections(d.sections ?? {}))
+      .catch(() => setError('Could not load Youth documents.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sectionOrder = ['shared', 'elementary', 'middle_high'];
+  const sectionColors: Record<string, string> = {
+    shared: '#1B2B4B',
+    elementary: '#2E6B4F',
+    middle_high: '#5B3A8C',
+  };
+
+  return (
+    <div style={{ fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.35rem', color: '#1B2B4B', margin: '0 0 0.4rem' }}>
+          Live and Grieve™ Youth
+        </h2>
+        <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: 0 }}>
+          {tracks.length === 0
+            ? 'No LGY tracks assigned. Contact Wayne to add your certification.'
+            : `Certified tracks: ${[
+                hasElementary ? 'Elementary (Ages 8–12)' : null,
+                hasMH ? 'Middle/High (Ages 13–17)' : null,
+              ].filter(Boolean).join(', ')}`}
+        </p>
+      </div>
+
+      {tracks.length === 0 && (
+        <div style={{ background: '#FFF9EC', border: '1px solid #C9A84C', borderRadius: 8,
+          padding: '1rem 1.25rem', color: '#6B4F0A', fontSize: '0.875rem' }}>
+          Your Youth certification tracks will appear here once Wayne assigns them after your LGY training is complete.
+        </div>
+      )}
+
+      {loading && tracks.length > 0 && (
+        <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Loading documents…</p>
+      )}
+      {error && (
+        <p style={{ color: '#DC2626', fontSize: '0.875rem' }}>{error}</p>
+      )}
+
+      {!loading && !error && sectionOrder.map(key => {
+        const section = sections[key];
+        if (!section) return null;
+        const color = sectionColors[key] ?? '#1B2B4B';
+        return (
+          <div key={key} style={{ marginBottom: '2rem' }}>
+            <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', color,
+              margin: '0 0 0.85rem', paddingBottom: '0.5rem',
+              borderBottom: `2px solid ${color}20` }}>
+              {section.label}
+            </h3>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              {section.docs.map((doc: LgyDoc) => (
+                <a key={doc.path} href={doc.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '0.65rem 1rem', borderRadius: 8, textDecoration: 'none',
+                    background: '#F9F7F3', border: '1px solid #E5E0D8',
+                    color: '#1B2B4B', fontSize: '0.875rem', fontWeight: 500,
+                    transition: 'background 0.15s' }}>
+                  <span style={{ fontSize: '1.1rem' }}>📄</span>
+                  {doc.label}
+                  <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#9CA3AF' }}>
+                    Download ↗
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function SupportTab() {
   const [requests, setRequests]   = useState<ConsultRequest[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -3548,7 +3642,7 @@ function previewRoleLabel(role: PreviewRole): string {
   return PREVIEW_ROLES.find(r => r.value === role)?.label ?? role;
 }
 
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections';
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections' | 'youth';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -3684,8 +3778,10 @@ export default function HubDashboard() {
   }
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log', youth: 'Youth (LGY)',
   };
+
+  const hasLgy = (profile.lgy_certified_tracks ?? []).length > 0;
 
   /* ── Determine if orientation panel should show ── */
   const isPending = profile.cert_status === 'pending_certification';
@@ -3759,6 +3855,16 @@ export default function HubDashboard() {
               color: tab === t ? C.navy : C.muted,
             }}>{TAB_LABELS[t]}</button>
           ))}
+          {/* Youth tab — only visible when lgy_certified_tracks is set */}
+          {hasLgy && (
+            <button onClick={() => setTab('youth')} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
+              padding: '0.85rem 1rem', whiteSpace: 'nowrap',
+              borderBottom: tab === 'youth' ? '3px solid #2E6B4F' : '3px solid transparent',
+              color: tab === 'youth' ? '#2E6B4F' : C.muted,
+            }}>Youth (LGY)</button>
+          )}
         </div>
 
         {/* Content */}
@@ -3857,6 +3963,7 @@ export default function HubDashboard() {
               {tab === 'support'  && <SupportTab />}
               {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
               {tab === 'reflections' && <ReflectionTab profile={profile} cohorts={cohorts} />}
+              {tab === 'youth'      && <YouthTab profile={profile} />}
             </>
           )}
         </div>

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const supabase = getSupabaseServer();
   let query = supabase
     .from('facilitator_profiles')
-    .select('id, user_id, full_name, email, phone, role, cert_id, cert_status, cert_issued, cert_renewal, organization_id, created_at, last_active', { count: 'exact' })
+    .select('id, user_id, full_name, email, phone, role, cert_id, cert_status, cert_issued, cert_renewal, organization_id, created_at, last_active, lgy_certified_tracks, lgy_trainer, lgy_authorized_tracks', { count: 'exact' })
     .range(from, from + limit - 1)
     .order('created_at', { ascending: false });
 
@@ -34,19 +34,26 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ data, count, page, pages: Math.ceil((count ?? 0) / limit) });
 }
 
-// PATCH /api/admin/facilitators — update cert_status or role
+// PATCH /api/admin/facilitators — update cert_status, role, or LGY fields
 export async function PATCH(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const { user_id, cert_status, role, is_publicly_listed } = body;
+  const {
+    user_id, cert_status, role, is_publicly_listed,
+    lgy_certified_tracks, lgy_trainer, lgy_authorized_tracks,
+  } = body;
   if (!user_id) return NextResponse.json({ error: 'user_id required' }, { status: 400 });
 
   const supabase = getSupabaseServer();
-  const updates: Record<string, string | boolean> = {};
+  const updates: Record<string, string | boolean | string[] | null> = {};
   if (cert_status !== undefined) updates.cert_status = cert_status;
   if (role !== undefined) updates.role = role;
   if (is_publicly_listed !== undefined) updates.is_publicly_listed = is_publicly_listed;
+  // LGY fields — null clears the assignment
+  if (lgy_certified_tracks !== undefined) updates.lgy_certified_tracks = lgy_certified_tracks?.length ? lgy_certified_tracks : null;
+  if (lgy_trainer !== undefined) updates.lgy_trainer = lgy_trainer;
+  if (lgy_authorized_tracks !== undefined) updates.lgy_authorized_tracks = lgy_authorized_tracks?.length ? lgy_authorized_tracks : null;
 
   const { error } = await supabase.from('facilitator_profiles').update(updates).eq('user_id', user_id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
