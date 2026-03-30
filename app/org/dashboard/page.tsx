@@ -106,9 +106,8 @@ interface FacBreakdown {
 }
 
 const BOOKS_MAP: Record<number, string> = {
-  1: 'Understanding Grief', 2: 'The Grieving Body',
-  3: 'Relationships and Grief', 4: 'Finding Meaning',
-  5: 'Continuing Bonds', 6: 'Living Forward',
+  1: 'In The Quiet', 2: 'Through The Weight',
+  3: 'Toward the Light', 4: 'With the Memory',
 };
 
 /* ── Helpers ── */

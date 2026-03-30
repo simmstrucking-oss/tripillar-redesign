@@ -17,12 +17,10 @@ export const SCHEDULE_A: Record<string, { fee: number; description: string }> = 
 };
 
 export const BOOKS_OPTIONS = [
-  'Book 1 — Understanding Grief',
-  'Book 2 — The Grieving Body',
-  'Book 3 — Relationships and Grief',
-  'Book 4 — Finding Meaning',
-  'Book 5 — Continuing Bonds',
-  'Book 6 — Living Forward',
+  'Book 1 — In The Quiet',
+  'Book 2 — Through The Weight',
+  'Book 3 — Toward the Light',
+  'Book 4 — With the Memory',
 ];
 
 export interface ILAData {

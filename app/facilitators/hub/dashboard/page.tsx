@@ -111,9 +111,9 @@ function CertBanner({ status, renewal }: { status: string; renewal: string }) {
 
 /* ── Cert card ── */
 const BOOKS_MAP: Record<number, string> = {
-  1: 'Understanding Grief', 2: 'The Grieving Body',
-  3: 'Relationships and Grief', 4: 'Finding Meaning',
-  5: 'Continuing Bonds', 6: 'Living Forward',
+  1: 'In The Quiet', 2: 'Through The Weight',
+  3: 'Toward the Light', 4: 'With the Memory',
+  
 };
 
 function StatusBadge({ s }: { s: string }) {
@@ -1171,7 +1171,7 @@ function CohortsCard({ cohorts, profile, onAdded }: { cohorts: Cohort[]; profile
               <label style={fieldLabel}>Book *</label>
               <select style={inp} value={form.book_number} onChange={e => set('book_number', e.target.value)} required>
                 <option value="">— Select —</option>
-                {[1,2,3,4,5,6].map(b => <option key={b} value={b}>Book {b} — {BOOKS_MAP[b]}</option>)}
+                {[1,2,3,4].map(b => <option key={b} value={b}>Book {b} — {BOOKS_MAP[b]}</option>)}
               </select>
             </div>
             <div>

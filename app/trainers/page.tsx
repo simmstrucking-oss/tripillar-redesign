@@ -24,12 +24,10 @@ interface Trainer {
 
 function bookLabel(n: number) {
   const labels: Record<number, string> = {
-    1: 'Book 1 — Understanding Grief',
-    2: 'Book 2 — The Grieving Body',
-    3: 'Book 3 — Relationships & Grief',
-    4: 'Book 4 — Finding Meaning',
-    5: 'Book 5 — Continuing Bonds',
-    6: 'Book 6 — Living Forward',
+    1: 'Book 1 — In The Quiet',
+    2: 'Book 2 — Through The Weight',
+    3: 'Book 3 — Toward the Light',
+    4: 'Book 4 — With the Memory',
   };
   return labels[n] ?? `Book ${n}`;
 }

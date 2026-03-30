@@ -106,12 +106,10 @@ function Toast({ msg, ok }: { msg: string; ok: boolean }) {
    SECTION 1 — Create Facilitator Form
 ═════════════════════════════════════════════════════════════*/
 const BOOKS = [
-  { id: 1, label: 'Book 1 — Understanding Grief' },
-  { id: 2, label: 'Book 2 — The Grieving Body' },
-  { id: 3, label: 'Book 3 — Relationships and Grief' },
-  { id: 4, label: 'Book 4 — Finding Meaning' },
-  { id: 5, label: 'Book 5 — Continuing Bonds' },
-  { id: 6, label: 'Book 6 — Living Forward' },
+  { id: 1, label: 'Book 1 — In The Quiet' },
+  { id: 2, label: 'Book 2 — Through The Weight' },
+  { id: 3, label: 'Book 3 — Toward the Light' },
+  { id: 4, label: 'Book 4 — With the Memory' },
 ];
 
 const ROLES = [

@@ -493,9 +493,9 @@ function SendAgreementForm({
     org_state: '',
     license_tier: 'Community Tier',
     books_licensed: [
-      'Book 1 — Understanding Grief',
-      'Book 2 — The Grieving Body',
-      'Book 3 — Relationships and Grief',
+      'Book 1 — In The Quiet',
+      'Book 2 — Through The Weight',
+      'Book 3 — Toward the Light',
     ],
     license_start_date: new Date().toISOString().split('T')[0],
     test_mode: false,
@@ -556,12 +556,10 @@ function SendAgreementForm({
   }
 
   const books = [
-    'Book 1 — Understanding Grief',
-    'Book 2 — The Grieving Body',
-    'Book 3 — Relationships and Grief',
-    'Book 4 — Finding Meaning',
-    'Book 5 — Continuing Bonds',
-    'Book 6 — Living Forward',
+    'Book 1 — In The Quiet',
+    'Book 2 — Through The Weight',
+    'Book 3 — Toward the Light',
+    'Book 4 — With the Memory',
   ];
 
   const tierFees: Record<string, number> = {
