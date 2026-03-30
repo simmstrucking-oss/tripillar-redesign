@@ -118,23 +118,23 @@ export default function InstitutionsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden bg-navy bg-texture">
+      <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div
           className="absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 40%, rgba(201,168,76,0.08) 0%, transparent 60%)",
+              "radial-gradient(ellipse at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 60%)",
           }}
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
           <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
             For Organizations
           </p>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-tight mb-6">
             Bring Live and Grieve<sup className="text-2xl ml-0.5">™</sup> to
             your organization.
           </h1>
-          <p className="text-xl text-white/70 max-w-2xl leading-relaxed">
+          <p className="text-xl text-muted max-w-2xl leading-relaxed">
             Train your people. Serve your community. Build the kind of
             sustained grief support that makes a real difference.
           </p>

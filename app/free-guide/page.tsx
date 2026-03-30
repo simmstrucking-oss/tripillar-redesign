@@ -61,23 +61,23 @@ export default function FreeGuidePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative pt-32 pb-16 overflow-hidden bg-navy bg-texture">
+      <section className="relative pt-32 pb-16 overflow-hidden">
         <div
           className="absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse at 60% 20%, rgba(184,148,47,0.08) 0%, transparent 60%)",
+              "radial-gradient(ellipse at 60% 20%, rgba(184,148,47,0.06) 0%, transparent 60%)",
           }}
         />
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
             Free Resource
           </p>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-navy leading-tight mb-6">
             What Grief Research{" "}
-            <span className="gold-text">Actually Says</span>
+            <span className="text-gold">Actually Says</span>
           </h1>
-          <p className="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">
             A plain-language guide to three decades of peer-reviewed grief
             research — and why it changes how we support people through loss.
           </p>
