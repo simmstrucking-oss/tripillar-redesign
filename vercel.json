@@ -17,7 +17,7 @@
       "schedule": "0 14 1 1 *"
     },
     {
-      "path": "/api/internal/health-check?secret=CRON_SECRET_PLACEHOLDER",
+      "path": "/api/internal/health-check",
       "schedule": "0 12 * * *"
     }
   ]

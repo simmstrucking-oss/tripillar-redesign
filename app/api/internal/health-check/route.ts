@@ -42,9 +42,12 @@ export async function GET(req: NextRequest) {
   const headerSecret = req.headers.get('x-admin-secret');
   const querySecret = req.nextUrl.searchParams.get('secret');
 
+  const bearerToken = req.headers.get('authorization')?.replace('Bearer ', '');
+
   const authorized =
     (headerSecret && headerSecret === adminSecret) ||
-    (querySecret && querySecret === cronSecret);
+    (querySecret && querySecret === cronSecret) ||
+    (bearerToken && bearerToken === cronSecret);
 
   if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
