@@ -5,6 +5,7 @@
  * Auth: lg-admin-session cookie (same as /admin/facilitators).
  */
 import { useState, useEffect, useCallback } from 'react';
+import { SoloCompanionDashboard } from '@/app/admin/components/SoloCompanionDashboard';
 
 const C = {
   navy:     '#1c3028',
@@ -433,12 +434,7 @@ export default function AdminDashboard() {
             {/* SOLO COMPANION */}
             {tab === 'solo' && (
               <>
-                <SectionHead title="Solo Companion" />
-                <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:16 }}>
-                  <StatCard label="Total Users"       value={m.solo_users}             large />
-                  <StatCard label="Completions"       value={m.solo_completions}       color={C.green} />
-                  <StatCard label="Completion Rate"   value={m.solo_completion_rate ? `${m.solo_completion_rate}%` : '—'} />
-                </div>
+                <SoloCompanionDashboard />
               </>
             )}
 
