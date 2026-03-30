@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
+import { SiteImage } from "@/components/SiteImage";
 
 export const metadata: Metadata = {
   title: "Youth Program | Live and Grieve Youth™",
@@ -118,6 +119,7 @@ export default function YouthProgramPage() {
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6 leading-snug">
               Grief doesn&apos;t check ID at the door.
             </h2>
+            <SiteImage src="/images/youth-walking.jpg" alt="Youth walking together" maxWidth={600} />
             <p className="text-muted leading-relaxed mb-4">
               Children and teenagers grieve deeply, but they rarely have
               access to support that actually speaks their language and meets

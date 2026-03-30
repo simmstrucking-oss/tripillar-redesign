@@ -2,6 +2,7 @@ import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import type { Metadata } from "next";
 import PublicMetricsSection from "@/components/PublicMetricsSection";
+import { SiteImage } from "@/components/SiteImage";
 
 export const metadata: Metadata = {
   title: "About Us | Tri-Pillars™",
@@ -63,6 +64,7 @@ export default function AboutPage() {
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6 leading-snug">
               Our story.
             </h2>
+            <SiteImage src="/images/grief-support-circle.jpg" alt="Grief support circle" maxWidth={600} />
             <p className="text-muted leading-relaxed mb-4">
               When Jacoby died, Wayne and Jamie did what most grieving families
               do. They looked for help. What they found was a patchwork of
@@ -163,18 +165,23 @@ export default function AboutPage() {
             </div>
           </FadeIn>
 
-          <div className="space-y-4">
-            {frameworks.map((fw, i) => (
-              <FadeIn key={i} delay={i * 60}>
-                <div className="card-hover bg-card-bg border border-card-border shadow-sm rounded-xl p-6 grid md:grid-cols-[220px_1fr] gap-4 items-start">
-                  <div>
-                    <h3 className="font-serif text-lg text-navy">{fw.name}</h3>
-                    <p className="text-gold/60 text-xs">{fw.authors}</p>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="col-span-1">
+              <SiteImage src="/images/diverse-group-circle.jpg" alt="Diverse group circle" maxWidth={500} />
+            </div>
+            <div className="space-y-4">
+              {frameworks.map((fw, i) => (
+                <FadeIn key={i} delay={i * 60}>
+                  <div className="card-hover bg-card-bg border border-card-border shadow-sm rounded-xl p-6 grid md:grid-cols-[220px_1fr] gap-4 items-start">
+                    <div>
+                      <h3 className="font-serif text-lg text-navy">{fw.name}</h3>
+                      <p className="text-gold/60 text-xs">{fw.authors}</p>
+                    </div>
+                    <p className="text-muted text-sm leading-relaxed">{fw.desc}</p>
                   </div>
-                  <p className="text-muted text-sm leading-relaxed">{fw.desc}</p>
-                </div>
-              </FadeIn>
-            ))}
+                </FadeIn>
+              ))}
+            </div>
           </div>
         </div>
       </section>

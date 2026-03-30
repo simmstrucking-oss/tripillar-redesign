@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
+import { SiteImage } from "@/components/SiteImage";
 
 export const metadata: Metadata = {
   title: "For Institutions | Live and Grieve™",
@@ -148,9 +149,10 @@ export default function InstitutionsPage() {
             <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
               Who We Work With
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-navy">
+            <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8">
               Built for organizations that serve people.
             </h2>
+            <SiteImage src="/images/diverse-group-circle.jpg" alt="Diverse group circle" maxWidth={600} />
           </div>
         </FadeIn>
 

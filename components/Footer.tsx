@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type SubmitState = "idle" | "loading" | "subscribed" | "already_subscribed" | "invalid_email" | "error";
 
@@ -103,9 +104,15 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
-            <span className="font-serif text-lg font-bold text-white">
-              Tri&#8209;Pillars<sup className="text-xs text-gold-light">™</sup> LLC
-            </span>
+            <div style={{ maxWidth: '260px', marginBottom: '1rem' }}>
+              <Image
+                src="/brand/D_Rule/D_Rule_Toward_The_Light_transparent.png"
+                alt="Live and Grieve™ — Tri-Pillars LLC"
+                width={260}
+                height={60}
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-white/60 text-sm mt-3 leading-relaxed">
               Kentucky-based, nationally reaching. Grief support that honors
               where you are.

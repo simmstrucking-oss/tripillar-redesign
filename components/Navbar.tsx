@@ -235,7 +235,7 @@ export default function Navbar() {
           }}
           className="flex items-center gap-2.5 group flex-shrink-0"
         >
-          <Image src="/logo.png" alt="Live and Grieve" width={28} height={42} className="h-9 w-auto" priority />
+          <Image src="/brand/C_Horizontal/C_Horizontal_Nav_Toward_The_Light_transparent.png" alt="Live and Grieve™ — Tri-Pillars LLC" width={200} height={40} className="h-10 w-auto" priority />
           <span className="font-serif text-xl font-bold text-navy group-hover:text-gold transition-colors">
             Tri&#8209;Pillars<sup className="text-xs text-gold">™</sup>
           </span>

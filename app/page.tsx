@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import PublicMetricsSection from "@/components/PublicMetricsSection";
+import { SiteImage } from "@/components/SiteImage";
 
 const differentiators = [
   {
@@ -30,6 +31,7 @@ const programs = [
     badge: "52 Weeks",
     external: false,
     linkText: "Learn more",
+    icon: "/brand/B_Icon/B_Icon_256px_In_The_Quiet.png",
   },
   {
     name: "Live and Grieve Youth™",
@@ -39,6 +41,7 @@ const programs = [
     badge: "13 Sessions",
     external: false,
     linkText: "Learn more",
+    icon: "/brand/B_Icon/B_Icon_256px_Through_The_Weight.png",
   },
   {
     name: "The Solo Companion",
@@ -48,6 +51,7 @@ const programs = [
     badge: "13 Weeks, Self-Guided",
     external: true,
     linkText: "Begin now",
+    icon: "/brand/B_Icon/B_Icon_256px_Toward_The_Light.png",
   },
 ];
 
@@ -72,14 +76,16 @@ export default function HomePage() {
           }}
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-20">
-          <Image
-            src="/logo.png"
-            alt="Live and Grieve"
-            width={120}
-            height={180}
-            className="mx-auto mb-8 h-36 w-auto"
-            priority
-          />
+          <div style={{ maxWidth: '280px', margin: '0 auto 2rem' }}>
+            <Image
+              src="/brand/A_Stacked/A_Stacked_Large_Toward_The_Light_transparent.png"
+              alt="Live and Grieve™ — Tri-Pillars LLC"
+              width={280}
+              height={280}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold text-navy leading-tight mb-6">
             You&apos;re not <br />
             <span className="gold-text">grieving wrong.</span>
@@ -167,6 +173,7 @@ export default function HomePage() {
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-navy mb-6 leading-snug">
                 Grief support built for real life.
               </h2>
+              <SiteImage src="/images/grief-support-circle.jpg" alt="Grief support circle gathering" maxWidth={600} />
               <p className="text-muted leading-relaxed mb-4">
                 Live and Grieve™ brings structured, research-backed grief support
                 into the places people already trust: schools, churches,
@@ -202,6 +209,22 @@ export default function HomePage() {
                 </footer>
               </blockquote>
             </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* YouTube Embed */}
+      <section className="py-16 bg-background">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-serif text-navy mb-4">Hear from our founders</h2>
+          <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '12px', overflow: 'hidden' }}>
+            <iframe
+              src="https://www.youtube.com/embed/H-zcSdzm9jg?rel=0&modestbranding=1"
+              title="Live and Grieve™ — founders introduction"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            />
           </div>
         </div>
       </section>
@@ -254,6 +277,9 @@ export default function HomePage() {
             {programs.map((p, i) => (
               <FadeIn key={i} delay={i * 100}>
                 <div className="card-hover bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col shadow-sm">
+                  <div className="mb-4">
+                    <Image src={p.icon} alt={p.name} width={64} height={64} className="w-16 h-16" />
+                  </div>
                   <div className="inline-block bg-gold/10 text-gold text-xs font-semibold px-3 py-1 rounded-full mb-4 w-fit">
                     {p.badge}
                   </div>
@@ -407,14 +433,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <FadeIn>
-              <div className="aspect-square max-w-sm mx-auto lg:mx-0 rounded-2xl bg-stone-100 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="font-serif text-5xl text-gold/60 mb-2">W&amp;J</div>
-                  <div className="text-muted text-xs uppercase tracking-widest">
-                    Wayne &amp; Jamie Simms
-                  </div>
-                </div>
-              </div>
+              <SiteImage src="/images/one-on-one-support.jpg" alt="One-on-one grief support" maxWidth={400} />
             </FadeIn>
 
             <FadeIn delay={150}>

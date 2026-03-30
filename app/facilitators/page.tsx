@@ -1,6 +1,7 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { SiteImage } from "@/components/SiteImage";
 
 export const metadata: Metadata = {
   title: "Become a Facilitator | Live and Grieve™",
@@ -85,12 +86,13 @@ export default function FacilitatorsPage() {
           <FadeIn>
             <div className="text-center mb-16">
               <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-                The Certification Process
+                Certification & Support
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy">
                 Four steps from interest to facilitation.
               </h2>
             </div>
+            <SiteImage src="/images/grief-workshop.jpg" alt="Grief workshop certification training" maxWidth={500} className="mb-12" />
           </FadeIn>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -124,6 +126,7 @@ export default function FacilitatorsPage() {
           <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8 leading-snug">
             Everything you need, in one place.
           </h2>
+          <SiteImage src="/images/small-group-workbooks.jpg" alt="Small group workbooks and facilitator resources" maxWidth={500} className="mb-8" />
           <p className="text-muted leading-relaxed text-lg max-w-3xl">
             Every certified facilitator gets access to the Live and
             Grieve™ Facilitator Hub — a private platform with everything you

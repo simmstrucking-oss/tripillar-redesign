@@ -1,6 +1,8 @@
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
+import Image from "next/image";
+import { SiteImage } from "@/components/SiteImage";
 
 export const metadata: Metadata = {
   title: "Adult Program | Live and Grieve™",
@@ -30,6 +32,7 @@ const books = [
     weeks: "Weeks 1–13",
     desc: "Early grief is often silence and shock. This book meets participants there. It creates language, building trust in the group, and establishing that all of what they're feeling belongs.",
     theme: "Orientation & Acknowledgment",
+    icon: "/brand/B_Icon/B_Icon_256px_In_The_Quiet.png",
   },
   {
     number: "Q2",
@@ -37,6 +40,7 @@ const books = [
     weeks: "Weeks 14–26",
     desc: "The middle of grief is heavy. This book supports participants in processing the pain of loss. Learning to move within loss rather than waiting for it to lift.",
     theme: "Processing & Expression",
+    icon: "/brand/B_Icon/B_Icon_256px_Through_The_Weight.png",
   },
   {
     number: "Q3",
@@ -44,6 +48,7 @@ const books = [
     weeks: "Weeks 27–39",
     desc: "Grief begins to shift shape. Participants explore how life can continue alongside loss — not instead of it — and start to envision what comes next.",
     theme: "Adaptation & Meaning",
+    icon: "/brand/B_Icon/B_Icon_256px_Toward_The_Light.png",
   },
   {
     number: "Q4",
@@ -51,6 +56,7 @@ const books = [
     weeks: "Weeks 40–52",
     desc: "Closing well means carrying forward. The final book focuses on maintaining bonds, honoring memory, and integrating grief into a life that continues.",
     theme: "Integration & Legacy",
+    icon: "/brand/B_Icon/B_Icon_256px_With_The_Memory.png",
   },
 ];
 
@@ -213,6 +219,9 @@ export default function AdultProgramPage() {
           {books.map((book, i) => (
             <FadeIn key={i} delay={i * 100}>
               <div className={`card-hover bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col book${i + 1}-accent`}>
+                <div className="mb-4">
+                  <Image src={book.icon} alt={book.title} width={64} height={64} className="w-16 h-16" />
+                </div>
                 <div className="flex items-start justify-between mb-4">
                   <span className="font-serif text-3xl text-gold/40 font-bold">
                     {book.number}
@@ -244,9 +253,10 @@ export default function AdultProgramPage() {
               <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
                 A Typical Session
               </p>
-              <h2 className="font-serif text-3xl sm:text-4xl text-navy">
+              <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8">
                 Structure creates safety.
               </h2>
+              <SiteImage src="/images/community-sunset.jpg" alt="Community sunset gathering" maxWidth={600} />
             </div>
           </FadeIn>
 
