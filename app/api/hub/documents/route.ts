@@ -100,17 +100,10 @@ const SECTIONS: SectionDef[] = [
     folder: '04_OUTCOMES',
     program_type: 'adult',
     docs: [
-      { name: 'LG_Aggregate_Outcomes_Report_2024.docx', path: '04_OUTCOMES/LG_Aggregate_Outcomes_Report_2024.docx' },
-      { name: 'LG_Case_Study_Community_Track.docx', path: '04_OUTCOMES/LG_Case_Study_Community_Track.docx' },
-      { name: 'LG_Case_Study_Ministry_Track.docx', path: '04_OUTCOMES/LG_Case_Study_Ministry_Track.docx' },
-      { name: 'LG_Case_Study_Professional_Track.docx', path: '04_OUTCOMES/LG_Case_Study_Professional_Track.docx' },
-      { name: 'LG_Facilitator_Competency_Model.docx', path: '04_OUTCOMES/LG_Facilitator_Competency_Model.docx' },
-      { name: 'LG_Fidelity_Monitoring_Checklist.docx', path: '04_OUTCOMES/LG_Fidelity_Monitoring_Checklist.docx' },
-      { name: 'LG_Logic_Model.docx', path: '04_OUTCOMES/LG_Logic_Model.docx' },
+      // Verified against facilitator-documents bucket 2026-03-29 — only files that exist
       { name: 'LG_Outcomes_Research_Brief.docx', path: '04_OUTCOMES/LG_Outcomes_Research_Brief.docx' },
-      { name: 'LG_Research_Brief.docx', path: '04_OUTCOMES/LG_Research_Brief.docx' },
-      { name: 'LG_Standardized_Measures_Overview.docx', path: '04_OUTCOMES/LG_Standardized_Measures_Overview.docx' },
-      { name: 'LG_Theory_of_Change.docx', path: '04_OUTCOMES/LG_Theory_of_Change.docx' },
+      { name: 'LG_Program_Evaluation_Summary_Template.docx', path: '04_OUTCOMES/LG_Program_Evaluation_Summary_Template.docx' },
+      { name: 'LG_Outcome_Facilitator_Cohort_Summary.docx', path: '04_OUTCOMES/LG_Outcome_Facilitator_Cohort_Summary.docx' },
     ],
   },
   {
@@ -132,7 +125,7 @@ const SECTIONS: SectionDef[] = [
     program_type: 'adult',
     docs: [
       { name: 'LG_Trainer_Certification_Pathway.docx', path: '03_CERTIFICATION/LG_Trainer_Certification_Pathway.docx' },
-      { name: 'LG_Scenario_Cards_Modules_8_9.docx', path: '02_FACILITATOR/LG_Scenario_Cards_Modules_8_9.docx', trainerOnly: true },
+      // LG_Scenario_Cards_Modules_8_9.docx removed — file does not exist in storage
     ],
   },
   {
