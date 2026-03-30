@@ -144,7 +144,7 @@ function LoginForm() {
       </div>
 
       <div className="text-center pb-6 text-xs text-muted/50">
-        Tri-Pillars Studio™ · Live and Grieve™
+        Tri-Pillars™ LLC · Live and Grieve™
       </div>
     </div>
   );

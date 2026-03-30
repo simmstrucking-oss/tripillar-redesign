@@ -10,7 +10,7 @@ export default function StartPage() {
       <header style={{ background: "#1c3028", padding: "1rem 1.5rem" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <Link href="/" style={{ fontFamily: "'Playfair Display', serif", color: "#B8942F", fontWeight: 700, fontSize: "1.15rem", textDecoration: "none", letterSpacing: "-0.01em" }}>
-            Tri&#8209;Pillars<sup style={{ fontSize: "0.65rem", verticalAlign: "super" }}>™</sup> Studio
+            Tri&#8209;Pillars<sup style={{ fontSize: "0.65rem", verticalAlign: "super" }}>™</sup> LLC
           </Link>
         </div>
       </header>
@@ -164,11 +164,11 @@ export default function StartPage() {
       <footer style={{ background: "#1c3028", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "1.5rem", textAlign: "center" }}>
         <div style={{ marginBottom: "0.5rem" }}>
           <Link href="/" style={{ fontFamily: "'Playfair Display', serif", color: "#B8942F", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>
-            Tri&#8209;Pillars<sup style={{ fontSize: "0.6rem", verticalAlign: "super" }}>™</sup> Studio
+            Tri&#8209;Pillars<sup style={{ fontSize: "0.6rem", verticalAlign: "super" }}>™</sup> LLC
           </Link>
         </div>
         <p style={{ color: "rgba(248,244,238,0.35)", fontSize: "0.75rem", margin: "0.25rem 0" }}>
-          &copy; {new Date().getFullYear()} Tri&#8209;Pillars™ Studio. All rights reserved.
+          &copy; {new Date().getFullYear()} Tri&#8209;Pillars™ LLC. All rights reserved.
         </p>
         <a href="https://tripillarstudio.com" style={{ color: "rgba(248,244,238,0.4)", fontSize: "0.75rem", textDecoration: "none" }}>
           tripillarstudio.com

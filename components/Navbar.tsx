@@ -513,7 +513,7 @@ export default function Navbar() {
                 : "opacity 150ms ease-in",
             }}
           >
-            Tri-Pillars Studio™ · Live and Grieve™
+            Tri-Pillars™ LLC · Live and Grieve™
           </p>
         </div>
       </div>

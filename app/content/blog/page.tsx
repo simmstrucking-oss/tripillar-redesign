@@ -80,7 +80,7 @@ export default function BlogPage() {
               <p>The invitation isn&apos;t to silence those symptoms or rush past them. It&apos;s to listen to them with the same compassion you&apos;d offer someone you love. Your body is grieving. It deserves tenderness, patience, and time.</p>
               <p>You are not broken. You are not failing. You are not losing your mind.</p>
               <p>You are grieving—and your whole body is part of that process.</p>
-              <p className="text-navy font-medium">Wayne and Jamie Simms are the founders of Tri-Pillars Studio and creators of the Live and Grieve™ program.</p>
+              <p className="text-navy font-medium">Wayne and Jamie Simms are the founders of Tri-Pillars™ LLC and creators of the Live and Grieve™ program.</p>
             </div>
           </article>
         </FadeIn>
@@ -140,7 +140,7 @@ export default function BlogPage() {
                 people are getting.
               </p>
               <p className="text-navy font-medium">
-                Wayne and Jamie Simms are the founders of Tri-Pillars Studio
+                Wayne and Jamie Simms are the founders of Tri-Pillars™ LLC
                 and creators of the Live and Grieve™ program.
               </p>
             </div>
