@@ -303,7 +303,7 @@ export default function HomePage() {
       </section>
 
       {/* Solo Companion feature */}
-      <section className="py-24 bg-navy">
+      <section className="py-24 bg-navy bg-texture">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-12">

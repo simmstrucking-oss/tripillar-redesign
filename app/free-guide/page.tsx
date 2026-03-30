@@ -234,7 +234,7 @@ export default function FreeGuidePage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="bg-navy py-16">
+      <section className="bg-navy bg-texture py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-serif text-2xl sm:text-3xl text-white mb-4">
             Want to bring Live and Grieve™ to your community?

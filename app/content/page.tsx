@@ -97,7 +97,7 @@ export default async function ContentPage() {
       </section>
 
       {/* YouTube Hero Embed */}
-      <section className="py-16 bg-navy">
+      <section className="py-16 bg-navy bg-texture">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-8">
@@ -232,7 +232,7 @@ export default async function ContentPage() {
 
       {/* Latest News */}
       {latestNews.length > 0 && (
-        <section className="py-20 bg-navy">
+        <section className="py-20 bg-navy bg-texture">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             <FadeIn>
               <div className="flex items-center justify-between mb-8">

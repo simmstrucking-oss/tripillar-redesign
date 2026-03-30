@@ -4,12 +4,12 @@
 
 :root {
   --background: #faf8f5;
-  --foreground: #2d3142;
-  --navy: #2d3142;
-  --charcoal: #3d4155;
+  --foreground: #1c3028;
+  --navy: #1c3028;
+  --charcoal: #2a4036;
   --gold: #b8942f;
   --gold-light: #c9a84c;
-  --warm-white: #2d3142;
+  --warm-white: #1c3028;
   --muted: #6b7085;
   --card-bg: #ffffff;
   --card-border: #e8e4dc;
@@ -113,4 +113,19 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--card-border);
   border-radius: 3px;
+}
+
+/* Forest green texture — applied to nav, hero, footer dark sections */
+.bg-texture {
+  position: relative;
+}
+
+.bg-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.07'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  border-radius: inherit;
 }
