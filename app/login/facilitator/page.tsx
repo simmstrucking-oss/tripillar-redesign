@@ -41,7 +41,7 @@ function LoginForm() {
       if (role === 'trainer') {
         window.location.href = '/trainers/hub/dashboard';
       } else if (role === 'super_admin' || role === 'org_contact') {
-        window.location.href = '/org/hub/dashboard';
+        window.location.href = '/org/hub';
       } else {
         // community, professional, ministry, or no profile — facilitator hub
         window.location.href = '/facilitators/hub/dashboard';

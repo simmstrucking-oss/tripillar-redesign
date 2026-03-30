@@ -41,7 +41,7 @@ function LoginForm() {
       } else if (role === 'trainer') {
         window.location.href = '/trainers/hub/dashboard';
       } else if (role === 'super_admin' || role === 'org_contact') {
-        window.location.href = '/org/hub/dashboard';
+        window.location.href = '/org/hub';
       } else {
         // No profile — default for participant
         window.location.href = 'https://solo.tripillarstudio.com';
