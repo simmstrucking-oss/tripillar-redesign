@@ -60,7 +60,7 @@ export async function middleware(req: NextRequest) {
     const adminCookie = req.cookies.get('lg-admin-session')?.value;
     const validSecret = process.env.ADMIN_SECRET!;
     if (adminSecret !== validSecret && adminCookie !== validSecret) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=admin', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=admin', req.url));
     }
     return res;
   }
@@ -68,7 +68,7 @@ export async function middleware(req: NextRequest) {
   // ── Facilitator hub routes ────────────────────────────────────────────────
   if (PROTECTED_HUB.test(pathname)) {
     if (!user) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
     // Fetch profile role via service client
     const sb = createClient(
@@ -83,7 +83,7 @@ export async function middleware(req: NextRequest) {
       .single();
 
     if (!profile) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=no-profile', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=no-profile', req.url));
     }
     res.headers.set('x-cert-status', profile.cert_status ?? 'unknown');
     res.headers.set('x-user-role', profile.role ?? 'community');
@@ -93,7 +93,7 @@ export async function middleware(req: NextRequest) {
   // ── Trainer hub routes ────────────────────────────────────────────────────
   if (PROTECTED_TRAINER_HUB.test(pathname)) {
     if (!user) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -107,7 +107,7 @@ export async function middleware(req: NextRequest) {
       .single();
 
     if (!profile) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=no-profile', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=no-profile', req.url));
     }
     if (profile.role !== 'trainer' && profile.role !== 'super_admin') {
       return NextResponse.redirect(new URL('/facilitators/hub/dashboard', req.url));
@@ -120,10 +120,10 @@ export async function middleware(req: NextRequest) {
   // ── Org hub / onboarding ─────────────────────────────────────────────────
   if (PROTECTED_ORG_HUB.test(pathname)) {
     if (!user) {
-      return NextResponse.redirect(new URL('/org/login?reason=session', req.url));
+      return NextResponse.redirect(new URL('/login/organization?reason=session', req.url));
     }
     if (user.user_metadata?.role !== 'org_contact') {
-      return NextResponse.redirect(new URL('/org/login?reason=role', req.url));
+      return NextResponse.redirect(new URL('/login/organization?reason=role', req.url));
     }
     return res;
   }
@@ -131,7 +131,7 @@ export async function middleware(req: NextRequest) {
   // ── Org dashboard ─────────────────────────────────────────────────────────
   if (PROTECTED_ORG.test(pathname)) {
     if (!user) {
-      return NextResponse.redirect(new URL('/facilitators/login?reason=session', req.url));
+      return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -130,7 +130,7 @@ export default function Footer() {
               For Facilitators
             </h4>
             <ul className="space-y-2 text-sm text-white/60">
-              <li><Link href="/facilitators/login" className="hover:text-gold-light transition-colors">Facilitator Login</Link></li>
+              <li><Link href="/login/facilitator" className="hover:text-gold-light transition-colors">Facilitator Login</Link></li>
               <li><Link href="/facilitators" className="hover:text-gold-light transition-colors">Become a Facilitator</Link></li>
               <li><Link href="/facilitators/hub" className="hover:text-gold-light transition-colors">Facilitator Hub</Link></li>
             </ul>

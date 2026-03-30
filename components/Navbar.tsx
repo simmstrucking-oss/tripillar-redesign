@@ -27,6 +27,14 @@ const simpleLinks = [
   { href: "/contact",      label: "Contact" },
 ];
 
+// Login portal links
+const loginLinks = [
+  { href: "https://solo.tripillarstudio.com", label: "I\u2019m a Participant" },
+  { href: "/login/facilitator",               label: "I\u2019m a Facilitator" },
+  { href: "/login/organization",              label: "I\u2019m an Organization" },
+  { href: "/login/trainer",                   label: "I\u2019m a Trainer" },
+];
+
 // Full mobile list (flat, no dropdowns)
 const mobileLinks = [
   { href: "/about",                           label: "About" },
@@ -148,12 +156,25 @@ function DesktopDropdown({
 export default function Navbar() {
   const [open, setOpen]     = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileLoginOpen, setMobileLoginOpen] = useState(false);
   const pathname            = usePathname();
   const touchedRef          = useRef(false);
+  const loginDesktopRef     = useRef<HTMLLIElement | null>(null);
 
   const toggle = useCallback(() => setOpen((p) => !p), []);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { setOpen(false); setLoginOpen(false); setMobileLoginOpen(false); }, [pathname]);
+
+  // Close login dropdown on outside click
+  useEffect(() => {
+    if (!loginOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (loginDesktopRef.current && !loginDesktopRef.current.contains(e.target as Node)) setLoginOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [loginOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -283,25 +304,49 @@ export default function Navbar() {
             </Link>
           </li>
 
-          {/* Facilitator Login CTA — never wraps */}
-          <li className="ml-3">
-            <Link
-              href="/facilitators/login"
-              className="inline-flex items-center justify-center rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
+          {/* Login CTA dropdown */}
+          <li className="ml-3 relative" ref={(el) => { loginDesktopRef.current = el; }}>
+            <button
+              onClick={() => setLoginOpen((p) => !p)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
               style={{
                 background: "#B8942F",
                 color: "#F8F4EE",
                 paddingTop: "9px",
                 paddingBottom: "9px",
                 paddingLeft: "16px",
-                paddingRight: "16px",
+                paddingRight: "14px",
                 minHeight: "40px",
                 letterSpacing: "0.02em",
                 boxShadow: "0 1px 3px rgba(184,148,47,0.35)",
               }}
             >
-              Facilitator Login
-            </Link>
+              Login
+              <Chevron open={loginOpen} />
+            </button>
+            <div
+              className="absolute right-0 top-full mt-1 w-56 rounded-xl shadow-lg py-1.5 z-50"
+              style={{
+                background: "#1B2B4B",
+                opacity: loginOpen ? 1 : 0,
+                transform: loginOpen ? "translateY(0)" : "translateY(-6px)",
+                transition: "opacity 180ms ease, transform 180ms ease",
+                pointerEvents: loginOpen ? "auto" : "none",
+              }}
+            >
+              {loginLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="block px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: "#F5F0E8", borderLeft: "3px solid transparent" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
           </li>
         </ul>
 
@@ -388,7 +433,7 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Mobile Facilitator Login — full-width, gold, single line, 48px min height */}
+          {/* Mobile Login — gold button toggles portal options */}
           <div
             className="mt-6 pb-2"
             style={{
@@ -399,9 +444,9 @@ export default function Navbar() {
                 : "opacity 150ms ease-in, transform 150ms ease-in",
             }}
           >
-            <Link
-              href="/facilitators/login"
-              className="flex items-center justify-center w-full rounded-xl font-semibold text-base whitespace-nowrap"
+            <button
+              onClick={() => setMobileLoginOpen((p) => !p)}
+              className="flex items-center justify-center gap-2 w-full rounded-xl font-semibold text-base whitespace-nowrap"
               style={{
                 background: "#B8942F",
                 color: "#F8F4EE",
@@ -410,8 +455,25 @@ export default function Navbar() {
                 boxShadow: "0 2px 6px rgba(184,148,47,0.3)",
               }}
             >
-              Facilitator Login
-            </Link>
+              Login
+              <Chevron open={mobileLoginOpen} />
+            </button>
+            {mobileLoginOpen && (
+              <div className="mt-2 rounded-xl overflow-hidden" style={{ background: "#1B2B4B" }}>
+                {loginLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="block px-5 py-3 text-sm transition-colors"
+                    style={{ color: "#F5F0E8", borderLeft: "3px solid transparent" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = "#C9A84C"; e.currentTarget.style.background = "rgba(201,168,76,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = "transparent"; e.currentTarget.style.background = "transparent"; }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <p
