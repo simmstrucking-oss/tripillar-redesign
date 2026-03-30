@@ -150,7 +150,7 @@ async function saveDraftToSupabase(draft: any) {
   }
 }
 
-export async function GET(req: NextRequest) {
+async function handler(req: NextRequest) {
   try {
     // Verify cron request
     if (!verifyCronRequest(req)) {
@@ -192,3 +192,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) { return handler(req); }
+export async function POST(req: NextRequest) { return handler(req); }
+
