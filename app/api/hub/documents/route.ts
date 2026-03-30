@@ -158,8 +158,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Facilitator profile not found' }, { status: 404 });
   }
 
-  const certifiedBooks: number[] = profile.books_certified ?? [];
-  const isTrainer = profile.role === 'trainer';
+  const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
+  const isOwner = OWNER_EMAILS.includes(user.email ?? '');
+  const certifiedBooks: number[] = isOwner ? [1,2,3,4] : (profile.books_certified ?? []);
+  const isTrainer = isOwner || profile.role === 'trainer' || profile.role === 'super_admin';
 
   // Optional bucket filter
   const bucketFilter = req.nextUrl.searchParams.get('bucket');
@@ -191,16 +193,8 @@ export async function GET(req: NextRequest) {
       // Trainer-only check
       if (doc.trainerOnly && !isTrainer) continue;
 
-      // Book certification lock check
+      // Book certification lock check — skip entirely, do not return locked docs
       if (doc.requiresBook && !certifiedBooks.includes(doc.requiresBook)) {
-        documents.push({
-          name: doc.name,
-          bucket: BUCKET,
-          path: doc.path,
-          url: null,
-          locked: true,
-          lockReason: `Complete Book ${doc.requiresBook} certification to access`,
-        });
         continue;
       }
 

@@ -828,6 +828,7 @@ export default function TrainerHubDashboard() {
   const router = useRouter();
 
   const [profile, setProfile] = useState<TrainerProfile | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab');
@@ -877,6 +878,10 @@ export default function TrainerHubDashboard() {
         }
 
         setProfile(prof as TrainerProfile);
+        // Show welcome on first visit (no localStorage key set)
+        if (typeof window !== 'undefined' && !localStorage.getItem('lg-trainer-welcomed')) {
+          setShowWelcome(true);
+        }
         setLoading(false);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load profile.');
@@ -956,6 +961,31 @@ export default function TrainerHubDashboard() {
 
         {/* Content */}
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '1.5rem 1.25rem' }}>
+          {/* Trainer Welcome Banner — first login only */}
+          {showWelcome && (
+            <div style={{
+              background: '#FFFBF0', border: '1px solid #C9A84C', borderLeft: '4px solid #C9A84C',
+              borderRadius: 8, padding: '1.25rem 1.5rem', marginBottom: '1.5rem',
+              fontFamily: 'Inter, sans-serif',
+            }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#1B2B4B', margin: '0 0 0.75rem' }}>
+                Welcome to the Live and Grieve™ Trainer Hub.
+              </h2>
+              <p style={{ color: '#2D3142', fontSize: '0.9rem', lineHeight: 1.7, margin: '0 0 1rem' }}>
+                Your authorization is active. Before you schedule your first certification event, review your Trainer Agreement in the Resources tab — specifically the fee remittance timeline, assessment administration procedures, and Answer Key confidentiality requirements. Everything else you need is in the tabs above. If you have questions before your first event, use the support contact in your Hub.
+              </p>
+              <button
+                onClick={() => {
+                  if (typeof window !== 'undefined') localStorage.setItem('lg-trainer-welcomed', '1');
+                  setShowWelcome(false);
+                }}
+                style={{ background: '#1B2B4B', color: '#F8F4EE', border: 'none', borderRadius: 6,
+                  padding: '0.5rem 1.25rem', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Got it
+              </button>
+            </div>
+          )}
           {tab === 'facilitators'   && <FacilitatorsTab profile={profile} />}
           {tab === 'events'         && <TrainingEventsTab />}
           {tab === 'impact'         && <ImpactTab />}

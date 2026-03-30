@@ -278,12 +278,16 @@ function DocumentsLibrary({ profile }: { profile: Profile | null }) {
     setDownloading(null);
   }
 
+  const visibleSections = sections
+    .map(s => ({ ...s, documents: s.documents.filter(d => !d.locked) }))
+    .filter(s => s.documents.length > 0);
+
   const filtered = search
-    ? sections.map(s => ({
+    ? visibleSections.map(s => ({
         ...s,
         documents: s.documents.filter(d => d.name.toLowerCase().includes(search.toLowerCase())),
       })).filter(s => s.documents.length > 0)
-    : sections;
+    : visibleSections;
 
   return (
     <div style={card}>
@@ -315,45 +319,34 @@ function DocumentsLibrary({ profile }: { profile: Profile | null }) {
                 {section.documents.map(doc => (
                   <div key={doc.path} style={{ display: 'flex', alignItems: 'center',
                     justifyContent: 'space-between', padding: '0.7rem 0.85rem', borderRadius: 8,
-                    border: `1px solid ${doc.locked ? '#E5E7EB' : C.border}`,
-                    background: doc.locked ? '#FAFAFA' : C.bg, gap: 10, flexWrap: 'wrap',
-                    opacity: doc.locked ? 0.7 : 1 }}>
+                    border: `1px solid ${C.border}`,
+                    background: C.bg, gap: 10, flexWrap: 'wrap' }}>
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {doc.locked && (
-                        <span style={{ fontSize: '1rem', flexShrink: 0 }} title="Locked">🔒</span>
-                      )}
                       <div>
                         <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600,
-                          color: doc.locked ? C.muted : C.navy, fontSize: '0.85rem' }}>
+                          color: C.navy, fontSize: '0.85rem' }}>
                           {doc.name.replace(/\.docx$/, '').replace(/^LG_/, '').replace(/_/g, ' ')}
                         </div>
-                        {doc.locked && doc.lockReason && (
-                          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem',
-                            color: C.warn, marginTop: 2 }}>
-                            {doc.lockReason}
-                          </div>
-                        )}
                       </div>
                     </div>
                     <div>
-                      {doc.locked ? (
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem',
-                          color: C.muted, fontWeight: 600, padding: '0.3rem 0.75rem',
-                          background: '#F3F4F6', borderRadius: 6 }}>Locked</span>
-                      ) : (
-                        <button onClick={() => download(doc)}
-                          disabled={downloading === doc.path}
-                          style={{ ...btn(C.navy, '#fff', true),
-                            opacity: downloading === doc.path ? 0.6 : 1 }}>
-                          {downloading === doc.path ? '...' : '↓ Download'}
-                        </button>
-                      )}
+                      <button onClick={() => download(doc)}
+                        disabled={downloading === doc.path}
+                        style={{ ...btn(C.navy, '#fff', true),
+                          opacity: downloading === doc.path ? 0.6 : 1 }}>
+                        {downloading === doc.path ? '...' : '↓ Download'}
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           ))}
+          {profile?.role !== "super_admin" && (profile?.books_certified?.length ?? 0) > 0 && (profile?.books_certified?.length ?? 0) < 4 && (
+            <p style={{ color: C.muted, fontFamily: "Inter, sans-serif", fontSize: "0.85rem", marginTop: 16, textAlign: "center" }}>
+              Additional materials become available as you complete certification for each book.
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -3141,17 +3134,18 @@ interface OnboardingState {
 }
 
 const CHECKLIST_ITEMS = [
-  { num: 1, label: 'Read the Facilitator Inner Work Guide', hasDoc: true, docDesc: 'Open Document' },
-  { num: 2, label: 'Complete the Grief Inventory from Chapter 1', note: 'You do not submit this. Complete it for yourself before training day.' },
-  { num: 3, label: 'Review your Master Facilitator Manual Week 1', hasFM: true },
-  { num: 4, label: 'Read the Facilitator Code of Conduct', hasDoc: true, docDesc: 'Open Document' },
-  { num: 5, label: 'Sign the Facilitator Code of Conduct', hasSignature: true },
-  { num: 6, label: 'Review the Participant Appropriateness Guide', hasDoc: true, docDesc: 'Open Document' },
-  { num: 7, label: 'Confirm training details', hasTraining: true },
+  { num: 1, label: "Read the Facilitator Inner Work Guide", why: "This is the foundation of everything. It will ask you to look at your own grief before you sit with anyone else\u2019s. That is not coincidental.", hasDoc: true, docDesc: "Open Document" },
+  { num: 2, label: "Complete the Grief Inventory from Chapter 1", why: "You do not submit this. It is for you. Do it honestly. Come to training day having sat with your own answers." },
+  { num: 3, label: "Review Week 1 of your Master Facilitator Manual", why: "You are not expected to have memorized it. You are expected to have read it. Know the structure of the first session before you walk into the room.", hasDoc: true, docDesc: "Open Document" },
+  { num: 4, label: "Read the Facilitator Code of Conduct", why: "This governs everything you do in this role. Read it before you sign it.", hasDoc: true, docDesc: "Open Document" },
+  { num: 5, label: "Sign the Facilitator Code of Conduct", why: "Your digital signature is legally binding and is on file with Tri-Pillars\u2122.", hasSignature: true },
+  { num: 6, label: "Review the Participant Appropriateness Guide", why: "You need to understand who this program is and is not designed for before you sit across from someone who wants to enroll.", hasDoc: true, docDesc: "Open Document" },
+  { num: 7, label: "Confirm your training details", why: "Confirm your training date, location, and that you understand what to bring.", hasTraining: true },
 ];
 
 const DOC_PATHS: Record<number, { bucket: string; file: string }> = {
   1: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Inner_Work_Guide.docx' },
+  3: { bucket: 'facilitator-documents', file: '02_FACILITATOR/FM/LG_Master_Facilitator_Manual_Book1_FINAL.docx' },
   4: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Facilitator_Code_of_Conduct.docx' },
   6: { bucket: 'facilitator-documents', file: '02_FACILITATOR/LG_Participant_Appropriateness_Guide.docx' },
 };
@@ -3247,16 +3241,20 @@ function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '2.5rem 1.25rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.65rem', color: C.navy, margin: '0 0 0.75rem' }}>
-            Welcome to the Live and Grieve™ Facilitator Hub
+            Welcome to the Live and Grieve™ Facilitator Hub.
           </h1>
           <p style={{ color: C.muted, fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 560, margin: '0 auto' }}>
-            Before your certification training, there are a few things to complete. This preparation will take approximately 90 minutes and will make your training day significantly more meaningful.
+            Before your certification training, there are specific things you need to complete. This is not optional preparation — it is expected. Facilitators who arrive on training day having completed these items have a significantly better experience and are better equipped to serve the people in their groups.
           </p>
         </div>
 
         <div style={{ background: C.goldLt, borderRadius: 8, padding: '0.6rem 1rem', marginBottom: '1.5rem',
           fontSize: '0.85rem', color: C.gold, fontWeight: 600, textAlign: 'center' }}>
           {completedCount} of 7 complete
+        </div>
+
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: C.navy, marginBottom: '0.5rem' }}>
+          Complete before training day:
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -3275,9 +3273,9 @@ function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
                       {item.num}. {item.label}
                     </div>
 
-                    {item.note && (
+                    {item.why && (
                       <p style={{ fontSize: '0.8rem', color: C.muted, margin: '4px 0 0', fontStyle: 'italic' }}>
-                        {item.note}
+                        {item.why}
                       </p>
                     )}
 
@@ -3287,27 +3285,6 @@ function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
                         style={{ ...btn(C.navy, '#fff', true), marginTop: 8, opacity: openingDoc === item.num ? 0.6 : 1 }}>
                         {openingDoc === item.num ? 'Loading...' : item.docDesc ?? 'Open Document'}
                       </button>
-                    )}
-
-                    {item.hasFM && (
-                      <div style={{ marginTop: 8 }}>
-                        {(onboarding.books_certified?.length ?? 0) > 0 ? (
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            {onboarding.books_certified!.map(b => (
-                              <button key={b} onClick={() => openFM(b)}
-                                disabled={openingDoc === 3}
-                                style={{ ...btn(C.navy, '#fff', true), opacity: openingDoc === 3 ? 0.6 : 1 }}>
-                                {openingDoc === 3 ? '...' : `Open FM Book ${b}`}
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <p style={{ fontSize: '0.8rem', color: C.warn, margin: 0 }}>
-                            Book assignment pending — contact{' '}
-                            <a href="mailto:wayne@tripillarstudio.com" style={{ color: C.gold }}>wayne@tripillarstudio.com</a>
-                          </p>
-                        )}
-                      </div>
                     )}
 
                     {item.hasSignature && (
@@ -3364,6 +3341,10 @@ function OnboardingWelcome({ onboarding, onUpdate, onContinue }: {
             );
           })}
         </div>
+
+        <p style={{ color: C.muted, fontFamily: "Inter, sans-serif", fontSize: "0.9rem", marginTop: 20, fontStyle: "italic" }}>
+          Wayne and Jamie are available if you have questions before training day. Use the Get Support tab any time.
+        </p>
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <button onClick={onContinue}
