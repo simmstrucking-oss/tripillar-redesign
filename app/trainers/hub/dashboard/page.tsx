@@ -944,8 +944,19 @@ export default function TrainerHubDashboard() {
 
         const trainerProf = prof as TrainerProfile;
         setProfile(trainerProf);
-        // Show welcome if dismissed_trainer_orientation is not set in DB
-        if (!trainerProf.dismissed_trainer_orientation) {
+
+        // Check dismissed_trainer_orientation via dedicated endpoint
+        // (separate column from facilitator dismissed_orientation — avoids shared-state collision)
+        try {
+          const dismissRes = await fetch('/api/trainer/dismiss-orientation', { credentials: 'include' });
+          if (dismissRes.ok) {
+            const dismissData = await dismissRes.json();
+            if (!dismissData.dismissed) setShowWelcome(true);
+          } else {
+            // Endpoint error — default to showing welcome
+            setShowWelcome(true);
+          }
+        } catch {
           setShowWelcome(true);
         }
         setLoading(false);
@@ -1057,11 +1068,11 @@ export default function TrainerHubDashboard() {
               <button
                 onClick={async () => {
                   setShowWelcome(false);
-                  await fetch('/api/hub/onboarding', {
+                  await fetch('/api/trainer/dismiss-orientation', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ dismissed_trainer_orientation: true }),
+                    body: JSON.stringify({}),
                   });
                 }}
                 style={{ background: '#1B2B4B', color: '#F8F4EE', border: 'none', borderRadius: 6,
