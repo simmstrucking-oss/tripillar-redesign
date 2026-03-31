@@ -144,6 +144,43 @@ export async function GET(req: NextRequest) {
           : ''}
       </div>
 
+      ${await (async () => {
+        // Pull last 7 days of health check logs for the weekly brief
+        try {
+          const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+          const { data: healthLogs } = await sb
+            .from('health_check_log')
+            .select('*')
+            .gte('checked_at', since7d)
+            .order('checked_at', { ascending: false });
+
+          if (!healthLogs || healthLogs.length === 0) return '';
+
+          const totalRuns     = healthLogs.length;
+          const totalPasses   = healthLogs.filter(l => l.healthy).length;
+          const totalFails    = totalRuns - totalPasses;
+          const healthScore   = Math.round((totalPasses / totalRuns) * 100);
+          const failEvents    = healthLogs.filter(l => !l.healthy);
+          const failSummary   = failEvents.length === 0
+            ? '<em style="color:#6b7280;">No failures this week.</em>'
+            : failEvents.map(l => {
+                const t = new Date(l.checked_at).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return `<li style="font-size:12px;margin-bottom:4px;">${t} — ${(l.failure_names ?? []).slice(0, 3).join(', ')}${(l.failure_names ?? []).length > 3 ? ` +${(l.failure_names ?? []).length - 3} more` : ''}</li>`;
+              }).join('');
+
+          return `
+            <h3 style="font-family:Georgia,serif;font-size:15px;color:#2D3142;margin:24px 0 8px;">Platform Health This Week</h3>
+            <div style="padding:14px 18px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;margin-bottom:20px;">
+              <div style="display:flex;gap:24px;margin-bottom:${failEvents.length > 0 ? '12px' : '0'};">
+                <div><strong style="font-size:20px;color:#1c3028;">${healthScore}%</strong><br><span style="font-size:11px;color:#6b7280;text-transform:uppercase;">Health Score</span></div>
+                <div><strong style="font-size:20px;color:#1c3028;">${totalRuns}</strong><br><span style="font-size:11px;color:#6b7280;text-transform:uppercase;">Checks Run</span></div>
+                <div><strong style="font-size:20px;color:${totalFails > 0 ? '#dc2626' : '#1c3028'};">${totalFails}</strong><br><span style="font-size:11px;color:#6b7280;text-transform:uppercase;">Failures</span></div>
+              </div>
+              ${failEvents.length > 0 ? `<ul style="margin:0;padding-left:16px;">${failSummary}</ul>` : ''}
+            </div>`;
+        } catch { return ''; }
+      })()}
+
       <div style="margin-top:24px;padding:14px 18px;background:#f9f7f4;border-left:3px solid #B8942F;border-radius:0 6px 6px 0;">
         <a href="https://www.tripillarstudio.com/admin/dashboard"
            style="color:#B8942F;font-size:13px;font-weight:600;text-decoration:none;">

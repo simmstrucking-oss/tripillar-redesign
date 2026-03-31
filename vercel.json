@@ -16,10 +16,9 @@
       "path": "/api/cron/annual",
       "schedule": "0 14 1 1 *"
     },
-    {
-      "path": "/api/internal/health-check",
-      "schedule": "0 12 * * *"
-    },
+    { "path": "/api/internal/health-check", "schedule": "0 12 * * *" },
+    { "path": "/api/internal/health-check", "schedule": "0 18 * * *" },
+    { "path": "/api/internal/health-check", "schedule": "0 2 * * *" },
     {
       "path": "/api/cron/blog-draft",
       "schedule": "0 13 * * 1"
