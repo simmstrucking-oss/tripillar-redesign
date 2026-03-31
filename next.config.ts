@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -36,4 +37,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org:     "tri-pillars-llc",
+  project: "tripillarstudio",
+
+  // Suppress Sentry CLI output in CI/build logs
+  silent:  !process.env.CI,
+
+  // Automatically tree-shake Sentry debug logging in production
+  disableLogger: true,
+
+  // Automatically add performance instrumentation to Server Components
+  automaticVercelMonitors: true,
+
+  // Upload source maps to Sentry for readable stack traces
+  // Requires SENTRY_AUTH_TOKEN in Vercel env vars
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+});
