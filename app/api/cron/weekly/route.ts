@@ -76,6 +76,33 @@ export async function GET(req: NextRequest) {
       : null;
     const lowSatisfaction = (weekFeedback ?? []).filter(f => f.avg_satisfaction != null && Number(f.avg_satisfaction) < 3);
 
+    // ── Pipeline data (prospect activity this week) ──────────────────────────
+    const { data: weekProspectViews } = await sb
+      .from('prospect_activity')
+      .select('prospect_code')
+      .gte('created_at', weekStart.toISOString());
+    const { data: weekCallRequests } = await sb
+      .from('prospect_call_requests')
+      .select('id, created_at')
+      .gte('created_at', weekStart.toISOString());
+    const { data: weekAgreements } = await sb
+      .from('agreements')
+      .select('id, status')
+      .gte('created_at', weekStart.toISOString());
+
+    const prospectsViewed    = new Set((weekProspectViews ?? []).map(v => v.prospect_code)).size;
+    const callReqCount       = (weekCallRequests ?? []).length;
+    const agreementsCount    = (weekAgreements ?? []).length;
+
+    // Content calendar: blog draft days this week (Mon/Wed/Fri)
+    const mon = new Date(now); mon.setDate(now.getDate() + (8 - now.getDay()) % 7 || 7);
+    const blogDays = ['Mon', 'Wed', 'Fri'].map(d => {
+      const dt = new Date(mon);
+      const offsets: Record<string, number> = { Mon: 0, Wed: 2, Fri: 4 };
+      dt.setDate(mon.getDate() + offsets[d]);
+      return `${d} ${dt.getMonth() + 1}/${dt.getDate()}`;
+    });
+
     // Build email
     const incidentRows = incidents.length > 0
       ? `<tr><td style="padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;" colspan="2">
@@ -96,6 +123,49 @@ export async function GET(req: NextRequest) {
 
     const bodyHtml = `
       <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">Week of ${dateLabel}</p>
+
+      <!-- ══ WEEKLY BUSINESS BRIEF ══════════════════════════════════════════ -->
+      <div style="background:#f9f7f4;border:1px solid #e5dfd4;border-radius:8px;padding:20px 22px;margin-bottom:28px;font-family:monospace;font-size:13px;line-height:1.9;color:#1c3028;">
+        <div style="font-weight:700;font-size:14px;color:#B8942F;margin-bottom:12px;font-family:sans-serif;letter-spacing:0.04em;">📋 WEEKLY BRIEF — ${dateLabel}</div>
+
+        <div style="margin-bottom:10px;font-family:sans-serif;font-size:13px;">
+          <strong>New this week</strong><br>
+          Facilitators added: ${newFacsCount}<br>
+          Organizations added: ${(newOrgs ?? []).length}<br>
+          Agreements signed: ${agreementsCount}<br>
+          Solo Companion purchases: ${purchaseCount}
+        </div>
+
+        <div style="margin-bottom:10px;font-family:sans-serif;font-size:13px;">
+          <strong>Active pipeline</strong><br>
+          Prospect codes viewed: ${prospectsViewed} unique<br>
+          Call requests: ${callReqCount}${callReqCount > 0 ? ' ⚡ action needed' : ''}<br>
+          Active cohorts: ${activeCount}<br>
+          Sessions logged: ${logsCount}
+        </div>
+
+        <div style="margin-bottom:10px;font-family:sans-serif;font-size:13px;">
+          <strong>Platform health</strong><br>
+          See below for health score and any alerts fired this week.
+          ${incidents.length > 0 ? `<br><span style="color:#dc2626;font-weight:600;">⚠️ ${incidents.length} critical incident(s) logged.</span>` : ''}
+        </div>
+
+        <div style="margin-bottom:10px;font-family:sans-serif;font-size:13px;">
+          <strong>Content calendar</strong><br>
+          Blog drafts: ${blogDays.join(', ')} — auto-generated, approve by email<br>
+          TikTok: manual batch (Fridays) — see reminder from Ember<br>
+          YouTube: all 60 lessons live · shorts complete
+        </div>
+
+        <div style="font-family:sans-serif;font-size:12px;color:#6b7280;border-top:1px solid #e5dfd4;padding-top:10px;margin-top:8px;">
+          <a href="https://www.tripillarstudio.com/admin/dashboard" style="color:#B8942F;">→ Full dashboard</a>
+          &nbsp;·&nbsp;
+          <a href="https://www.tripillarstudio.com/admin/prospects" style="color:#B8942F;">→ Prospects</a>
+          &nbsp;·&nbsp;
+          <a href="https://www.tripillarstudio.com/admin/content" style="color:#B8942F;">→ Content CMS</a>
+        </div>
+      </div>
+      <!-- ══ END BRIEF ═══════════════════════════════════════════════════════ -->
 
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:24px;">
         <tr>
@@ -189,7 +259,7 @@ export async function GET(req: NextRequest) {
       </div>
     `;
 
-    const subject = `Live and Grieve™ Weekly Summary — ${dateLabel}`;
+    const subject = `Weekly Business Brief — ${dateLabel}`;
     await sendMail({
       to: 'wayne@tripillarstudio.com',
       subject,
