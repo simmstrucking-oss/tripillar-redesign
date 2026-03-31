@@ -12,6 +12,28 @@ const PROTECTED_ADMIN       = /^\/admin\/(facilitators|trainers)(\/|$)/;
 // ── Owner emails (hard-coded, immutable) ─────────────────────────────────────
 const OWNER_EMAILS = ['wayne@tripillarstudio.com', 'jamie@tripillarstudio.com'];
 
+// ── Admin brute-force rate limiting (Edge-compatible, in-memory per instance) ─
+const adminFailMap = new Map<string, { count: number; resetAt: number }>();
+const ADMIN_FAIL_LIMIT   = 10;
+const ADMIN_FAIL_WINDOW  = 15 * 60 * 1000; // 15 minutes
+
+function isAdminRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = adminFailMap.get(ip);
+  if (!entry || now > entry.resetAt) return false;
+  return entry.count >= ADMIN_FAIL_LIMIT;
+}
+
+function recordAdminFail(ip: string): void {
+  const now = Date.now();
+  const entry = adminFailMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    adminFailMap.set(ip, { count: 1, resetAt: now + ADMIN_FAIL_WINDOW });
+  } else {
+    entry.count++;
+  }
+}
+
 // ── getSessionUser via auth-helper (Edge-compatible, same as API routes) ─────
 async function getSessionUser(req: NextRequest) {
   return getUserFromRequest(req);
@@ -35,10 +57,15 @@ export async function middleware(req: NextRequest) {
 
   // ── Admin routes ─────────────────────────────────────────────────────────
   if (PROTECTED_ADMIN.test(pathname)) {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    if (isAdminRateLimited(ip)) {
+      return new NextResponse('Too many failed attempts. Try again later.', { status: 429 });
+    }
     const adminSecret = req.headers.get('x-admin-secret');
     const adminCookie = req.cookies.get('lg-admin-session')?.value;
     const validSecret = process.env.ADMIN_SECRET!;
     if (adminSecret !== validSecret && adminCookie !== validSecret) {
+      recordAdminFail(ip);
       return NextResponse.redirect(new URL('/login/facilitator?reason=admin', req.url));
     }
     return res;

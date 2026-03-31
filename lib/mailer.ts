@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'ember@tripillarstudio.com',
-    pass: process.env.EMBER_EMAIL_PASSWORD ?? 'Ember2026!Tri#',
+    pass: process.env.EMBER_EMAIL_PASSWORD,
   },
 });
 
@@ -22,6 +22,9 @@ export interface MailOptions {
 }
 
 export async function sendMail(opts: MailOptions): Promise<void> {
+  if (!process.env.EMBER_EMAIL_PASSWORD) {
+    throw new Error('EMBER_EMAIL_PASSWORD env var is not set');
+  }
   await transporter.sendMail({
     // Namecheap SMTP requires From = authenticated user (ember@).
     // Display name shows "Live and Grieve™ Reports"; Reply-To routes to Wayne.
@@ -45,9 +48,9 @@ export function brandedHtml(title: string, bodyHtml: string): string {
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
         <!-- Header -->
         <tr>
-          <td style="background:#2D3142;padding:28px 36px;">
+          <td style="background:#1c3028;padding:28px 36px;">
             <p style="margin:0;font-family:Georgia,serif;font-size:22px;color:#B8942F;font-weight:bold;">Tri-Pillars™ LLC</p>
-            <p style="margin:6px 0 0;font-size:12px;color:#9aa0b4;text-transform:uppercase;letter-spacing:0.08em;">Live and Grieve™ Program</p>
+            <p style="margin:6px 0 0;font-size:12px;color:#a8bfb4;text-transform:uppercase;letter-spacing:0.08em;">Live and Grieve™ Program</p>
           </td>
         </tr>
         <!-- Body -->

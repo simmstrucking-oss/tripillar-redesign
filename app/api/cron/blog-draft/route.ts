@@ -95,9 +95,22 @@ function generateSocialPreviews(title: string, excerpt: string, slug: string) {
   return { facebook, xThread, tiktok };
 }
 
+async function makeActionToken(postId: string, adminSecret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(adminSecret + postId);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function notifyWayne(title: string, category: string, excerpt: string, postId: string, _botToken: string, slug: string) {
   const resendKey = process.env.RESEND_API_KEY || 're_aDy5YJGb_ML9LLRsnH5PD7Np5W6BeKrk3';
+  const adminSecret = process.env.ADMIN_SECRET ?? 'tripillar-admin-2024';
   const social = generateSocialPreviews(title, excerpt, slug);
+
+  const token = await makeActionToken(postId, adminSecret);
+  const base  = 'https://www.tripillarstudio.com/api/blog/action';
+  const publishUrl = `${base}?id=${postId}&action=publish&token=${token}`;
+  const skipUrl    = `${base}?id=${postId}&action=skip&token=${token}`;
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c3028;">
@@ -105,20 +118,23 @@ async function notifyWayne(title: string, category: string, excerpt: string, pos
       <p><strong>Title:</strong> ${title}</p>
       <p><strong>Category:</strong> ${category}</p>
       <p><strong>Excerpt:</strong><br>${excerpt}</p>
-      <hr/>
-      <h3>📱 Social Posts Ready</h3>
-      <p><strong>Facebook:</strong><br><em>${social.facebook.slice(0, 100)}...</em></p>
-      <p><strong>X Thread:</strong><br><em>${social.xThread.split('\n')[1]?.slice(0, 100)}...</em></p>
-      <p><strong>TikTok:</strong><br><em>${social.tiktok.slice(0, 100)}</em></p>
-      <hr/>
-      <p><strong>Draft ID:</strong> <code>${postId}</code></p>
-      <p>Reply to this email or message Ember on Telegram:</p>
-      <ul>
-        <li><strong>PUBLISH ALL</strong> — publish blog + schedule all social posts</li>
-        <li><strong>PUBLISH BLOG ONLY</strong> — publish blog only, skip social</li>
-        <li><strong>EDIT: [your notes]</strong> — revise blog and social</li>
-        <li><strong>SKIP</strong> — discard all</li>
-      </ul>
+
+      <div style="margin:24px 0;display:flex;gap:12px;">
+        <a href="${publishUrl}" style="display:inline-block;padding:12px 24px;background:#1c3028;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">✅ Publish Now</a>
+        &nbsp;&nbsp;
+        <a href="${skipUrl}" style="display:inline-block;padding:12px 24px;background:#f2efe9;color:#1c3028;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">🗑️ Skip Draft</a>
+      </div>
+
+      <p style="font-size:12px;color:#9ca3af;">Or message Ember on Telegram: <strong>EDIT: [your notes]</strong> to request changes before publishing.</p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+      <h3 style="font-size:14px;color:#1c3028;">📱 Social Post Previews</h3>
+      <p><strong>Facebook:</strong><br><em style="font-size:13px;color:#4b5563;">${social.facebook.slice(0, 150)}...</em></p>
+      <p><strong>X Thread:</strong><br><em style="font-size:13px;color:#4b5563;">${social.xThread.split('\n')[1]?.slice(0, 140)}...</em></p>
+      <p><strong>TikTok:</strong><br><em style="font-size:13px;color:#4b5563;">${social.tiktok.slice(0, 120)}</em></p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+      <p style="font-size:11px;color:#d1d5db;">Draft ID: ${postId} · <a href="https://www.tripillarstudio.com/admin/content" style="color:#B8942F;">Admin CMS</a></p>
     </div>
   `;
 
