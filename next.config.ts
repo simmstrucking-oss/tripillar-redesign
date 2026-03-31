@@ -30,8 +30,9 @@ const nextConfig: NextConfig = {
     "/api/hub/cohorts":              ["./node_modules/pdfkit/js/data/**"],
     "/api/org/cohorts":              ["./node_modules/pdfkit/js/data/**"],
     "/api/admin/agreements":         ["./node_modules/pdfkit/js/data/**"],
-    "/api/hub/cohort-outcomes":      ["./node_modules/pdfkit/js/data/**"],
-    "/api/org/generate-report":      ["./node_modules/pdfkit/js/data/**"],
+    "/api/hub/cohort-outcomes":           ["./node_modules/pdfkit/js/data/**"],
+    "/api/org/generate-report":           ["./node_modules/pdfkit/js/data/**"],
+    "/api/hub/cohorts/[id]/complete":     ["./node_modules/pdfkit/js/data/**"],
   },
 };
 

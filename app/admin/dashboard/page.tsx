@@ -147,6 +147,56 @@ function GenReportBtn({ type, label, onDone }: { type: string; label: string; on
   );
 }
 
+// ── Cohort PDF download list ──────────────────────────────────────────────────
+function CohortPdfList() {
+  const [cohorts, setCohorts] = useState<Array<{ id: string; summary_pdf_path: string | null; book_number: number; facilitator_name?: string; org_name?: string; summary_submitted_at: string | null }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [urls,    setUrls]    = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch('/api/admin/cohort-summaries', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => { setCohorts(d.cohorts ?? []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  async function getUrl(cohortId: string, path: string) {
+    const r = await fetch(`/api/admin/cohort-summaries?cohort_id=${cohortId}`, { credentials: 'include' });
+    const d = await r.json();
+    if (d.url) setUrls(prev => ({ ...prev, [cohortId]: d.url }));
+  }
+
+  const withPdf = cohorts.filter(c => c.summary_pdf_path);
+  if (loading) return <div style={{ margin: '20px 0', fontSize: 13, color: C.slate }}>Loading cohort PDFs…</div>;
+  if (withPdf.length === 0) return (
+    <div style={{ margin: '20px 0', padding: '14px 18px', background: C.cardBg, borderRadius: 8, fontSize: 13, color: C.slate }}>
+      No cohort summary PDFs yet. PDFs generate automatically when a facilitator submits their post-cohort summary.
+    </div>
+  );
+
+  return (
+    <div style={{ marginTop: 20 }}>
+      <div style={{ fontWeight: 600, fontSize: 14, color: C.navy, marginBottom: 12 }}>📄 Cohort Summary PDFs</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {withPdf.map(c => (
+          <div key={c.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: C.cardBg, borderRadius: 8, fontSize: 13 }}>
+            <div>
+              <span style={{ fontWeight: 600, color: C.navy }}>Book {c.book_number}</span>
+              {c.facilitator_name && <span style={{ color: C.slate, marginLeft: 12 }}>{c.facilitator_name}</span>}
+              {c.org_name && <span style={{ color: C.slate, marginLeft: 8 }}>· {c.org_name}</span>}
+              {c.summary_submitted_at && <span style={{ color: C.slate, marginLeft: 8 }}>· {new Date(c.summary_submitted_at).toLocaleDateString()}</span>}
+            </div>
+            {urls[c.id]
+              ? <a href={urls[c.id]} target="_blank" rel="noopener noreferrer" style={{ color: C.gold, fontWeight: 600, textDecoration: 'none' }}>↓ Download</a>
+              : <button onClick={() => getUrl(c.id, c.summary_pdf_path!)} style={{ background: 'none', border: `1px solid ${C.gold}`, color: C.gold, borderRadius: 4, padding: '4px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>Get PDF</button>
+            }
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [auth,       setAuth]       = useState<AdminAuth>({ authed: false, checking: true });
   const [password,   setPassword]   = useState('');
@@ -409,6 +459,7 @@ export default function AdminDashboard() {
                   <StatCard label="Participants Served"    value={m.participants_served} color={C.green} />
                   <StatCard label="Critical Incidents"     value={m.critical_incidents} color={m.critical_incidents > 0 ? C.red : C.green} />
                 </div>
+                <CohortPdfList />
                 <div style={{ marginTop:24,color:C.slate,fontSize:13 }}>
                   For per-cohort data and session logs, visit <a href="/admin/facilitators" style={{color:C.gold}}>Facilitator Admin</a>.
                 </div>
