@@ -24,6 +24,7 @@ const COMPLETED_SESSIONS = [
   { session: 17, date: '2026-03-30', summary: 'LGY storage upload complete: 37/37 files uploaded (facilitator-documents/lgy/ 31 files, admin-documents/lgy/ 6 files). Wayne/Jamie login diagnostic confirmed. Passwords force-reset via admin API. Login debug ongoing — HTTP 307 on non-www POST.' },
   { session: 18, date: '2026-03-30', summary: 'FM1 Week 1 content extracted for onboarding wizard Step 6 (full structured JSON). Wayne/Jamie name audit: 8 files changed, 22 replacements — all user-facing "Wayne/Jamie" → "Tri-Pillars™" or "your trainer". Document integrity audit: 48 files, 47 PASS, 1 FLAG (CSV headers-only — expected). Render audit: 48/48 PASS via signed URLs.' },
   { session: 19, date: '2026-03-30', summary: 'Book removal from facilitator-documents: 38 files deleted (4 CFRG, 4 FM, 4 TM, 13 LGY Elementary S1–S13, 13 LGY Middle/High S1–S13). 3 API routes updated to remove all book references: /api/hub/documents, /api/hub/lgy-documents, /api/trainer/resources. physicalMaterialsNotice added to all 3 route responses. Physical materials notice banner deployed in Facilitator Hub Documents tab and Trainer Hub Resources tab. Final render audit: 38/38 PASS (non-book docs only). All files 8.6–19.5 KB, clean CT, valid PK magic bytes, no encoding issues, tables intact.' },
+  { session: 20, date: '2026-03-31', summary: 'Buffer social media setup (Wayne account): TikTok @tri.pillars connected then disconnected (wrong account — @liveandgrieve/10K needed), Facebook Live And Grieve page connected, YouTube pending, Jamie account pending. KDP WB1–4 prices updated to $24.99 via Browser Relay. Kit sequence 2702351 "Trainer — Fee Reminder" copy finalized: Email 1 (Day 7) and Email 2 (Day 14) both published. Supabase purchases table: 6 test rows deleted. Vercel env vars: VERCEL_TOKEN and GITHUB_TOKEN added to tripillar-redesign. Deployment EtbPGBg9B confirmed live. Onboarding wizard Step 6 FM1 Week 1 inline content confirmed already implemented (lib/week1-content.ts). All repos committed and pushed. Status route updated (session 20). Pending tasks corrected: FM1 Week 1 stale entry removed.' },
 ];
 
 const LIVE_FEATURES = [
@@ -64,12 +65,15 @@ const PENDING_TASKS = [
   { priority: 1, task: 'Solo Companion Books 2-4 content build' },
   { priority: 2, task: 'Org Hub youth licensing' },
   { priority: 3, task: 'Task 9 external activation pending ILA attorney review' },
-  { priority: 4, task: 'KDP price dashboard update (Wayne manual task)' },
-  { priority: 5, task: 'NP Clinical Advisor Agreement physical signature (Wayne manual task)' },
-  { priority: 6, task: 'FM1 Week 1 inline content in onboarding wizard Step 6 — JSON extracted, build not yet started' },
-  { priority: 7, task: 'Inner Work Guide inline content in onboarding wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification' },
-  { priority: 8, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay' },
-  { priority: 9, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
+  { priority: 4, task: 'NP Clinical Advisor Agreement physical signature (Wayne manual task)' },
+  { priority: 5, task: 'Inner Work Guide inline content in onboarding wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification' },
+  { priority: 6, task: 'Buffer: TikTok @liveandgrieve (10K) needs reconnecting — wrong account (@tri.pillars, 12 followers) was connected and disconnected' },
+  { priority: 7, task: 'Buffer: YouTube channel not yet connected (Wayne account)' },
+  { priority: 8, task: 'Buffer: Jamie account not yet created or configured' },
+  { priority: 9, task: 'Buffer: X/Twitter not available on free plan — requires paid upgrade or xurl CLI + Twitter Developer app' },
+  { priority: 10, task: 'TM1-LP KDP upload — pending Wayne manual action via Browser Relay (font pipeline must run first)' },
+  { priority: 11, task: 'TM3, TM4, CFRG1–4 KDP paperback editions — not started' },
+  { priority: 12, task: 'KDP FM/TM/CFRG pricing review — WB1–4 set to $24.99, FM/TM/CFRG not updated this session' },
 ];
 
 export async function GET(req: NextRequest) {
