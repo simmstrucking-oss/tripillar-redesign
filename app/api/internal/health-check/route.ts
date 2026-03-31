@@ -250,16 +250,16 @@ async function checkKitSequences(): Promise<CheckResult[]> {
         { method: 'GET' }
       );
       const data = await res.json();
-      const sequence = data?.sequence;
-      if (!sequence) {
-        return { name: `Kit: ${seq.name} (${seq.id})`, ok: false, detail: `Not found or API error: ${JSON.stringify(data).slice(0, 80)}`, category: 'kit' };
+      // Kit v3 returns the sequence nested under either "sequence" or "course" key
+      const record = data?.sequence ?? data?.course ?? null;
+      if (!record) {
+        return { name: `Kit: ${seq.name} (${seq.id})`, ok: false, detail: `Not found — ${JSON.stringify(data).slice(0, 80)}`, category: 'kit' };
       }
-      // Kit sequences don't have a simple active/paused field in v3 — check it exists and has a name
-      const ok = !!sequence.name;
+      const ok = !!record.name;
       return {
         name: `Kit: ${seq.name} (${seq.id})`,
         ok,
-        detail: ok ? `Active — "${sequence.name}"` : `Unexpected state: ${JSON.stringify(sequence).slice(0, 80)}`,
+        detail: ok ? `Active — "${record.name}"` : `Unexpected state: ${JSON.stringify(record).slice(0, 80)}`,
         category: 'kit',
       };
     } catch (e: any) {
