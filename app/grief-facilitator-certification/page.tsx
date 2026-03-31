@@ -184,16 +184,16 @@ export default function GriefFacilitatorCertificationPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://solo.tripillarstudio.com"
+                href="/contact"
                 className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
               >
-                Start Solo — $24.99
+                Get in touch →
               </Link>
               <Link
-                href="/facilitators"
+                href="https://solo.tripillarstudio.com"
                 className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors"
               >
-                Facilitator overview →
+                Solo Companion — $24.99
               </Link>
             </div>
           </FadeIn>

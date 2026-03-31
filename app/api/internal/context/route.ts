@@ -4,7 +4,7 @@ import { verifyCronRequest } from '@/lib/cron-auth';
 export const dynamic = 'force-dynamic';
 
 const CONTEXT = {
-  updated: '2026-03-31',
+  updated: '2026-03-31-v3',
 
   program: {
     name: 'Live and Grieve™',

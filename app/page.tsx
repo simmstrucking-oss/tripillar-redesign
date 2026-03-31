@@ -459,12 +459,26 @@ export default function HomePage() {
                 care, but to create the kind of steady, community-rooted support
                 that makes healing possible in the spaces between.
               </p>
-              <Link
-                href="/our-approach"
-                className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
-              >
-                Learn about our framework →
-              </Link>
+              <div className="flex flex-wrap gap-4 mt-2">
+                <Link
+                  href="/our-approach"
+                  className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
+                >
+                  All six frameworks →
+                </Link>
+                <Link
+                  href="/grief-education"
+                  className="inline-flex items-center gap-2 text-gold/70 text-sm font-medium hover:text-gold hover:gap-3 transition-all"
+                >
+                  What is grief education? →
+                </Link>
+                <Link
+                  href="/dual-process-model"
+                  className="inline-flex items-center gap-2 text-gold/70 text-sm font-medium hover:text-gold hover:gap-3 transition-all"
+                >
+                  The Dual Process Model →
+                </Link>
+              </div>
             </FadeIn>
           </div>
         </div>

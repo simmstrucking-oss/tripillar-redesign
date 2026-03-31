@@ -134,31 +134,31 @@ export default function GriefEducationPage() {
         </FadeIn>
       </section>
 
-      {/* Solo Companion CTA */}
+      {/* Free Guide CTA */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
           <FadeIn>
             <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-              No Group Near You?
+              Free Resource
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-              Start with the Solo Companion.
+              Download the free guide.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              The Solo Companion brings the full Live and Grieve™ Book 1 experience to your phone. Work through the program at your own pace, on your own schedule — with the same research foundation, the same structure, and the same six-framework design.
+              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — written by Wayne and Jamie Simms, grounded in six peer-reviewed frameworks. Free. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://solo.tripillarstudio.com"
+                href="/free-guide"
                 className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
               >
-                Start Solo — $24.99
+                Download the Free Guide
               </Link>
               <Link
-                href="/program/adult"
+                href="https://solo.tripillarstudio.com"
                 className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors"
               >
-                See the full program →
+                Solo Companion — $24.99 →
               </Link>
             </div>
           </FadeIn>

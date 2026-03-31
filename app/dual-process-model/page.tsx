@@ -139,20 +139,20 @@ export default function DualProcessModelPage() {
               The program built on this research.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              No group near you? The Solo Companion brings the full Live and Grieve™ Book 1 experience — built on the Dual Process Model and all six frameworks — to your phone. $24.99 or three payments of $9.99.
+              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — free from Wayne and Jamie Simms. Includes the Dual Process Model and all six frameworks in plain language. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://solo.tripillarstudio.com"
+                href="/free-guide"
                 className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
               >
-                Start Solo — $24.99
+                Download the Free Guide
               </Link>
               <Link
-                href="/our-approach"
+                href="https://solo.tripillarstudio.com"
                 className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors"
               >
-                All six frameworks →
+                Solo Companion — $24.99 →
               </Link>
             </div>
           </FadeIn>
