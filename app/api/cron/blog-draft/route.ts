@@ -82,22 +82,42 @@ function generateBlogDraft() {
 }
 
 // Send Telegram notification to Wayne
-async function notifyWayne(title: string, category: string, excerpt: string, postId: string, _botToken: string) {
+function generateSocialPreviews(title: string, excerpt: string, slug: string) {
+  const siteUrl = 'https://tripillarstudio.com/blog';
+  const hashtags = '#grief #griefeducation #griefsupport #mindfulness #wellbeing';
+
+  const facebook = `${title}\n\n${excerpt}\n\nGrief doesn't follow a timeline — and you don't have to walk it alone. Live and Grieve™ was created to give you language, space, and community for the journey.\n\nRead the full post: ${siteUrl}/${slug}\n\n${hashtags}`;
+
+  const xThread = `Tweet 1:\n${excerpt.slice(0, 240)} #grief #griefeducation\n\nTweet 2 (with link):\nFull post: ${siteUrl}/${slug}`;
+
+  const tiktok = `${excerpt.slice(0, 120)} | Live and Grieve™ | ${hashtags}`;
+
+  return { facebook, xThread, tiktok };
+}
+
+async function notifyWayne(title: string, category: string, excerpt: string, postId: string, _botToken: string, slug: string) {
   const resendKey = process.env.RESEND_API_KEY || 're_aDy5YJGb_ML9LLRsnH5PD7Np5W6BeKrk3';
+  const social = generateSocialPreviews(title, excerpt, slug);
 
   const html = `
-    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c3028;">
       <h2 style="color:#1c3028;">📝 New Blog Draft Ready</h2>
       <p><strong>Title:</strong> ${title}</p>
       <p><strong>Category:</strong> ${category}</p>
       <p><strong>Excerpt:</strong><br>${excerpt}</p>
       <hr/>
+      <h3>📱 Social Posts Ready</h3>
+      <p><strong>Facebook:</strong><br><em>${social.facebook.slice(0, 100)}...</em></p>
+      <p><strong>X Thread:</strong><br><em>${social.xThread.split('\n')[1]?.slice(0, 100)}...</em></p>
+      <p><strong>TikTok:</strong><br><em>${social.tiktok.slice(0, 100)}</em></p>
+      <hr/>
       <p><strong>Draft ID:</strong> <code>${postId}</code></p>
       <p>Reply to this email or message Ember on Telegram:</p>
       <ul>
-        <li><strong>PUBLISH</strong> — make it live</li>
-        <li><strong>EDIT: [your notes]</strong> — revise it</li>
-        <li><strong>SKIP</strong> — discard</li>
+        <li><strong>PUBLISH ALL</strong> — publish blog + schedule all social posts</li>
+        <li><strong>PUBLISH BLOG ONLY</strong> — publish blog only, skip social</li>
+        <li><strong>EDIT: [your notes]</strong> — revise blog and social</li>
+        <li><strong>SKIP</strong> — discard all</li>
       </ul>
     </div>
   `;
@@ -185,7 +205,8 @@ async function handler(req: NextRequest) {
         saved.category,
         saved.excerpt,
         saved.id,
-        botToken
+        botToken,
+        saved.slug
       );
       if (!notified) {
         console.warn('Telegram notification failed but draft was saved');
