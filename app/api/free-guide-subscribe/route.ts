@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const KIT_API_SECRET = process.env.KIT_API_SECRET!;
 const KIT_BASE = "https://api.convertkit.com/v3";
 const FREE_GUIDE_SEQUENCE_ID = 2701556; // Website — Free Guide Subscriber
+const B2C_WELCOME_SEQUENCE_ID = 2701221; // Solo Companion — Welcome (B2C)
 const FREE_GUIDE_TAG_ID = 18231221;     // free-guide-download
 const WEBSITE_SUBSCRIBER_TAG_ID = 18231220; // website-subscriber
 
@@ -58,6 +59,13 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       );
     }
+
+    // Also enroll in B2C welcome sequence (fire-and-forget)
+    fetch(`${KIT_BASE}/courses/${B2C_WELCOME_SEQUENCE_ID}/subscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_secret: KIT_API_SECRET, email }),
+    }).catch(() => {});
 
     // Tag as free-guide-download + website-subscriber (fire-and-forget)
     const tagPromises = [FREE_GUIDE_TAG_ID, WEBSITE_SUBSCRIBER_TAG_ID].map((tagId) =>

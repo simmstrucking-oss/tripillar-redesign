@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 // This page is client-rendered for the form interaction
 
 const PDF_URL =
-  "https://wuwgbdjgsgtsmuctuhpt.supabase.co/storage/v1/object/public/public-resources/free-guide/live-and-grieve-grief-research-guide.pdf";
+  "https://wuwgbdjgsgtsmuctuhpt.supabase.co/storage/v1/object/public/public-resources/LG_Free_Guide_7_Things.pdf";
 
 type FormState = "idle" | "loading" | "success" | "already_subscribed" | "invalid_email" | "error";
 
