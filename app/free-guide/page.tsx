@@ -114,7 +114,7 @@ export default function FreeGuidePage() {
                 },
                 {
                   title: "Meaning Reconstruction, Self-Compassion, and the Companioning Model",
-                  desc: "Three more frameworks that shape how Live and Grieve™ is built — and what good grief support actually looks like.",
+                  desc: "Five more frameworks that shape how Live and Grieve™ is built — and what good grief support actually looks like.",
                 },
                 {
                   title: "What this means for how we support people",

@@ -4,7 +4,27 @@ import { verifyCronRequest } from '@/lib/cron-auth';
 export const dynamic = 'force-dynamic';
 
 const CONTEXT = {
-  updated: '2026-03-30',
+  updated: '2026-03-31',
+
+  program: {
+    name: 'Live and Grieve™',
+    description: '52-week structured grief education program. Not therapy. Community-based peer support with trained facilitators.',
+    research_foundation: 'Program grounded in 6 peer-reviewed frameworks — 3 theoretical (Dual Process Model: Stroebe & Schut, Tasks of Mourning: Worden, Continuing Bonds: Klass/Silverman/Nickman) + 3 applied practice (Meaning Reconstruction: Neimeyer, Self-Compassion: Neff, Companioning the Bereaved: Wolfelt)',
+    framework_count: 6,
+    theoretical_frameworks: [
+      'Dual Process Model (Stroebe & Schut)',
+      "Worden's Tasks of Mourning",
+      'Continuing Bonds Theory (Klass, Silverman & Nickman)',
+    ],
+    applied_practice_frameworks: [
+      'Meaning Reconstruction (Neimeyer)',
+      'Self-Compassion (Neff)',
+      'Companioning the Bereaved (Wolfelt)',
+    ],
+    language_rule: 'Always reference SIX frameworks in the two-layer structure. Never reference three. Theoretical frameworks govern the program arc. Applied practice frameworks shape session delivery.',
+    youth_track: 'Live and Grieve Youth™ (LGY) — elementary and middle/high school tracks',
+    pilot: 'Hampshire County WV — May 2026',
+  },
 
   urls: {
     main_site: 'https://tripillarstudio.com',
@@ -240,11 +260,15 @@ const CONTEXT = {
   pending_tasks: [
     'Kit sequences 2701221/2701223/2701225 — placeholder emails only, real copy not written',
     'Kit test subscribers (ember-test-*) — bulk-delete from Kit dashboard at Wayne\'s convenience',
-    'FM1 Week 1 inline content in onboarding wizard Step 6 — JSON extracted, build not yet started',
     'Inner Work Guide inline in wizard Step 3 — inventory questions blank in source file, awaiting Wayne clarification',
     'TM1-LP KDP upload — pending Wayne manual action via Browser Relay',
     'TM3, TM4, CFRG1–4 KDP paperback editions — not started',
     '/api/hub/consultation-requests — confirm if still needed or superseded by org flow',
+    'Solo Companion Books 2-4 content build',
+    'Org Hub youth licensing',
+    'Buffer: TikTok @liveandgrieve (10K) needs reconnecting — wrong account (@tri.pillars) was connected/removed',
+    'Buffer: YouTube, X/Twitter, Jamie account pending',
+    'Supabase storage: upload TP_v5_0 and LGY_v6 final clean files',
   ],
 };
 

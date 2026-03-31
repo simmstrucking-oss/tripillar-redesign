@@ -8,7 +8,7 @@ const differentiators = [
   {
     icon: "◈",
     title: "Rooted in Research",
-    desc: "Three peer-reviewed frameworks guide everything we do: the Dual Process Model, Worden's Tasks of Mourning, and Continuing Bonds theory. Not the five stages.",
+    desc: "Six peer-reviewed frameworks guide everything we do — three theoretical frameworks that structure the program arc (Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds) and three applied practice frameworks that shape every session (Meaning Reconstruction, Self-Compassion, Companioning). Not the five stages.",
   },
   {
     icon: "◈",

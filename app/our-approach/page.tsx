@@ -5,10 +5,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Our Approach | Tri-Pillars™",
   description:
-    "Our framework draws on three evidence-based models to create grief support that actually reflects how people grieve.",
+    "Live and Grieve™ is grounded in six peer-reviewed frameworks — three theoretical frameworks that structure the program arc, and three applied practice frameworks that shape every session.",
 };
 
-const frameworks = [
+const theoreticalFrameworks = [
   {
     number: "01",
     title: "Dual Process Model",
@@ -29,6 +29,30 @@ const frameworks = [
     authors: "Klass, Silverman & Nickman",
     desc: "Grief doesn't end because the relationship does. Maintaining a connection to someone who has died, through memory, ritual, and meaning, is not unhealthy attachment. It's a normal part of love that outlasts life.",
     highlight: "The goal isn't to let go. It's to carry them differently.",
+  },
+];
+
+const appliedFrameworks = [
+  {
+    number: "04",
+    title: "Meaning Reconstruction",
+    authors: "Robert Neimeyer",
+    desc: "Loss challenges the stories we tell about our lives. Meaning reconstruction is the process of rebuilding a coherent narrative — not erasing what happened, but integrating it into a life that still has direction and purpose.",
+    highlight: "Grief invites us to rebuild, not forget.",
+  },
+  {
+    number: "05",
+    title: "Self-Compassion",
+    authors: "Kristin Neff",
+    desc: "Grieving people are often their own harshest critics. Self-compassion practice — treating yourself with the same kindness you'd offer a friend — is not weakness. It's a core skill for sustained healing and re-engagement with life.",
+    highlight: "Kindness toward yourself is not optional. It's the work.",
+  },
+  {
+    number: "06",
+    title: "Companioning the Bereaved",
+    authors: "Alan Wolfelt",
+    desc: "Facilitators are not fixers. They are companions — present, non-judgmental, willing to enter the wilderness of grief alongside someone rather than trying to lead them out. This shapes how every session is delivered.",
+    highlight: "We walk beside, not ahead.",
   },
 ];
 
@@ -153,7 +177,7 @@ export default function OurApproachPage() {
         </div>
       </section>
 
-      {/* Three frameworks */}
+      {/* Six frameworks — two layers */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -162,17 +186,60 @@ export default function OurApproachPage() {
                 The Tri&#8209;Pillars™ Framework
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-                Three models. One integrated approach.
+                Six frameworks. Two layers. One integrated program.
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
-                Each framework brings something essential. Together, they form
-                the backbone of Live and Grieve™.
+                Live and Grieve™ is grounded in six peer-reviewed frameworks — three theoretical frameworks that structure the program arc, and three applied practice frameworks that shape how every session is delivered.
               </p>
             </div>
           </FadeIn>
 
+          {/* Theoretical frameworks */}
+          <FadeIn>
+            <div className="mb-4">
+              <p className="text-gold text-xs uppercase tracking-widest font-medium mb-6">
+                Theoretical Frameworks — Program Arc
+              </p>
+            </div>
+          </FadeIn>
+          <div className="space-y-6 mb-16">
+            {theoreticalFrameworks.map((fw, i) => (
+              <FadeIn key={i} delay={i * 100}>
+                <div className="card-hover bg-card-bg border border-card-border shadow-sm rounded-2xl p-8 grid md:grid-cols-[80px_1fr_260px] gap-6 items-start">
+                  <div className="font-serif text-4xl text-gold/40 font-bold">
+                    {fw.number}
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-2xl text-navy mb-1">
+                      {fw.title}
+                    </h3>
+                    <p className="text-gold/60 text-xs uppercase tracking-wider mb-3">
+                      {fw.authors}
+                    </p>
+                    <p className="text-muted leading-relaxed">
+                      {fw.desc}
+                    </p>
+                  </div>
+                  <div className="bg-gold/10 border border-gold/15 rounded-xl p-4">
+                    <p className="text-gold text-sm font-medium leading-snug">
+                      {fw.highlight}
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+          {/* Applied practice frameworks */}
+          <FadeIn>
+            <div className="mb-4">
+              <p className="text-gold text-xs uppercase tracking-widest font-medium mb-6">
+                Applied Practice Frameworks — Session Delivery
+              </p>
+            </div>
+          </FadeIn>
           <div className="space-y-6">
-            {frameworks.map((fw, i) => (
+            {appliedFrameworks.map((fw, i) => (
               <FadeIn key={i} delay={i * 100}>
                 <div className="card-hover bg-card-bg border border-card-border shadow-sm rounded-2xl p-8 grid md:grid-cols-[80px_1fr_260px] gap-6 items-start">
                   <div className="font-serif text-4xl text-gold/40 font-bold">
@@ -303,7 +370,7 @@ export default function OurApproachPage() {
               <p className="text-muted mb-6 text-sm leading-relaxed">
                 Download our free guide: <em>&ldquo;What Grief Research Actually
                 Says, And Why It Changes Everything&rdquo;</em>, and see how
-                our three frameworks work together.
+                our six frameworks work together.
               </p>
               <div className="flex flex-col gap-3">
                 <Link
