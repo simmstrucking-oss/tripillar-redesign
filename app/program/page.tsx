@@ -83,6 +83,11 @@ export default function ProgramPage() {
             </FadeIn>
           </div>
 
+          {/* Visual break */}
+          <div className="my-4 rounded-2xl overflow-hidden">
+            <Image src="/images/hands-holding-cup.jpg" alt="Quiet moment of reflection — hands holding a warm cup" width={1200} height={500} className="w-full object-cover max-h-64" />
+          </div>
+
           {/* Youth program */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
             <FadeIn delay={100} className="order-last lg:order-first">

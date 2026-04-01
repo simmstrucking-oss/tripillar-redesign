@@ -135,6 +135,13 @@ export default function OurApproachPage() {
         </div>
       </section>
 
+      {/* Opening image */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-4 mb-4">
+        <div className="rounded-2xl overflow-hidden">
+          <Image src="/images/feet-on-path.jpg" alt="Bare feet walking a gravel path — moving forward through grief" width={1200} height={500} className="w-full object-cover max-h-72" />
+        </div>
+      </div>
+
       {/* Problem with stage model */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-16">

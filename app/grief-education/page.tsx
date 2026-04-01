@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 
@@ -133,6 +134,13 @@ export default function GriefEducationPage() {
           </p>
         </FadeIn>
       </section>
+
+      {/* Photography */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-4">
+        <div className="rounded-2xl overflow-hidden">
+          <Image src="/images/open-window-light.jpg" alt="Light through an open window — openness and healing" width={1200} height={500} className="w-full object-cover max-h-64" />
+        </div>
+      </div>
 
       {/* Free Guide CTA */}
       <section className="py-24 bg-section-alt">
