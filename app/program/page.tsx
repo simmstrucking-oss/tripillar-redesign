@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Live and Grieve™ Program Overview | Tri-Pillars™",
   description:
-    "Live and Grieve™ is a 52-week structured grief education program grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session. Adult program, youth program, and Solo Companion. Hampshire County WV pilot launching May 2026.",
+    "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion. Grounded in six peer-reviewed frameworks — three theoretical, three applied practice. Hampshire County WV pilot launching May 2026.",
 };
 
 export default function ProgramPage() {
@@ -27,177 +27,200 @@ export default function ProgramPage() {
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-tight mb-6">
             Live and Grieve™
           </h1>
-          <p className="text-xl text-muted max-w-2xl leading-relaxed">
-            A 52-week structured grief education program grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+          <p className="text-xl text-muted max-w-2xl leading-relaxed mb-8">
+            A structured grief education program for adults, youth, and individuals.
           </p>
+          <a
+            href="#programs"
+            className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm inline-block"
+          >
+            Explore Programs
+          </a>
         </div>
       </section>
 
-      {/* Framework foundation */}
-      <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6">
-        <FadeIn>
-          <div className="bg-card-bg border border-gold/20 rounded-2xl p-8">
-            <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">Research Foundation</p>
-            <p className="font-serif text-xl text-navy leading-relaxed mb-6">
-              Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
-            </p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-gold/60 text-xs uppercase tracking-wider mb-2">Layer 1 — Theoretical</p>
-                <ul className="space-y-1 text-sm text-muted">
-                  <li>Dual Process Model (Stroebe &amp; Schut)</li>
-                  <li>Tasks of Mourning (Worden)</li>
-                  <li>Continuing Bonds Theory (Klass, Silverman &amp; Nickman)</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-gold/60 text-xs uppercase tracking-wider mb-2">Layer 2 — Applied Practice</p>
-                <ul className="space-y-1 text-sm text-muted">
-                  <li>Meaning Reconstruction (Neimeyer)</li>
-                  <li>Self-Compassion (Neff)</li>
-                  <li>Companioning the Bereaved (Wolfelt)</li>
-                </ul>
-              </div>
-            </div>
-            <Link href="/our-approach" className="inline-block mt-6 text-gold text-sm font-medium hover:underline">
-              Learn about all six frameworks →
-            </Link>
-          </div>
-        </FadeIn>
-      </section>
-
-      {/* Three products */}
-      <section className="py-24 bg-section-alt">
+      {/* Three programs */}
+      <section id="programs" className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-16">
-              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">The Program Ecosystem</p>
+              <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">The Programs</p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy">Three ways to access Live and Grieve™.</h2>
             </div>
           </FadeIn>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          {/* Adult program */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
             <FadeIn>
-              <div className="bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col">
-                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Adult Program</p>
-                <h3 className="font-serif text-2xl text-navy mb-4">Live and Grieve™</h3>
-                <p className="text-muted text-sm leading-relaxed mb-6 flex-1">
-                  52 weeks. Four books. Closed cohorts of 6–12. Three facilitator tracks: Community, Professional, Ministry. No clinical license required to deliver. In-person or virtual — the Virtual Facilitation Addendum is included with every license.
-                </p>
-                <ul className="space-y-1 text-xs text-muted mb-6">
-                  <li>◆ 13 sessions per quarter, 4 quarters</li>
-                  <li>◆ Licensed facilitator certification: $450/book</li>
-                  <li>◆ Organizational licensing: $1,500–$7,500/yr</li>
-                  <li>◆ Hampshire County WV pilot — May 2026</li>
-                </ul>
-                <Link href="/program/adult" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm text-center">
-                  Adult Program →
-                </Link>
-              </div>
+              <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Adult Program</p>
+              <h3 className="font-serif text-3xl text-navy mb-4">Live and Grieve™</h3>
+              <p className="text-muted leading-relaxed mb-4">
+                52 weeks. Four books. Closed cohorts of 6–12 people, meeting weekly. Three facilitator tracks: Community, Professional, and Ministry. No clinical license required to deliver. In-person or virtual — the Virtual Facilitation Addendum is included with every license.
+              </p>
+              <p className="text-muted leading-relaxed mb-6">
+                Designed for hospice organizations, community action agencies, faith communities, employers, and nonprofits that want to bring structured, research-grounded grief support to the people they serve.
+              </p>
+              <ul className="space-y-1 text-sm text-muted mb-8">
+                <li className="flex gap-2"><span className="text-gold">◆</span>13 sessions per quarter, 4 quarters</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Facilitator certification: $450/book</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Organizational licensing: $1,500–$7,500/yr</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Satisfies 42 CFR 418.88 hospice bereavement requirement</li>
+              </ul>
+              <Link href="/program/adult" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm">
+                Learn more →
+              </Link>
             </FadeIn>
-
             <FadeIn delay={100}>
-              <div className="bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col">
-                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Youth Program</p>
-                <h3 className="font-serif text-2xl text-navy mb-4">Live and Grieve Youth™</h3>
-                <p className="text-muted text-sm leading-relaxed mb-6 flex-1">
-                  13 sessions. Two age-differentiated tracks: Elementary (Ages 8–12, activity-led, groups 6–8) and Middle/High (Ages 13–17, dialogue-led, groups 6–10). Licensed school counselors and social workers. Family Bridge connects grieving caregivers to the adult program.
-                </p>
-                <ul className="space-y-1 text-xs text-muted mb-6">
-                  <li>◆ NACG alignment documentation (GOV-007)</li>
-                  <li>◆ Certification: $325/track</li>
-                  <li>◆ Community $1,200 / Standard $1,800 / Multi-site $7,000</li>
-                  <li>◆ Family Bridge adult gateway built in</li>
+              <div className="bg-card-bg border border-card-border rounded-2xl p-8">
+                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Who it serves</p>
+                <ul className="space-y-3 text-sm text-muted">
+                  {["Hospice and palliative care organizations", "Community Action Agencies", "Faith communities (Community + Ministry tracks)", "Employers and EAPs", "Nonprofits and foundations", "Veterans organizations"].map((item, i) => (
+                    <li key={i} className="flex gap-2"><span className="text-gold mt-0.5">◆</span>{item}</li>
+                  ))}
                 </ul>
-                <Link href="/program/youth" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm text-center">
-                  Youth Program →
-                </Link>
               </div>
             </FadeIn>
+          </div>
 
-            <FadeIn delay={200}>
-              <div className="bg-card-bg border border-card-border rounded-2xl p-8 h-full flex flex-col">
-                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Individual Access</p>
-                <h3 className="font-serif text-2xl text-navy mb-4">Solo Companion</h3>
-                <p className="text-muted text-sm leading-relaxed mb-6 flex-1">
-                  The full Live and Grieve™ Book 1 experience built for individuals. No group required. No facilitator required. The same six-framework foundation, the same 13-week arc — on your phone, on your schedule.
-                </p>
-                <ul className="space-y-1 text-xs text-muted mb-6">
-                  <li>◆ solo.tripillarstudio.com</li>
-                  <li>◆ $24.99 one-time or $9.99 × 3</li>
-                  <li>◆ Group Supplement via facilitator code</li>
-                  <li>◆ Every group participant is a warm lead post-cohort</li>
-                </ul>
-                <Link href="https://solo.tripillarstudio.com" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm text-center">
-                  Start Solo — $24.99
-                </Link>
+          {/* Youth program */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+            <FadeIn delay={100} className="order-last lg:order-first">
+              <div className="bg-card-bg border border-card-border rounded-2xl p-8">
+                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Two age tracks</p>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-serif text-navy font-semibold mb-1">Elementary — Ages 8–12</p>
+                    <p className="text-muted text-sm">Activity-led. Groups of 6–8. Grief Weather Card Set, When Grief Arrives Card, structured drawing and reflection activities.</p>
+                  </div>
+                  <div className="border-t border-card-border pt-4">
+                    <p className="font-serif text-navy font-semibold mb-1">Middle / High — Ages 13–17</p>
+                    <p className="text-muted text-sm">Dialogue-led. Groups of 6–10. Evidence-based frameworks adapted for adolescent development. Structured discussion and written reflection.</p>
+                  </div>
+                  <div className="border-t border-card-border pt-4">
+                    <p className="font-serif text-navy font-semibold mb-1">Family Bridge</p>
+                    <p className="text-muted text-sm">Every LGY caregiver communication includes a pathway to the adult Live and Grieve™ program. Grieving caregivers of LGY participants become warm leads for adult cohorts.</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+            <FadeIn>
+              <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Youth Program</p>
+              <h3 className="font-serif text-3xl text-navy mb-4">Live and Grieve Youth™</h3>
+              <p className="text-muted leading-relaxed mb-4">
+                13 sessions. Two age-differentiated tracks. Elementary (Ages 8–12, activity-led) and Middle/High (Ages 13–17, dialogue-led). Delivered through schools, faith communities, and youth-serving organizations by licensed school counselors and social workers.
+              </p>
+              <p className="text-muted leading-relaxed mb-6">
+                The Family Bridge component creates a pathway for grieving caregivers of LGY participants to access the adult Live and Grieve™ program — connecting both generations in the same community.
+              </p>
+              <ul className="space-y-1 text-sm text-muted mb-8">
+                <li className="flex gap-2"><span className="text-gold">◆</span>NACG alignment documentation included (GOV-007)</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Certification: $325/track</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Community $1,200 / Standard $1,800 / Multi-site $7,000</li>
+              </ul>
+              <Link href="/program/youth" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm">
+                Learn more →
+              </Link>
+            </FadeIn>
+          </div>
+
+          {/* Solo Companion */}
+          <div className="bg-card-bg border border-gold/20 rounded-2xl p-10">
+            <FadeIn>
+              <div className="grid lg:grid-cols-2 gap-8 items-center">
+                <div>
+                  <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">For Individuals</p>
+                  <h3 className="font-serif text-3xl text-navy mb-4">The Solo Companion</h3>
+                  <p className="text-muted leading-relaxed mb-4">
+                    The full Live and Grieve™ Book 1 experience, self-guided and available now. No group required. No facilitator required. The same six-framework foundation. The same 13-week structure. On your phone, on your schedule.
+                  </p>
+                  <p className="text-muted leading-relaxed mb-6">
+                    Available now at solo.tripillarstudio.com. $24.99 one-time or three payments of $9.99.
+                  </p>
+                  <Link href="https://solo.tripillarstudio.com" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm">
+                    Begin — $24.99 →
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {["Book 1 — 13 weeks — self-guided", "$24.99 one-time or $9.99 × 3 installments", "Group Supplement available via facilitator code", "Every group participant is a warm lead post-cohort", "LGY caregivers directed here through Family Bridge"].map((item, i) => (
+                    <div key={i} className="flex gap-2 text-sm text-muted">
+                      <span className="text-gold mt-0.5 flex-shrink-0">◆</span>{item}
+                    </div>
+                  ))}
+                </div>
               </div>
             </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Who it is for */}
+      {/* Research foundation */}
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
-          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8">Who Live and Grieve™ is for.</h2>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {[
-              { heading: "Hospice and palliative care", body: "42 CFR 418.88 requires 13 months of bereavement services post-death. Live and Grieve™ is a 52-week peer-facilitated program that satisfies this requirement. No licensed clinician required to deliver." },
-              { heading: "Community Action Agencies", body: "Community-based grief support with no clinical requirement. CSBG-eligible programming. The Hampshire County WV pilot is CAA-delivered." },
-              { heading: "Faith communities", body: "Pastoral caregivers, lay ministers, and deacons can deliver the program through the Community track. Ministry certification available." },
-              { heading: "School districts", body: "Live and Grieve Youth™ is NACG-aligned, age-differentiated, and comes with a Family Bridge that connects grieving caregivers to the adult program." },
-              { heading: "Employers and EAPs", body: "$225B in annual grief productivity losses. Structured grief education is a measurable wellness benefit. Virtual delivery available nationally." },
-              { heading: "Bereaved individuals", body: "The Solo Companion brings Book 1 directly to individuals. No group required. No facilitator. $24.99 or three payments of $9.99." },
-            ].map((item, i) => (
-              <FadeIn key={i} delay={i * 60}>
-                <div className="border-l-2 border-gold/30 pl-6">
-                  <h3 className="font-serif text-lg text-navy mb-2">{item.heading}</h3>
-                  <p className="text-muted text-sm leading-relaxed">{item.body}</p>
-                </div>
-              </FadeIn>
-            ))}
+          <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">Research Foundation</p>
+          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">Six frameworks. Two layers.</h2>
+          <p className="text-muted leading-relaxed mb-8">
+            Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-6 mb-8">
+            <div className="bg-card-bg border border-card-border rounded-xl p-6">
+              <p className="text-gold/60 text-xs uppercase tracking-wider mb-3">Layer 1 — Theoretical (Program Arc)</p>
+              <ul className="space-y-2 text-sm text-muted">
+                <li className="flex gap-2"><span className="text-gold">◆</span>Dual Process Model — Stroebe &amp; Schut</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Tasks of Mourning — Worden</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Continuing Bonds Theory — Klass, Silverman &amp; Nickman</li>
+              </ul>
+            </div>
+            <div className="bg-card-bg border border-card-border rounded-xl p-6">
+              <p className="text-gold/60 text-xs uppercase tracking-wider mb-3">Layer 2 — Applied Practice (Session Delivery)</p>
+              <ul className="space-y-2 text-sm text-muted">
+                <li className="flex gap-2"><span className="text-gold">◆</span>Meaning Reconstruction — Neimeyer</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Self-Compassion — Neff</li>
+                <li className="flex gap-2"><span className="text-gold">◆</span>Companioning the Bereaved — Wolfelt</li>
+              </ul>
+            </div>
           </div>
+          <Link href="/our-approach" className="text-gold text-sm font-medium hover:underline">
+            Learn about all six frameworks →
+          </Link>
         </FadeIn>
       </section>
 
       {/* Hampshire pilot */}
-      <section className="py-16 bg-section-alt">
+      <section className="py-8 max-w-4xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <div className="bg-card-bg border border-card-border rounded-2xl p-8">
+            <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Pilot Program</p>
+            <p className="font-serif text-xl text-navy leading-relaxed">
+              Our first pilot launches through a Community Action Agency in Hampshire County, West Virginia in May 2026.
+            </p>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* Dual closing CTAs */}
+      <section className="py-24 bg-section-alt">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <div className="bg-card-bg border border-card-border rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-start">
-              <div className="flex-1">
-                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">Pilot Program</p>
-                <h3 className="font-serif text-2xl text-navy mb-3">Hampshire County, WV — May 2026</h3>
-                <p className="text-muted leading-relaxed text-sm">
-                  The first Live and Grieve™ pilot launches through a Community Action Agency in Hampshire County, West Virginia in May 2026. Three social workers. Pre- and post-program outcome tracking. Documented outcomes by late 2026.
-                </p>
+            <div className="grid sm:grid-cols-2 gap-8">
+              <div className="bg-card-bg border border-card-border rounded-2xl p-8 text-center">
+                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">For Organizations</p>
+                <h3 className="font-serif text-2xl text-navy mb-4">Bring Live and Grieve™ to your organization.</h3>
+                <p className="text-muted text-sm mb-6 leading-relaxed">Hospice, schools, faith communities, employers, nonprofits. Licensing, certification, and virtual delivery available nationally.</p>
+                <Link href="/institutions" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm block text-center">
+                  Learn more →
+                </Link>
               </div>
-              <Link href="/contact" className="flex-shrink-0 border border-card-border text-muted hover:text-navy hover:border-navy/30 px-6 py-3 rounded-md text-sm transition-colors">
-                Get in touch →
-              </Link>
+              <div className="bg-card-bg border border-card-border rounded-2xl p-8 text-center">
+                <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">For Individuals</p>
+                <h3 className="font-serif text-2xl text-navy mb-4">Start with the free guide.</h3>
+                <p className="text-muted text-sm mb-6 leading-relaxed">&ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — written by Wayne and Jamie Simms. Free. No opt-out required.</p>
+                <Link href="/free-guide" className="bg-gold text-white font-semibold px-6 py-3 rounded-md hover:bg-gold-light transition-colors text-sm block text-center">
+                  Download the Free Guide
+                </Link>
+              </div>
             </div>
           </FadeIn>
         </div>
-      </section>
-
-      {/* CTAs */}
-      <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <FadeIn>
-          <h2 className="font-serif text-3xl text-navy mb-4">Ready to bring Live and Grieve™ to your community?</h2>
-          <p className="text-muted mb-8">Download the free guide, start the Solo Companion, or get in touch about organizational licensing.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/free-guide" className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm">
-              Download the Free Guide
-            </Link>
-            <Link href="https://solo.tripillarstudio.com" className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors">
-              Solo Companion — $24.99
-            </Link>
-            <Link href="/contact" className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors">
-              Get in touch →
-            </Link>
-          </div>
-        </FadeIn>
       </section>
     </>
   );

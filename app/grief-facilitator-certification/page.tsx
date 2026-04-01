@@ -169,33 +169,25 @@ export default function GriefFacilitatorCertificationPage() {
         </FadeIn>
       </section>
 
-      {/* Solo CTA */}
+      {/* Contact CTA */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
           <FadeIn>
             <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">
-              Experience the Program First
+              Ready to Get Started?
             </p>
             <h2 className="font-serif text-3xl text-navy mb-4">
-              Start with the Solo Companion.
+              Get in touch.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              Want to experience the Live and Grieve™ program before certifying? The Solo Companion brings Book 1 to your phone. The same six-framework foundation. The same structure. $24.99 or three payments of $9.99.
+              Questions about certification tracks, the Group Use License, or bringing Live and Grieve™ to your community? We&apos;re happy to talk.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/contact"
-                className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
-              >
-                Get in touch →
-              </Link>
-              <Link
-                href="https://solo.tripillarstudio.com"
-                className="border border-card-border text-muted hover:text-navy hover:border-navy/30 px-8 py-3 rounded-md text-sm transition-colors"
-              >
-                Solo Companion — $24.99
-              </Link>
-            </div>
+            <Link
+              href="/contact"
+              className="bg-gold text-white font-semibold px-8 py-3 rounded-md hover:bg-gold-light transition-colors text-sm"
+            >
+              Get in touch →
+            </Link>
           </FadeIn>
         </div>
       </section>
