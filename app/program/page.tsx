@@ -1,5 +1,6 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -140,12 +141,17 @@ export default function ProgramPage() {
                     Begin — $24.99 →
                   </Link>
                 </div>
-                <div className="space-y-3">
-                  {["Book 1 — 13 weeks — self-guided", "$24.99 one-time or $9.99 × 3 installments", "Group Supplement available via facilitator code", "Every group participant is a warm lead post-cohort", "LGY caregivers directed here through Family Bridge"].map((item, i) => (
-                    <div key={i} className="flex gap-2 text-sm text-muted">
-                      <span className="text-gold mt-0.5 flex-shrink-0">◆</span>{item}
-                    </div>
-                  ))}
+                <div className="space-y-4">
+                  <div className="rounded-xl overflow-hidden">
+                    <Image src="/images/solo-window-reflection.jpg" alt="Person in quiet reflection by window" width={600} height={400} className="w-full object-cover" />
+                  </div>
+                  <div className="space-y-2">
+                    {["Book 1 — 13 weeks — self-guided", "$24.99 one-time or $9.99 × 3 installments", "Group Supplement available via facilitator code", "Every group participant is a warm lead post-cohort", "LGY caregivers directed here through Family Bridge"].map((item, i) => (
+                      <div key={i} className="flex gap-2 text-sm text-muted">
+                        <span className="text-gold mt-0.5 flex-shrink-0">◆</span>{item}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </FadeIn>

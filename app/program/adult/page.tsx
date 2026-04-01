@@ -256,7 +256,7 @@ export default function AdultProgramPage() {
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8">
                 Structure creates safety.
               </h2>
-              <SiteImage src="/images/community-sunset.jpg" alt="Community sunset gathering" maxWidth={600} />
+              <SiteImage src="/images/group-session-circle.jpg" alt="Live and Grieve™ group session in circle" maxWidth={600} />
             </div>
           </FadeIn>
 

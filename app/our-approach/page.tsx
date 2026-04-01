@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 
@@ -360,6 +361,12 @@ export default function OurApproachPage() {
                 </li>
               ))}
             </ul>
+          </FadeIn>
+
+          <FadeIn delay={100}>
+            <div className="rounded-2xl overflow-hidden mb-8">
+              <Image src="/images/hands-holding-photo.jpg" alt="Hands holding a cherished photograph — carrying memory" width={800} height={500} className="w-full object-cover" />
+            </div>
           </FadeIn>
 
           <FadeIn delay={150}>
