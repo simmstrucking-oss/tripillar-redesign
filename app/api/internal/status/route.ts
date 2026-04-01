@@ -53,7 +53,7 @@ const LIVE_FEATURES = [
   { feature: 'Role Preview Mode (Wayne/Jamie only)',             url: '/facilitators/hub/dashboard (topbar)',                  date: '2026-03-30' },
   { feature: 'Physical materials notice in all doc libraries',   url: 'Hub Documents + Trainer Resources tabs',               date: '2026-03-30' },
   { feature: 'Hub reporting (quarterly + annual PDFs)',          url: '/facilitators/hub/dashboard (Reports tab)',            date: '2026-03-28' },
-  { feature: 'Memorial Wall',                                    url: 'https://tripillarstudio.com/memorial',                 date: '2026-03-29' },
+  { feature: 'Memorial Wall',                                    url: 'https://tripillarstudio.com/memorial-wall',            date: '2026-03-29' },
   { feature: 'Free Guide page + subscribe flow',                 url: 'https://tripillarstudio.com/free-guide',               date: '2026-03-29' },
   { feature: 'Contact form (Resend)',                            url: 'https://tripillarstudio.com/contact',                  date: '2026-03-29' },
   { feature: '/start landing page',                             url: 'https://tripillarstudio.com/start',                    date: '2026-03-29' },

@@ -64,7 +64,7 @@ const CONTEXT = {
     ],
     public_routes: [
       '/', '/program/adult', '/program/youth', '/facilitators', '/trainers',
-      '/blog', '/about', '/contact', '/free-guide', '/start', '/memorial',
+      '/blog', '/about', '/contact', '/free-guide', '/start', '/memorial-wall',
       '/explore/[code]', '/sign/[token]',
     ],
     api_routes: [

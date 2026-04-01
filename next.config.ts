@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         destination: '/login/facilitator',
         permanent: true,
       },
+      {
+        source: '/memorial',
+        destination: '/memorial-wall',
+        permanent: true,
+      },
       // Canonical: redirect bare domain to www so POST bodies are never dropped
       {
         source: '/:path*',

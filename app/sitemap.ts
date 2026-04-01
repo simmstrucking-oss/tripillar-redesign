@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/free-guide', priority: 0.8, changeFrequency: 'monthly' as const },
     { url: '/start', priority: 0.7, changeFrequency: 'monthly' as const },
     { url: '/contact', priority: 0.7, changeFrequency: 'monthly' as const },
-    { url: '/memorial', priority: 0.6, changeFrequency: 'weekly' as const },
+    { url: '/memorial-wall', priority: 0.6, changeFrequency: 'weekly' as const },
     { url: '/institutions', priority: 0.7, changeFrequency: 'monthly' as const },
     { url: '/blog', priority: 0.7, changeFrequency: 'weekly' as const },
   ];
