@@ -54,14 +54,14 @@ const sections = [
 
 // First 8 lesson videos for the grid
 const lessonVideos = [
-  { id: "47mlI5PAHEU", lesson: "1.01", title: "Understanding Grief — Lesson 1" },
-  { id: "2t_RE1J6luc", lesson: "1.02", title: "Understanding Grief — Lesson 2" },
-  { id: "8zrm_p7u1R8", lesson: "1.03", title: "Understanding Grief — Lesson 3" },
-  { id: "d1LoHh29_Bs", lesson: "1.04", title: "Understanding Grief — Lesson 4" },
-  { id: "e3SszONVfTQ", lesson: "1.05", title: "Understanding Grief — Lesson 5" },
-  { id: "9FvP1XCE8EA", lesson: "1.06", title: "Understanding Grief — Lesson 6" },
-  { id: "SnbhtN__n50", lesson: "1.07", title: "Understanding Grief — Lesson 7" },
-  { id: "nQxVj95tbOM", lesson: "1.08", title: "Understanding Grief — Lesson 8" },
+  { id: "47mlI5PAHEU", lesson: "1.01", title: "What Grief Actually Is" },
+  { id: "2t_RE1J6luc", lesson: "1.02", title: "Why Grief Doesn't Follow Stages" },
+  { id: "8zrm_p7u1R8", lesson: "1.03", title: "The Body and Grief" },
+  { id: "d1LoHh29_Bs", lesson: "1.04", title: "Grief and the People Around You" },
+  { id: "e3SszONVfTQ", lesson: "1.05", title: "Continuing Your Bond" },
+  { id: "9FvP1XCE8EA", lesson: "1.06", title: "Finding Meaning After Loss" },
+  { id: "SnbhtN__n50", lesson: "1.07", title: "Self-Compassion in Grief" },
+  { id: "nQxVj95tbOM", lesson: "1.08", title: "Grief and Community" },
 ];
 
 const CHANNEL_URL = "https://www.youtube.com/@liveandgrieve_3";
@@ -146,10 +146,10 @@ export default async function ContentPage() {
               Video Library
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-3">
-              Module 1 — Understanding Grief
+              Grief Education Videos
             </h2>
-            <p className="text-muted text-sm max-w-lg mx-auto">
-              A preview of the curriculum. The full 60-lesson resource library is available on our YouTube channel.
+            <p className="text-muted text-sm max-w-xl mx-auto">
+              Free grief education resources from the founders of Live and Grieve™. For the full curriculum, find a certified group near you or start the Solo Companion at solo.tripillarstudio.com.
             </p>
           </div>
         </FadeIn>
