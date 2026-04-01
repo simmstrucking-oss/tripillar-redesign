@@ -1,5 +1,6 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
+import VideoGrid from "@/components/VideoGrid";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -154,49 +155,7 @@ export default async function ContentPage() {
           </div>
         </FadeIn>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {lessonVideos.map((video, i) => (
-            <FadeIn key={video.id} delay={i * 60}>
-              <a
-                href={`https://www.youtube.com/watch?v=${video.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block group rounded-xl overflow-hidden border border-card-border bg-card-bg shadow-sm card-hover"
-              >
-                {/* Thumbnail */}
-                <div className="relative w-full bg-navy/5" style={{ paddingBottom: "56.25%" }}>
-                  <img
-                    src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
-                    alt={video.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/20 transition-colors flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-gold/80 group-hover:bg-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                      <span className="text-white text-sm ml-0.5">▶</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <p className="text-gold text-xs font-semibold mb-1">Lesson {video.lesson}</p>
-                  <p className="text-navy text-sm font-medium leading-snug">{video.title}</p>
-                </div>
-              </a>
-            </FadeIn>
-          ))}
-        </div>
-
-        <FadeIn delay={200}>
-          <div className="text-center mt-10">
-            <a
-              href={CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-gold text-white font-semibold px-8 py-3.5 rounded-md hover:bg-gold-light transition-colors text-sm"
-            >
-              Watch All 60 Lessons on YouTube →
-            </a>
-          </div>
-        </FadeIn>
+        <VideoGrid videos={lessonVideos} channelUrl={CHANNEL_URL} />
       </section>
 
       {/* Latest Blog Posts */}
