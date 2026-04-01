@@ -1,8 +1,5 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getUserFromRequest } from '@/lib/auth-helper';
+import { createServerClient } from '@supabase/ssr';
 
 // ── Route protection rules ────────────────────────────────────────────────────
 const PROTECTED_HUB         = /^\/facilitators\/hub(\/|$)/;
@@ -36,9 +33,42 @@ function recordAdminFail(ip: string): void {
   }
 }
 
-// ── getSessionUser via auth-helper (Edge-compatible, same as API routes) ─────
-async function getSessionUser(req: NextRequest) {
-  return getUserFromRequest(req);
+// ── Edge-compatible Supabase client (uses @supabase/ssr) ─────────────────────
+function createEdgeSupabaseClient(req: NextRequest, res: NextResponse) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            res.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+}
+
+// ── Service-role Supabase client for profile lookups ─────────────────────────
+function createServiceClient(req: NextRequest, res: NextResponse) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll(); },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            res.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -46,8 +76,9 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const res = NextResponse.next();
 
-  // Get session user via auth-helper (Edge-compatible)
-  const user = await getSessionUser(req);
+  // Get session user via Edge-compatible Supabase SSR client
+  const supabase = createEdgeSupabaseClient(req, res);
+  const { data: { user } } = await supabase.auth.getUser();
 
   // ── Owner override — unrestricted access ────────────────────────────────
   if (user && OWNER_EMAILS.includes(user.email ?? '')) {
@@ -78,12 +109,7 @@ export async function middleware(req: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
-    // Fetch profile role via service client
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
+    const sb = createServiceClient(req, res);
     const { data: profile } = await sb
       .from('facilitator_profiles')
       .select('role, cert_status')
@@ -103,11 +129,7 @@ export async function middleware(req: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
+    const sb = createServiceClient(req, res);
     const { data: profile } = await sb
       .from('facilitator_profiles')
       .select('role, cert_status, trainer_status')
@@ -141,11 +163,7 @@ export async function middleware(req: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/login/facilitator?reason=session', req.url));
     }
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
+    const sb = createServiceClient(req, res);
     const { data: profile } = await sb
       .from('facilitator_profiles')
       .select('role')
