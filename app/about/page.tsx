@@ -57,6 +57,13 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Founders Photo */}
+      <section className="py-12 max-w-4xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <SiteImage src="/images/wayne-jamie-founders.jpg" alt="Wayne and Jamie Simms, Co-Founders of Live and Grieve™" maxWidth={900} className="rounded-2xl w-full object-cover" />
+        </FadeIn>
+      </section>
+
       {/* Our Story */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-16">
@@ -64,7 +71,7 @@ export default function AboutPage() {
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6 leading-snug">
               Our story.
             </h2>
-            <SiteImage src="/images/grief-support-circle.jpg" alt="Grief support circle" maxWidth={600} />
+            <SiteImage src="/images/women-in-conversation.jpg" alt="Two women in conversation" maxWidth={600} />
             <p className="text-muted leading-relaxed mb-4">
               When Jacoby died, Wayne and Jamie did what most grieving families
               do. They looked for help. What they found was a patchwork of
@@ -96,6 +103,31 @@ export default function AboutPage() {
                 </cite>
               </footer>
             </blockquote>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* Meet the Founders */}
+      <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6">
+        <FadeIn>
+          <p className="text-gold text-xs uppercase tracking-widest mb-10 font-medium text-center">
+            Meet the Founders
+          </p>
+        </FadeIn>
+        <div className="grid sm:grid-cols-2 gap-10">
+          <FadeIn>
+            <div className="flex flex-col items-center text-center">
+              <SiteImage src="/images/wayne-simms.jpg" alt="Wayne Simms, Co-Founder" maxWidth={320} className="rounded-xl w-full object-cover mb-5" />
+              <h3 className="font-serif text-xl text-navy">Wayne Simms</h3>
+              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™</p>
+            </div>
+          </FadeIn>
+          <FadeIn delay={150}>
+            <div className="flex flex-col items-center text-center">
+              <SiteImage src="/images/jamie-simms.jpg" alt="Jamie Simms, Co-Founder" maxWidth={320} className="rounded-xl w-full object-cover mb-5" />
+              <h3 className="font-serif text-xl text-navy">Jamie Simms</h3>
+              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™</p>
+            </div>
           </FadeIn>
         </div>
       </section>

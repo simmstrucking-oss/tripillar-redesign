@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
+import { SiteImage } from "@/components/SiteImage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function GriefEducationPage() {
       {/* What it is */}
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
+          <SiteImage src="/images/man-at-desk-grief.jpg" alt="Person experiencing grief at work" maxWidth={800} className="rounded-xl w-full object-cover mb-10" />
           <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">
             Grief education is not the five stages.
           </h2>

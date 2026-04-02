@@ -152,7 +152,7 @@ export default function InstitutionsPage() {
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-8">
               Built for organizations that serve people.
             </h2>
-            <SiteImage src="/images/diverse-group-circle.jpg" alt="Diverse group circle" maxWidth={600} />
+            <SiteImage src="/images/wayne-jamie-table.jpg" alt="Wayne and Jamie Simms meeting with institutional partners" maxWidth={600} />
           </div>
         </FadeIn>
 

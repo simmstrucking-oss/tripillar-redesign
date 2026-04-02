@@ -433,7 +433,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <FadeIn>
-              <SiteImage src="/images/two-people-bench.jpg" alt="Two people sharing grief support" maxWidth={400} />
+              <SiteImage src="/images/wayne-jamie-outdoors.jpg" alt="Wayne and Jamie Simms with community partners" maxWidth={400} />
             </FadeIn>
 
             <FadeIn delay={150}>
