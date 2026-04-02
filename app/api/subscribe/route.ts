@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Enroll in sequence (creates subscriber if new, re-enrolls if existing)
     const enrollRes = await fetch(
-      `${KIT_BASE}/courses/${NEWSLETTER_SEQUENCE_ID}/subscribe`,
+      `${KIT_BASE}/sequences/${NEWSLETTER_SEQUENCE_ID}/subscribe`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

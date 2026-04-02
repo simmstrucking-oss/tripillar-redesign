@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
     const tagId = isInstitution ? INSTITUTION_TAG_ID : CONTACT_FORM_TAG_ID;
     const kitPayload = JSON.stringify({ api_secret: KIT_API_SECRET, email, first_name: name.split(" ")[0] });
     const headers = { "Content-Type": "application/json" };
-    await fetch(`${KIT_BASE}/courses/${sequenceId}/subscribe`, { method: "POST", headers, body: kitPayload });
+    await fetch(`${KIT_BASE}/sequences/${sequenceId}/subscribe`, { method: "POST", headers, body: kitPayload });
     await fetch(`${KIT_BASE}/tags/${tagId}/subscribe`, { method: "POST", headers, body: kitPayload });
   } catch { /* non-fatal */ }
 
