@@ -113,11 +113,14 @@ export async function POST(req: NextRequest) {
     );
     Promise.all(tagPromises).catch(() => {});
 
-    // Send PDF delivery email immediately via SMTP (does not depend on Kit sequences)
+    // Send PDF delivery email — awaited so it completes before the lambda exits
     // Always send — both new and already_subscribed get the PDF link
-    sendFreeGuideEmail(email).catch((err) => {
+    try {
+      await sendFreeGuideEmail(email);
+    } catch (err) {
       console.error("Free guide email send error:", err);
-    });
+      // Don't fail the response — subscriber is in Kit, page shows download button
+    }
 
     if (isAlreadyActive) {
       return NextResponse.json({ status: "already_subscribed" });
