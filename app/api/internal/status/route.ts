@@ -25,7 +25,7 @@ const COMPLETED_SESSIONS = [
   { session: 18, date: '2026-03-30', summary: 'FM1 Week 1 content extracted for onboarding wizard Step 6 (full structured JSON). Wayne/Jamie name audit: 8 files changed, 22 replacements - all user-facing "Wayne/Jamie" replaced with "Tri-Pillars" or "your trainer". Document integrity audit: 48 files, 47 PASS, 1 FLAG (CSV headers-only - expected). Render audit: 48/48 PASS via signed URLs.' },
   { session: 19, date: '2026-03-30', summary: 'Book removal from facilitator-documents: 38 files deleted (4 CFRG, 4 FM, 4 TM, 13 LGY Elementary S1-S13, 13 LGY Middle/High S1-S13). 3 API routes updated to remove all book references. physicalMaterialsNotice added to all 3 route responses. Physical materials notice banner deployed in Hub Documents and Trainer Resources tabs. Final render audit: 38/38 PASS.' },
   { session: 20, date: '2026-03-31', summary: 'Buffer social media setup (Wayne account): Facebook Live And Grieve page connected. TikTok @tri.pillars connected then disconnected (wrong account - @liveandgrieve/10K needed). KDP WB1-4 prices updated to $24.99 via Browser Relay. Kit sequence 2702351 "Trainer - Fee Reminder" copy finalized. Supabase purchases table: 6 test rows deleted. Vercel env vars added. Onboarding wizard Step 6 FM1 Week 1 inline content confirmed already implemented.' },
-  { session: 21, date: '2026-04-02', summary: 'All 3 API route bugs fixed: /api/free-guide-subscribe (SMTP await), /api/contact (Resend notification to Wayne), /api/subscribe (/courses/ to /sequences/). lib/mailer.ts: Namecheap SMTP, from ember@tripillarstudio.com. Hampshire ILA draft placed in Supabase admin-documents/legal/. Calendly live (live.n.grieve@gmail.com, Google Meet, Mon-Fri 9am-5pm CT). Kit sequences built: Hospice Compliance 5-Touch 28-Day (2706869), B2C Nurture 5-Touch 21-Day Founder Arc (2706891 with Wayne copy), Institutional Onboarding 5-Touch 30-Day (2706915). 5 Hampshire pilot broadcast drafts created. TikTok: 59/60 videos scheduled via Buffer (Apr 2 to May 1, 2/day). Facebook Reels via Buffer: 0/60 - FAILED, script bug. AI audit: all public surfaces clean. Grant draft AI attributions removed.' },
+  { session: 21, date: '2026-04-02', summary: 'All 3 API route bugs fixed: /api/free-guide-subscribe (SMTP await), /api/contact (Resend notification to Wayne), /api/subscribe (/courses/ to /sequences/). lib/mailer.ts: Namecheap SMTP, from ember@tripillarstudio.com. Hampshire ILA draft placed in Supabase admin-documents/legal/. Calendly live (live.n.grieve@gmail.com, Google Meet, Mon-Fri 9am-5pm CT). Kit sequences built: Hospice Compliance 5-Touch 28-Day (2706869), B2C Nurture 5-Touch 21-Day Founder Arc (2706891 with Wayne copy), Institutional Onboarding 5-Touch 30-Day (2706915). 5 Hampshire pilot broadcast drafts created. TikTok 60/60 + Facebook Reels 60/60 scheduled in Buffer. LinkedIn You Carry It 36/36 scheduled (Apr 15-Jul 6, M/W/F 9am CT). Facebook YCI mirror: auto-retry Apr 3. AI audit clean. Grant AI attributions removed.' },
 ];
 
 const LIVE_FEATURES = [
@@ -61,7 +61,9 @@ const LIVE_FEATURES = [
   { feature: 'Internal context/status/documents API',            url: '/api/internal/*',                                      date: '2026-03-29' },
   { feature: '37 DB indexes deployed',                           url: 'Supabase - all major tables indexed',                  date: '2026-03-30' },
   { feature: 'Kit email sequences (24 total, all DRAFT)',        url: 'kit.com - awaiting Wayne go-signal per sequence',      date: '2026-04-02' },
-  { feature: 'TikTok 59/60 videos scheduled via Buffer',        url: 'Buffer @liveandgrieve - Apr 2 to May 1, 2/day',        date: '2026-04-02' },
+  { feature: 'TikTok 60/60 scheduled via Buffer',               url: 'Buffer @liveandgrieve - Apr 2 to May 1, 11am+7pm ET', date: '2026-04-02' },
+  { feature: 'Facebook Reels 60/60 scheduled via Buffer',       url: 'Buffer Live And Grieve page - Apr 2 to May 31 5pm CT', date: '2026-04-02' },
+  { feature: 'LinkedIn You Carry It 36/36 scheduled',           url: 'Buffer Jamie Simms - Apr 15 to Jul 6, M/W/F 9am CT',  date: '2026-04-02' },
   { feature: 'Hampshire pilot broadcast drafts (5)',             url: 'Kit broadcasts - Wayne posts manually per week',       date: '2026-04-02' },
   { feature: 'enroll_institution.py B2B enrollment script',     url: '~/.openclaw/workspace/live-and-grieve/scripts/',       date: '2026-04-02' },
 ];
@@ -72,17 +74,14 @@ const PENDING_TASKS = [
   { priority: 3,  task: 'ILA attorney review required before prospect system (Task 9) goes live externally' },
   { priority: 4,  task: 'NP Clinical Advisor Agreement - no doc exists, Wayne needs more info, physical signature required' },
   { priority: 5,  task: 'Inner Work Guide onboarding wizard Step 3 - inventory questions blank in source file, awaiting Wayne clarification' },
-  { priority: 6,  task: 'Facebook Reels via Buffer - 0/60 scheduled, FAILED: Buffer API requires post type param, script needs fix before re-run' },
-  { priority: 7,  task: 'Buffer: TikTok @liveandgrieve (10K) needs reconnecting in Buffer UI - wrong @tri.pillars account was connected, Wayne must fix' },
-  { priority: 8,  task: 'Buffer: YouTube channel not yet connected (Wayne account)' },
-  { priority: 9,  task: 'Buffer API key expires 2026-05-02 - regenerate 1-year key before expiry' },
-  { priority: 10, task: 'Kit B2B hospice sequence (2706869) - 22 high-priority orgs staged, email hold until April 12 Wayne go-signal. Verify emails via Apollo.io first.' },
-  { priority: 11, task: 'All Kit sequences on hold - no enrollments until April 12 Wayne go-signal' },
-  { priority: 12, task: 'KDP TM1-LP upload - Browser Relay required, font pipeline must run first (fix_fonts.py + LibreOffice + patch_pdf_fonts.py)' },
-  { priority: 13, task: 'KDP TM3, TM4, CFRG1-4 paperback editions - not started' },
-  { priority: 14, task: 'KDP FM1-4 and TM1-4 pricing - need Browser Relay session to verify and set correct tiers ($49.99 FM / $59.99 TM)' },
-  { priority: 15, task: 'Hampshire ILA - CAA Director info, effective date, facilitator count, and signatures still needed. Reminder set Apr 19.' },
-  { priority: 16, task: 'Health check 9AM cron - 7 consecutive errors ("Message failed") - needs investigation and fix' },
+  { priority: 6,  task: 'Facebook YCI mirror (36 posts) - auto-retry cron Apr 3 12:30pm EDT. No action needed.' },
+  { priority: 7,  task: 'Buffer API key expires 2027-04-02 - renewal reminder set.' },
+  { priority: 8,  task: 'Kit B2B hospice sequence (2706869) - 22 high-priority orgs staged, email hold until April 12 Wayne go-signal. Verify emails via Apollo.io first.' },
+  { priority: 9,  task: 'All Kit sequences on hold - no enrollments until April 12 Wayne go-signal' },
+  { priority: 10, task: 'KDP TM1-LP upload - Browser Relay required, font pipeline must run first (fix_fonts.py + LibreOffice + patch_pdf_fonts.py)' },
+  { priority: 11, task: 'KDP TM3, TM4, CFRG1-4 paperback editions - not started' },
+  { priority: 12, task: 'KDP FM1-4 and TM1-4 pricing - need Browser Relay session to verify and set correct tiers ($49.99 FM / $59.99 TM)' },
+  { priority: 13, task: 'Hampshire ILA - CAA Director info, effective date, facilitator count, and signatures still needed. Reminder set Apr 19.' },
 ];
 
 export async function GET(req: NextRequest) {
