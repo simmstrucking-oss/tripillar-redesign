@@ -69,19 +69,16 @@ const LIVE_FEATURES = [
 ];
 
 const PENDING_TASKS = [
-  { priority: 1,  task: 'Solo Companion Books 2-4 content - not started' },
-  { priority: 2,  task: 'Org Hub youth licensing - not started' },
-  { priority: 3,  task: 'ILA attorney review required before prospect system (Task 9) goes live externally' },
-  { priority: 4,  task: 'NP Clinical Advisor Agreement - no doc exists, Wayne needs more info, physical signature required' },
-  { priority: 5,  task: 'Inner Work Guide onboarding wizard Step 3 - inventory questions blank in source file, awaiting Wayne clarification' },
-  { priority: 6,  task: 'Facebook YCI mirror (36 posts) - auto-retry cron Apr 3 12:30pm EDT. No action needed.' },
-  { priority: 7,  task: 'Buffer API key expires 2027-04-02 - renewal reminder set.' },
-  { priority: 8,  task: 'Kit B2B hospice sequence (2706869) - 22 high-priority orgs staged, email hold until April 12 Wayne go-signal. Verify emails via Apollo.io first.' },
-  { priority: 9,  task: 'All Kit sequences on hold - no enrollments until April 12 Wayne go-signal' },
-  { priority: 10, task: 'KDP TM1-LP upload - Browser Relay required, font pipeline must run first (fix_fonts.py + LibreOffice + patch_pdf_fonts.py)' },
-  { priority: 11, task: 'KDP TM3, TM4, CFRG1-4 paperback editions - not started' },
-  { priority: 12, task: 'KDP FM1-4 and TM1-4 pricing - need Browser Relay session to verify and set correct tiers ($49.99 FM / $59.99 TM)' },
-  { priority: 13, task: 'Hampshire ILA - CAA Director info, effective date, facilitator count, and signatures still needed. Reminder set Apr 19.' },
+  { priority: 1,  task: 'Kit sequences activate April 12 - await Wayne go-signal' },
+  { priority: 2,  task: 'Kit B2B hospice sequence (2706869) - 22 orgs staged, hold until April 12 go-signal' },
+  { priority: 3,  task: 'Hampshire ILA - CAA Director info, effective date, facilitator count, and signatures still needed. Reminder set Apr 19.' },
+  { priority: 4,  task: 'KDP TM1-LP upload - Browser Relay required, font pipeline must run first' },
+  { priority: 5,  task: 'KDP TM3, TM4, CFRG1-4 paperback editions - not started' },
+  { priority: 6,  task: 'KDP FM1-4 and TM1-4 pricing - verify correct tiers via Browser Relay ($49.99 FM / $59.99 TM)' },
+  { priority: 7,  task: 'Solo Companion Books 2-4 content - not started' },
+  { priority: 8,  task: 'Org Hub youth licensing - not started' },
+  { priority: 9,  task: 'ILA attorney review required before prospect system (Task 9) goes live externally' },
+  { priority: 10, task: 'NP Clinical Advisor Agreement - no doc exists, Wayne needs more info' },
 ];
 
 export async function GET(req: NextRequest) {
