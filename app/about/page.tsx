@@ -71,7 +71,6 @@ export default function AboutPage() {
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6 leading-snug">
               Our story.
             </h2>
-            <SiteImage src="/images/women-in-conversation.jpg" alt="Two women in conversation" maxWidth={600} />
             <p className="text-muted leading-relaxed mb-4">
               When Jacoby died, Wayne and Jamie did what most grieving families
               do. They looked for help. What they found was a patchwork of
