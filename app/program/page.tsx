@@ -2,6 +2,7 @@ import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Live and Grieve™ Program Overview | Tri-Pillars™",
@@ -9,9 +10,19 @@ export const metadata: Metadata = {
     "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion. Grounded in six peer-reviewed frameworks — three theoretical, three applied practice. Hampshire County WV pilot launching May 2026.",
 };
 
+const programBreadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tripillarstudio.com" },
+    { "@type": "ListItem", "position": 2, "name": "Program", "item": "https://tripillarstudio.com/program" }
+  ]
+};
+
 export default function ProgramPage() {
   return (
     <>
+      <JsonLd schema={programBreadcrumbSchema} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import JsonLd from "@/components/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,6 +25,29 @@ export const metadata: Metadata = {
   keywords: "grief support, grief program, Live and Grieve, Tri-Pillars, grief counseling, bereavement",
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Tri-Pillars™ LLC",
+  "url": "https://tripillarstudio.com",
+  "logo": "https://tripillarstudio.com/logo.png",
+  "description": "Tri-Pillars™ LLC operates Live and Grieve™, a 52-week peer-facilitated grief education program grounded in six peer-reviewed frameworks.",
+  "foundingDate": "2024",
+  "founders": [
+    { "@type": "Person", "name": "Wayne Simms" },
+    { "@type": "Person", "name": "Jamie Simms" }
+  ],
+  "sameAs": [
+    "https://www.linkedin.com/company/tri-pillars-llc",
+    "https://www.youtube.com/@liveandgrieve_3"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "wayne@tripillarstudio.com"
+  }
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +55,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <JsonLd schema={organizationSchema} />
+      </head>
       <body className="bg-background text-foreground min-h-screen">
         <Navbar />
         <main>{children}</main>

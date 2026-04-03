@@ -3,11 +3,38 @@ import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { SiteImage } from "@/components/SiteImage";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Adult Program | Live and Grieve™",
   description:
     "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
+};
+
+const adultBreadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tripillarstudio.com" },
+    { "@type": "ListItem", "position": 2, "name": "Program", "item": "https://tripillarstudio.com/program" },
+    { "@type": "ListItem", "position": 3, "name": "Adult Program", "item": "https://tripillarstudio.com/program/adult" }
+  ]
+};
+
+const adultProgramSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOccupationalProgram",
+  "name": "Live and Grieve™ Adult Program",
+  "description": "A 52-week peer-facilitated grief education program for adults, grounded in six peer-reviewed frameworks including the Dual Process Model, Worden's Tasks of Mourning, and Continuing Bonds Theory.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Tri-Pillars™ LLC",
+    "url": "https://tripillarstudio.com"
+  },
+  "timeToComplete": "P52W",
+  "url": "https://tripillarstudio.com/program/adult",
+  "educationalLevel": "Adult",
+  "occupationalCategory": "Grief Education"
 };
 
 const differentiators = [
@@ -91,6 +118,8 @@ const sessionFlow = [
 export default function AdultProgramPage() {
   return (
     <>
+      <JsonLd schema={adultBreadcrumbSchema} />
+      <JsonLd schema={adultProgramSchema} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div
