@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
 // ── Route protection rules ────────────────────────────────────────────────────
 const PROTECTED_HUB         = /^\/facilitators\/hub(\/|$)/;
@@ -54,20 +55,12 @@ function createEdgeSupabaseClient(req: NextRequest, res: NextResponse) {
 }
 
 // ── Service-role Supabase client for profile lookups ─────────────────────────
-function createServiceClient(req: NextRequest, res: NextResponse) {
-  return createServerClient(
+// Uses plain createClient (not SSR) — service role doesn't need cookies
+function createServiceClient(_req: NextRequest, _res: NextResponse) {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() { return req.cookies.getAll(); },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            res.cookies.set(name, value, options);
-          });
-        },
-      },
-    }
+    { auth: { autoRefreshToken: false, persistSession: false } }
   );
 }
 
