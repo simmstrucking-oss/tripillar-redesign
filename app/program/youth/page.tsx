@@ -2,11 +2,37 @@ import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 import { SiteImage } from "@/components/SiteImage";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Youth Program | Live and Grieve Youth™",
   description:
     "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
+};
+
+const youthBreadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tripillarstudio.com" },
+    { "@type": "ListItem", "position": 2, "name": "Program", "item": "https://tripillarstudio.com/program" },
+    { "@type": "ListItem", "position": 3, "name": "Youth Program", "item": "https://tripillarstudio.com/program/youth" }
+  ]
+};
+
+const youthProgramSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOccupationalProgram",
+  "name": "Live and Grieve Youth™ (LGY)",
+  "description": "A peer-facilitated grief education program designed for young people, operated within schools, hospice organizations, and community agencies.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Tri-Pillars™ LLC",
+    "url": "https://tripillarstudio.com"
+  },
+  "timeToComplete": "P13W",
+  "url": "https://tripillarstudio.com/program/youth",
+  "educationalLevel": "Youth"
 };
 
 const tracks = [
@@ -86,6 +112,8 @@ const orgTypes = [
 export default function YouthProgramPage() {
   return (
     <>
+      <JsonLd schema={youthBreadcrumbSchema} />
+      <JsonLd schema={youthProgramSchema} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div
