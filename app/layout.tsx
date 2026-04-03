@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   description:
     "A community-based grief support program that meets people where they are, not where they're supposed to be.",
   keywords: "grief support, grief program, Live and Grieve, Tri-Pillars, grief counseling, bereavement",
+  verification: {
+    google: "l1ap_cwrU8ELfmwUniMNyh2LBkINdaSRIHnukUILEgs",
+  },
 };
 
 const organizationSchema = {
