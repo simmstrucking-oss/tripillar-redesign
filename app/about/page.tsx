@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import PublicMetricsSection from "@/components/PublicMetricsSection";
 import { SiteImage } from "@/components/SiteImage";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "About Us | Tri-Pillars™",
@@ -31,6 +33,10 @@ const frameworks = [
 export default function AboutPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "About Us", url: "https://www.tripillarstudio.com/about" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

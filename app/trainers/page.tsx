@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/breadcrumbs';
 
 const C = {
   navy:   '#1c3028',
@@ -54,6 +56,10 @@ export default function TrainersPage() {
 
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Trainers", url: "https://www.tripillarstudio.com/trainers" }
+      ])} />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
       <div style={{ background: C.bg, minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}

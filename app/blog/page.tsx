@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Blog | Tri-Pillars™',
@@ -36,6 +38,10 @@ export default async function BlogPage() {
 
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Blog", url: "https://www.tripillarstudio.com/blog" }
+      ])} />
       <section className="relative min-h-[40vh] flex items-end pb-12 pt-32 overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 60% 30%, rgba(201,168,76,0.07) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">

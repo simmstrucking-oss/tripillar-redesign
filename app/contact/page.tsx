@@ -3,6 +3,8 @@
 import { useState } from "react";
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 const whoIncludes = [
   {
@@ -102,6 +104,10 @@ export default function ContactPage() {
 
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Contact", url: "https://www.tripillarstudio.com/contact" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[50vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

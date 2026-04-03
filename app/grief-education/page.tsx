@@ -3,6 +3,8 @@ import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
 import { SiteImage } from "@/components/SiteImage";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "What Is Grief Education? | Live and Grieve™",
@@ -13,6 +15,10 @@ export const metadata: Metadata = {
 export default function GriefEducationPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Grief Education", url: "https://www.tripillarstudio.com/grief-education" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[55vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { SiteImage } from "@/components/SiteImage";
 import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Adult Program | Live and Grieve™",
@@ -11,15 +12,11 @@ export const metadata: Metadata = {
     "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
 };
 
-const adultBreadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tripillarstudio.com" },
-    { "@type": "ListItem", "position": 2, "name": "Program", "item": "https://tripillarstudio.com/program" },
-    { "@type": "ListItem", "position": 3, "name": "Adult Program", "item": "https://tripillarstudio.com/program/adult" }
-  ]
-};
+const adultBreadcrumbSchema = breadcrumbSchema([
+  { name: "Home", url: "https://www.tripillarstudio.com" },
+  { name: "Program", url: "https://www.tripillarstudio.com/program" },
+  { name: "Adult Program", url: "https://www.tripillarstudio.com/program/adult" }
+]);
 
 const adultProgramSchema = {
   "@context": "https://schema.org",

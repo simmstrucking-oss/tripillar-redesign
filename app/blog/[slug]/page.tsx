@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/breadcrumbs';
 
 interface Post {
   id: string;
@@ -60,6 +62,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Blog", url: "https://www.tripillarstudio.com/blog" },
+        { name: "Blog Post", url: `https://www.tripillarstudio.com/blog/${slug}` }
+      ])} />
       <section className="pt-32 pb-12 max-w-3xl mx-auto px-4 sm:px-6">
         <Link href="/blog" className="text-gold text-sm font-medium hover:underline mb-6 inline-block">
           ← Back to Blog

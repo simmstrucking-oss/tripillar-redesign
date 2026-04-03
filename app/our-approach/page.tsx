@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Our Approach | Tri-Pillars™",
@@ -110,6 +112,10 @@ const serves = [
 export default function OurApproachPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Our Approach", url: "https://www.tripillarstudio.com/our-approach" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

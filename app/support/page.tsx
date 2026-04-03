@@ -1,6 +1,8 @@
 import FadeIn from "@/components/FadeIn";
 import Link from "next/link";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Support the Mission | Tri-Pillars™",
@@ -18,6 +20,10 @@ const funds = [
 export default function SupportPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Support", url: "https://www.tripillarstudio.com/support" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

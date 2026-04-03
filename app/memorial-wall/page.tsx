@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import MemorialForm from "./MemorialForm";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Memorial Wall | Tri-Pillars™",
@@ -35,6 +37,10 @@ export default async function MemorialWallPage() {
 
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Memorial Wall", url: "https://www.tripillarstudio.com/memorial-wall" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

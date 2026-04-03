@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export default function StartPage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#F8F4EE", fontFamily: "Inter, sans-serif" }}>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Get Started", url: "https://www.tripillarstudio.com/start" }
+      ])} />
 
       {/* Minimal header — logo only */}
       <header style={{ background: "#1c3028", padding: "1rem 1.5rem" }}>

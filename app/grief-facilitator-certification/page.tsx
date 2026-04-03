@@ -1,6 +1,8 @@
 import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Grief Facilitator Certification | Live and Grieve™",
@@ -11,6 +13,10 @@ export const metadata: Metadata = {
 export default function GriefFacilitatorCertificationPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Grief Facilitator Certification", url: "https://www.tripillarstudio.com/grief-facilitator-certification" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[55vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

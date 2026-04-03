@@ -2,6 +2,8 @@ import Link from "next/link";
 import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 import { SiteImage } from "@/components/SiteImage";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "For Institutions | Live and Grieve™",
@@ -118,6 +120,10 @@ const steps = [
 export default function InstitutionsPage() {
   return (
     <>
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Institutions", url: "https://www.tripillarstudio.com/institutions" }
+      ])} />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-end pb-16 pt-32 overflow-hidden">
         <div

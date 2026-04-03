@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 // Note: metadata must come from a separate server component or layout for client pages
 // This page is client-rendered for the form interaction
@@ -60,6 +62,10 @@ export default function FreeGuidePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd schema={breadcrumbSchema([
+        { name: "Home", url: "https://www.tripillarstudio.com" },
+        { name: "Free Guide", url: "https://www.tripillarstudio.com/free-guide" }
+      ])} />
       {/* Hero */}
       <section className="relative pt-32 pb-16 overflow-hidden">
         <div

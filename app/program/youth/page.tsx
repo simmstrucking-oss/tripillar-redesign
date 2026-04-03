@@ -3,6 +3,7 @@ import FadeIn from "@/components/FadeIn";
 import type { Metadata } from "next";
 import { SiteImage } from "@/components/SiteImage";
 import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Youth Program | Live and Grieve Youth™",
@@ -10,15 +11,11 @@ export const metadata: Metadata = {
     "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
 };
 
-const youthBreadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tripillarstudio.com" },
-    { "@type": "ListItem", "position": 2, "name": "Program", "item": "https://tripillarstudio.com/program" },
-    { "@type": "ListItem", "position": 3, "name": "Youth Program", "item": "https://tripillarstudio.com/program/youth" }
-  ]
-};
+const youthBreadcrumbSchema = breadcrumbSchema([
+  { name: "Home", url: "https://www.tripillarstudio.com" },
+  { name: "Program", url: "https://www.tripillarstudio.com/program" },
+  { name: "Youth Program", url: "https://www.tripillarstudio.com/program/youth" }
+]);
 
 const youthProgramSchema = {
   "@context": "https://schema.org",
