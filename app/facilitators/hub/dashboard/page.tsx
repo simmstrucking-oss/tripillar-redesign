@@ -3935,7 +3935,7 @@ export default function HubDashboard() {
       setOnboarding(ob);
       setDismissedOrientation(!!ob.dismissed_orientation);
       // Show welcome screen for pending_certification who haven't completed onboarding
-      if (ob.cert_status === 'pending_certification' && !ob.onboarding_complete) {
+      if (!ob.onboarding_complete) {
         setShowWelcome(true);
       }
     }
