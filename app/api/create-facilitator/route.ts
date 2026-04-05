@@ -137,6 +137,24 @@ export async function POST(req: NextRequest) {
     steps.auth_user = { status: 'ok', user_id: authUserId };
   }
 
+  // ── Sub-step 1b: Generate one-click password-setup link ──────────────────────
+  let setupLink = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.tripillarstudio.com'}/login/facilitator`;
+  {
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.tripillarstudio.com'}/auth/callback?next=/facilitators/hub/dashboard`,
+      },
+    });
+    if (!linkError && linkData?.properties?.action_link) {
+      setupLink = linkData.properties.action_link;
+      steps.setup_link = { status: 'ok' };
+    } else {
+      steps.setup_link = { status: 'warning', detail: linkError?.message ?? 'link generation failed — fallback to login page' };
+    }
+  }
+
   // ── Sub-step 2: Create facilitator_profiles row ──────────────────────────────
   certId = generateCertId();
   const renewalDate = getRenewalDate();
@@ -187,10 +205,10 @@ export async function POST(req: NextRequest) {
       email,
       first_name,
       {
-        cert_id:       certId,
-        cert_renewal:  renewalDate,
-        track:         track ?? 'community',
-        temp_password,   // included so welcome email can show it
+        cert_id:      certId,
+        cert_renewal: renewalDate,
+        track:        track ?? 'community',
+        setup_link:   setupLink,
       }
     );
 
