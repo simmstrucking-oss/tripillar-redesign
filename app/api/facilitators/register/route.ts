@@ -126,7 +126,10 @@ export async function POST(req: NextRequest) {
     },
   });
   if (linkData?.properties?.action_link) {
-    setupLink = linkData.properties.action_link;
+    // Supabase may return localhost if its Site URL is set to localhost.
+    // Replace any localhost origin with the production site URL.
+    const rawLink = linkData.properties.action_link as string;
+    setupLink = rawLink.replace(/https?:\/\/localhost(:\d+)?/g, SITE_URL);
   }
 
   // Send setup link via Resend (direct transactional — reliable delivery)
