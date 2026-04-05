@@ -129,11 +129,12 @@ export async function POST(req: NextRequest) {
     setupLink = linkData.properties.action_link;
   }
 
-  // Enroll in Kit Facilitator Welcome sequence
+  // Enroll in Kit Facilitator Welcome sequence + activate subscriber
   try {
     const apiSecret = process.env.KIT_API_SECRET;
     if (apiSecret) {
-      await fetch(`https://api.convertkit.com/v3/sequences/${FACILITATOR_WELCOME_SEQUENCE}/subscribe`, {
+      // Step 1: Subscribe to sequence
+      const subRes = await fetch(`https://api.convertkit.com/v3/sequences/${FACILITATOR_WELCOME_SEQUENCE}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,6 +149,20 @@ export async function POST(req: NextRequest) {
           },
         }),
       });
+
+      if (subRes.ok) {
+        const subData = await subRes.json();
+        const subscriberId = subData?.subscription?.subscriber?.id;
+
+        // Step 2: Activate the subscriber so sequence emails fire immediately
+        if (subscriberId) {
+          await fetch(`https://api.convertkit.com/v3/subscribers/${subscriberId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_secret: apiSecret }),
+          });
+        }
+      }
     }
   } catch {
     // Non-fatal — account is created, email can be resent manually
