@@ -18,26 +18,10 @@ const getUser = (req: NextRequest) => getUserFromRequest(req);
 
 const CHECKLIST_COUNT = 7;
 
-// Send Kit welcome email via sequence enrollment
-async function sendWelcomeEmail(email: string, fullName: string): Promise<void> {
-  try {
-    const apiSecret = process.env.KIT_API_SECRET;
-    if (!apiSecret) return;
-
-    // Subscribe/enroll to Facilitator Welcome sequence (2701285)
-    await fetch(`https://api.convertkit.com/v3/sequences/2701285/subscribe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_secret: apiSecret,
-        email,
-        first_name: fullName.split(' ')[0] || fullName,
-      }),
-    });
-  } catch {
-    // Non-fatal — log and continue
-    console.error('[onboarding] Failed to send welcome email to', email);
-  }
+// No-op: welcome email is sent at account creation via /api/create-facilitator
+// with a personalized setup_link. Do not re-enroll here.
+async function sendWelcomeEmail(_email: string, _fullName: string): Promise<void> {
+  // Intentionally empty — welcome sequence fires on account creation, not onboarding completion.
 }
 
 export async function GET(req: NextRequest) {
