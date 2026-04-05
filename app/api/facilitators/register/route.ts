@@ -129,11 +129,43 @@ export async function POST(req: NextRequest) {
     setupLink = linkData.properties.action_link;
   }
 
-  // Enroll in Kit Facilitator Welcome sequence + activate subscriber
+  // Send setup link via Resend (direct transactional — reliable delivery)
+  try {
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Wayne & Jamie Simms <noreply@tripillarstudio.com>',
+          to: normalizedEmail,
+          subject: 'Welcome to Live and Grieve — Here\'s How to Get Started',
+          html: `<p>Welcome to Live and Grieve™.</p>
+<p>We're so glad you're here.</p>
+<p>Your account is ready. Click the link below to set your password and access your Facilitator Hub:</p>
+<p><a href="${setupLink}" style="background:#A0843A;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:600;">Set My Password &amp; Get Started &rarr;</a></p>
+<p>Once you're in, your dashboard will walk you through seven steps before your first day of training. We'll be with you the whole way — just take each one at your own pace before moving forward.</p>
+<p><strong>Step 1 — The Inner Work Guide</strong><br>This is where we start — with you. Not what you know, but what you've carried.</p>
+<p><strong>Step 2 — Your Grief Inventory</strong><br>A quiet moment to take stock before training day. It's yours alone — nothing to submit, nothing to prove.</p>
+<p><strong>Step 3 — Who This Program Serves</strong><br>We'll walk you through who Live and Grieve™ is built for, so you feel confident when someone comes to you with questions.</p>
+<p><strong>Step 4 — The Code of Conduct</strong><br>The foundation of everything we do together. Read it slowly — it matters.</p>
+<p><strong>Step 5 — Your First Session</strong><br>A chance to get familiar with Week 1 before you walk into the room. No surprises.</p>
+<p><strong>Step 6 — Your Training Day</strong><br>Confirm your details so everything is in place before the day arrives.</p>
+<p><strong>Step 7 — You're Ready</strong><br>One final confirmation and you're set for Day 1.</p>
+<p>If anything feels unclear at any point, just reply here. We're paying attention.</p>
+<p>We'll see you on training day.</p>
+<p>Wayne &amp; Jamie Simms<br>Live and Grieve™ · Tri-Pillars™ LLC</p>`,
+        }),
+      });
+    }
+  } catch {
+    // Non-fatal
+  }
+
+  // Also enroll in Kit sequence for ongoing nurture emails (Days 2, 5)
   try {
     const apiSecret = process.env.KIT_API_SECRET;
     if (apiSecret) {
-      // Step 1: Subscribe to sequence
       const subRes = await fetch(`https://api.convertkit.com/v3/sequences/${FACILITATOR_WELCOME_SEQUENCE}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,8 +185,6 @@ export async function POST(req: NextRequest) {
       if (subRes.ok) {
         const subData = await subRes.json();
         const subscriberId = subData?.subscription?.subscriber?.id;
-
-        // Step 2: Activate the subscriber so sequence emails fire immediately
         if (subscriberId) {
           await fetch(`https://api.convertkit.com/v3/subscribers/${subscriberId}`, {
             method: 'PUT',
@@ -165,7 +195,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch {
-    // Non-fatal — account is created, email can be resent manually
+    // Non-fatal
   }
 
   return NextResponse.json({ ok: true });
