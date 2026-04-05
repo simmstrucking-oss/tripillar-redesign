@@ -13,9 +13,13 @@ import { createServerClient } from '@supabase/ssr';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code       = searchParams.get('code');
-  const token_hash = searchParams.get('token_hash');
+  const token_hash = searchParams.get('token_hash') ?? searchParams.get('token');
   const type       = searchParams.get('type') ?? 'recovery';
-  const next       = searchParams.get('next') ?? '/facilitators/hub/dashboard';
+  // For recovery/invite types, send to password update page first
+  const defaultNext = (type === 'recovery' || type === 'invite')
+    ? '/facilitators/set-password'
+    : '/facilitators/hub/dashboard';
+  const next       = searchParams.get('next') ?? defaultNext;
 
   const redirectUrl = new URL(next, req.url);
   const res = NextResponse.redirect(redirectUrl);
