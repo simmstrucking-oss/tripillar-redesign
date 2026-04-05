@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase-browser';
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter } from 'next/navigation';
 
 export default function SetPasswordPage() {
@@ -10,7 +10,7 @@ export default function SetPasswordPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = getSupabaseBrowser();
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {

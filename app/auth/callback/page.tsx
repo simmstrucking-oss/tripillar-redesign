@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createClient } from '@/lib/supabase-browser';
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter } from 'next/navigation';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = getSupabaseBrowser();
 
     // Supabase puts the session tokens in the URL hash after a recovery/magic link click.
     // onAuthStateChange fires once the client parses the hash and establishes a session.
