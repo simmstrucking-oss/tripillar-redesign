@@ -11,7 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const REGISTRATION_PASSCODE = '333';
 const FACILITATOR_WELCOME_SEQUENCE = 2701285;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.tripillarstudio.com';
+const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.tripillarstudio.com';
 
 function generateCertId(): string {
   const year = new Date().getFullYear();
