@@ -287,10 +287,10 @@ function LoginForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p className="font-serif text-lg font-bold text-navy">Check your email.</p>
+                <p className="font-serif text-lg font-bold text-navy">You&apos;re in.</p>
                 <p className="text-sm text-muted">
-                  We sent a welcome email to <strong>{regEmail}</strong> with everything you need to know
-                  before your first session. Use the button below to sign in now.
+                  Your account is ready. A welcome email is on its way to <strong>{regEmail}</strong>.
+                  Head to your Hub to get started.
                 </p>
                 <button
                   type="button"
