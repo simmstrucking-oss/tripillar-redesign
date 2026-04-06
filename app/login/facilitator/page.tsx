@@ -29,6 +29,7 @@ function LoginForm() {
   const [regLastName,  setRegLastName]  = useState('');
   const [regEmail,     setRegEmail]     = useState('');
   const [regPasscode,  setRegPasscode]  = useState('');
+  const [regPassword,  setRegPassword]  = useState('');
   const [regError,     setRegError]     = useState('');
   const [regLoading,   setRegLoading]   = useState(false);
   const [regDone,      setRegDone]      = useState(false);
@@ -77,6 +78,7 @@ function LoginForm() {
           first_name: regFirstName,
           last_name:  regLastName,
           email:      regEmail,
+          password:   regPassword,
           passcode:   regPasscode,
         }),
       });
@@ -229,6 +231,14 @@ function LoginForm() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-navy mb-1.5">Password</label>
+                  <input
+                    type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)}
+                    required autoComplete="new-password" placeholder="Create a password (min 8 characters)"
+                    className="w-full px-4 py-2.5 rounded-lg border border-card-border text-sm text-navy placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors bg-white"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-navy mb-1.5">Passcode</label>
                   <input
                     type="text" value={regPasscode} onChange={e => setRegPasscode(e.target.value)}
@@ -279,9 +289,16 @@ function LoginForm() {
                 </div>
                 <p className="font-serif text-lg font-bold text-navy">Check your email.</p>
                 <p className="text-sm text-muted">
-                  We sent a link to <strong>{regEmail}</strong> to get you started.
-                  Just click the link in that email — no password needed yet.
+                  We sent a welcome email to <strong>{regEmail}</strong> with everything you need to know
+                  before your first session. Use the button below to sign in now.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => { window.location.href = '/facilitators/hub/dashboard'; }}
+                  className="w-full py-3 rounded-lg text-sm font-semibold transition-all"
+                  style={{ background: '#A0843A', color: '#F8F4EE', letterSpacing: '0.02em' }}>
+                  Go to My Hub &rarr;
+                </button>
                 <button type="button" onClick={() => setMode('login')}
                   className="text-sm text-navy underline underline-offset-2 hover:text-gold transition-colors">
                   Back to sign in
