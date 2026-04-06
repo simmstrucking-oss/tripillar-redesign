@@ -115,40 +115,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 });
   }
 
-  const loginUrl = `${SITE_URL}/login/facilitator`;
-
-  // Send welcome email via Resend
-  try {
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Wayne & Jamie Simms <noreply@tripillarstudio.com>',
-          to: normalizedEmail,
-          subject: 'Welcome to Live and Grieve — Here\'s How to Get Started',
-          html: `<p>Welcome to Live and Grieve™.</p>
-<p>We're so glad you're here.</p>
-<p>Your account is ready. Sign in anytime at the link below:</p>
-<p><a href="${loginUrl}" style="background:#A0843A;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:600;">Sign In to Your Hub &rarr;</a></p>
-<p>Once you're in, your dashboard will walk you through seven steps before your first day of training. We'll be with you the whole way — just take each one at your own pace before moving forward.</p>
-<p><strong>Step 1 — The Inner Work Guide</strong><br>This is where we start — with you. Not what you know, but what you've carried.</p>
-<p><strong>Step 2 — Your Grief Inventory</strong><br>A quiet moment to take stock before training day. It's yours alone — nothing to submit, nothing to prove.</p>
-<p><strong>Step 3 — Who This Program Serves</strong><br>We'll walk you through who Live and Grieve™ is built for, so you feel confident when someone comes to you with questions.</p>
-<p><strong>Step 4 — The Code of Conduct</strong><br>The foundation of everything we do together. Read it slowly — it matters.</p>
-<p><strong>Step 5 — Your First Session</strong><br>A chance to get familiar with Week 1 before you walk into the room. No surprises.</p>
-<p><strong>Step 6 — Your Training Day</strong><br>Confirm your details so everything is in place before the day arrives.</p>
-<p><strong>Step 7 — You're Ready</strong><br>One final confirmation and you're set for Day 1.</p>
-<p>If anything feels unclear at any point, just reply here. We're paying attention.</p>
-<p>We'll see you on training day.</p>
-<p>Wayne &amp; Jamie Simms<br>Live and Grieve™ · Tri-Pillars™ LLC</p>`,
-        }),
-      });
-    }
-  } catch {
-    // Non-fatal
-  }
 
   // Enroll in Kit sequence for Days 2 and 5 nurture emails
   try {
