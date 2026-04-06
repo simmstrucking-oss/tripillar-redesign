@@ -1,10 +1,10 @@
 /**
  * POST /api/facilitators/register
  *
- * Public endpoint — validates passcode, creates facilitator account,
- * generates a one-click password-setup link, and enrolls in Kit welcome sequence.
+ * Public endpoint — validates passcode, creates facilitator account with password,
+ * and enrolls in Kit welcome sequence.
  *
- * Body: { first_name, last_name, email, passcode }
+ * Body: { first_name, last_name, email, password, passcode }
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -34,21 +34,23 @@ function sb() {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { first_name?: string; last_name?: string; email?: string; passcode?: string };
+  let body: { first_name?: string; last_name?: string; email?: string; password?: string; passcode?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
 
-  const { first_name, last_name, email, passcode } = body;
+  const { first_name, last_name, email, password, passcode } = body;
 
-  // Validate required fields
-  if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !passcode?.trim()) {
+  if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !password?.trim() || !passcode?.trim()) {
     return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
   }
 
-  // Validate passcode
+  if (password.trim().length < 8) {
+    return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 });
+  }
+
   if (passcode.trim() !== REGISTRATION_PASSCODE) {
     return NextResponse.json({ error: 'Invalid passcode. Please check your passcode and try again.' }, { status: 403 });
   }
@@ -59,7 +61,6 @@ export async function POST(req: NextRequest) {
   const lastName = last_name.trim();
   const fullName = `${firstName} ${lastName}`;
 
-  // Check if email already registered
   const { data: existing } = await supabase
     .from('facilitator_profiles')
     .select('id')
@@ -73,15 +74,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Create Supabase auth user
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email: normalizedEmail,
+    password: password.trim(),
     email_confirm: true,
     user_metadata: { first_name: firstName, last_name: lastName, role: 'facilitator' },
   });
 
   if (authError || !authData?.user) {
-    // Handle duplicate auth user (race condition)
     if (authError?.message?.toLowerCase().includes('already')) {
       return NextResponse.json(
         { error: 'This email is registered. Please sign in.' },
@@ -95,20 +95,19 @@ export async function POST(req: NextRequest) {
   const certId = generateCertId();
   const renewalDate = getRenewalDate();
 
-  // Create facilitator profile
   const { error: profileError } = await supabase.from('facilitator_profiles').insert({
-    user_id:         authUserId,
-    email:           normalizedEmail,
-    full_name:       fullName,
-    role:            'community',
-    books_certified: [1],
-    cert_id:         certId,
-    cert_status:     'active',
-    cert_issued:     new Date().toISOString().split('T')[0],
-    cert_renewal:    renewalDate,
-    onboarding_step: 0,
+    user_id:             authUserId,
+    email:               normalizedEmail,
+    full_name:           fullName,
+    role:                'community',
+    books_certified:     [1],
+    cert_id:             certId,
+    cert_status:         'active',
+    cert_issued:         new Date().toISOString().split('T')[0],
+    cert_renewal:        renewalDate,
+    onboarding_step:     0,
     onboarding_complete: false,
-    created_at:      new Date().toISOString(),
+    created_at:          new Date().toISOString(),
   });
 
   if (profileError) {
@@ -116,23 +115,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 });
   }
 
-  // Generate one-click password-setup link
-  let setupLink = `${SITE_URL}/login/facilitator`;
-  const { data: linkData } = await supabase.auth.admin.generateLink({
-    type: 'recovery',
-    email: normalizedEmail,
-    options: {
-      redirectTo: `${SITE_URL}/auth/callback?next=/facilitators/hub/dashboard`,
-    },
-  });
-  if (linkData?.properties?.action_link) {
-    // Supabase may return localhost if its Site URL is set to localhost.
-    // Replace any localhost origin with the production site URL.
-    const rawLink = linkData.properties.action_link as string;
-    setupLink = rawLink.replace(/https?:\/\/localhost(:\d+)?/g, SITE_URL);
-  }
+  const loginUrl = `${SITE_URL}/login/facilitator`;
 
-  // Send setup link via Resend (direct transactional — reliable delivery)
+  // Send welcome email via Resend
   try {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
@@ -145,8 +130,8 @@ export async function POST(req: NextRequest) {
           subject: 'Welcome to Live and Grieve — Here\'s How to Get Started',
           html: `<p>Welcome to Live and Grieve™.</p>
 <p>We're so glad you're here.</p>
-<p>Your account is ready. Click the link below to set your password and access your Facilitator Hub:</p>
-<p><a href="${setupLink}" style="background:#A0843A;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:600;">Set My Password &amp; Get Started &rarr;</a></p>
+<p>Your account is ready. Sign in anytime at the link below:</p>
+<p><a href="${loginUrl}" style="background:#A0843A;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:600;">Sign In to Your Hub &rarr;</a></p>
 <p>Once you're in, your dashboard will walk you through seven steps before your first day of training. We'll be with you the whole way — just take each one at your own pace before moving forward.</p>
 <p><strong>Step 1 — The Inner Work Guide</strong><br>This is where we start — with you. Not what you know, but what you've carried.</p>
 <p><strong>Step 2 — Your Grief Inventory</strong><br>A quiet moment to take stock before training day. It's yours alone — nothing to submit, nothing to prove.</p>
@@ -165,7 +150,7 @@ export async function POST(req: NextRequest) {
     // Non-fatal
   }
 
-  // Also enroll in Kit sequence for ongoing nurture emails (Days 2, 5)
+  // Enroll in Kit sequence for Days 2 and 5 nurture emails
   try {
     const apiSecret = process.env.KIT_API_SECRET;
     if (apiSecret) {
@@ -177,14 +162,12 @@ export async function POST(req: NextRequest) {
           email: normalizedEmail,
           first_name: firstName,
           fields: {
-            setup_link:   setupLink,
             cert_id:      certId,
             cert_renewal: renewalDate,
             track:        'community',
           },
         }),
       });
-
       if (subRes.ok) {
         const subData = await subRes.json();
         const subscriberId = subData?.subscription?.subscriber?.id;
