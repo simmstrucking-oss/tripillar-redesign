@@ -66,7 +66,7 @@ const lessonVideos = [
 ];
 
 const CHANNEL_URL = "https://www.youtube.com/@liveandgrieve_3";
-const INTRO_VIDEO_ID = "H-zcSdzm9jg";
+const INTRO_VIDEO_ID = "VbDXjkq6oU0";
 
 export default async function ContentPage() {
   const [newsPosts, blogPosts] = await Promise.all([
