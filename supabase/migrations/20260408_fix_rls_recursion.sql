@@ -107,5 +107,12 @@ CREATE POLICY "facilitator_select_reflections"
 -- ─────────────────────────────────────────────────────────────────
 -- 5. Revoke SELECT from service_role on facilitator_reflections
 --    RLS does not apply to service_role; REVOKE is the hard block.
+--    NOTE: INSERT is kept for service_role — the API route
+--    (/api/hub/reflections) uses the service client for writes and
+--    enforces facilitator ownership in application code. The privacy
+--    guarantee is "no admin READ", not "no service writes".
 -- ─────────────────────────────────────────────────────────────────
 REVOKE SELECT ON facilitator_reflections FROM service_role;
+-- Ensure INSERT is explicitly granted (REVOKE SELECT does not imply
+-- INSERT revoke, but be explicit for clarity):
+GRANT INSERT ON facilitator_reflections TO service_role;
