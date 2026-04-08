@@ -3,6 +3,10 @@
 -- Add followup_reminder_sent to cohorts
 ALTER TABLE cohorts ADD COLUMN IF NOT EXISTS followup_reminder_sent BOOLEAN DEFAULT FALSE;
 
+-- Add session_delivered and observation to session_logs
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS session_delivered BOOLEAN DEFAULT TRUE;
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS observation TEXT;
+
 CREATE TABLE IF NOT EXISTS participant_registrations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL,
