@@ -71,6 +71,13 @@ const SECTIONS: SectionDef[] = [
       { name: 'Facilitator Cohort Summary',               path: '04_OUTCOMES/LG_Outcome_Facilitator_Cohort_Summary.docx' },
       { name: 'Outcomes Research Brief',                  path: '04_OUTCOMES/LG_Outcomes_Research_Brief.docx' },
       { name: 'Program Evaluation Summary Template',      path: '04_OUTCOMES/LG_Program_Evaluation_Summary_Template.docx' },
+      { name: 'Outcomes — Instruction Guide',         path: '04_OUTCOMES/LG_Outcomes_01_Instruction_Guide.docx' },
+      { name: 'Outcomes — Pre-Program Form (Print)',   path: '04_OUTCOMES/LG_Outcomes_02_PreProgram_Form.docx' },
+      { name: 'Outcomes — Weekly Session Log (Print)', path: '04_OUTCOMES/LG_Outcomes_03_Weekly_Session_Log.docx' },
+      { name: 'Outcomes — Mid-Program Pulse (Print)',  path: '04_OUTCOMES/LG_Outcomes_04_MidProgram_Pulse.docx' },
+      { name: 'Outcomes — Post-Program Form (Print)',  path: '04_OUTCOMES/LG_Outcomes_05_PostProgram_Form.docx' },
+      { name: 'Outcomes — Cohort Summary (Print)',     path: '04_OUTCOMES/LG_Outcomes_06_Facilitator_Cohort_Summary.docx' },
+      { name: 'Outcomes — 90-Day Follow-Up (Print)',   path: '04_OUTCOMES/LG_Outcomes_07_90Day_Followup.docx' },
     ],
   },
   {

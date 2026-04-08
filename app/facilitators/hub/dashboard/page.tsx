@@ -386,6 +386,7 @@ interface SessionLog {
   session_duration_minutes?: number; participants_attended: number;
   group_composition_stable?: boolean; co_facilitated?: boolean;
   facilitator_confidence_rating?: number; notes?: string; critical_incident?: boolean;
+  session_delivered?: boolean; observation?: string;
 }
 interface CohortOutcome {
   id?: string;
@@ -458,6 +459,8 @@ function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
     facilitator_confidence_rating: log?.facilitator_confidence_rating ?? 0,
     notes: log?.notes ?? '',
     critical_incident: log?.critical_incident ?? false,
+    session_delivered: log?.session_delivered ?? true,
+    observation: log?.observation ?? '',
   });
   const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
 
@@ -476,6 +479,8 @@ function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
         session_duration_minutes: form.session_duration_minutes ? Number(form.session_duration_minutes) : null,
         participants_attended: Number(form.participants_attended ?? 0),
         facilitator_confidence_rating: form.facilitator_confidence_rating || null,
+        session_delivered: form.session_delivered,
+        observation: form.observation || null,
       }),
     });
     setSaving(false);
@@ -597,6 +602,27 @@ function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
             <textarea style={{ ...inp, height: 70, resize: 'vertical' }}
               placeholder="Observations, adjustments, what worked…"
               value={form.notes} onChange={e => set('notes', e.target.value)} />
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={{ ...fieldLabel, display: 'flex', alignItems: 'center', gap: 8,
+              cursor: 'pointer', textTransform: 'none', letterSpacing: 0, fontSize: '0.85rem' }}>
+              <input type="checkbox" checked={form.session_delivered}
+                onChange={e => set('session_delivered', e.target.checked)}
+                style={{ width: 16, height: 16 }} />
+              <span>Full session delivered?</span>
+            </label>
+          </div>
+
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={fieldLabel}>One observation — what stood out? Any concerns?
+              <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6, textTransform: 'none', letterSpacing: 0 }}>
+                — Optional, max 500 characters
+              </span>
+            </label>
+            <textarea style={{ ...inp, height: 60, resize: 'vertical' }} maxLength={500}
+              placeholder="What stood out this week…"
+              value={form.observation} onChange={e => set('observation', e.target.value)} />
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
@@ -3884,7 +3910,190 @@ function previewRoleLabel(role: PreviewRole): string {
   return PREVIEW_ROLES.find(r => r.value === role)?.label ?? role;
 }
 
-type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections' | 'youth';
+/* ── Outcomes Tab ── */
+interface OutcomesReport {
+  participant_count: number;
+  pre:  { count: number; avg_emotions: number | null; avg_disruption: number | null; avg_isolation: number | null; avg_meaning: number | null; avg_selfcare: number | null; avg_manageability: number | null };
+  mid:  { count: number; avg_emotions: number | null; avg_manageability: number | null; avg_connection: number | null };
+  post: { count: number; avg_emotions: number | null; avg_disruption: number | null; avg_isolation: number | null; avg_meaning: number | null; avg_selfcare: number | null; avg_manageability: number | null; avg_program_helpful: number | null; avg_safety: number | null; avg_facilitator_support: number | null };
+  followup: { count: number; avg_manageability: number | null };
+}
+
+function trendArrow(pre: number | null, post: number | null): string {
+  if (pre == null || post == null) return '';
+  const diff = post - pre;
+  if (diff > 0.5) return ' ↑';
+  if (diff < -0.5) return ' ↓';
+  return ' →';
+}
+
+function OutcomesTab({ cohorts }: { cohorts: Cohort[] }) {
+  const [selectedCohort, setSelectedCohort] = useState<string>('');
+  const [report, setReport] = useState<OutcomesReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function loadReport(cohortId: string) {
+    setSelectedCohort(cohortId);
+    if (!cohortId) { setReport(null); return; }
+    setLoading(true); setError('');
+    const res = await fetch(`/api/hub/outcomes-report?cohort_id=${cohortId}`);
+    setLoading(false);
+    if (!res.ok) { setError('Failed to load report'); return; }
+    setReport(await res.json());
+  }
+
+  const CORE_MEASURES = [
+    { key: 'emotions', label: 'Acknowledge & name grief emotions' },
+    { key: 'disruption', label: 'Grief disruption to daily functioning' },
+    { key: 'isolation', label: 'Isolation' },
+    { key: 'meaning', label: 'Meaning and purpose' },
+    { key: 'selfcare', label: 'Self-care (sleep, eating, basic needs)' },
+    { key: 'manageability', label: 'Manageability of grief' },
+  ];
+
+  return (
+    <div style={card}>
+      <h2 style={sectionTitle}>Participant Outcomes</h2>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={fieldLabel}>Select Cohort</label>
+        <select style={inp} value={selectedCohort} onChange={e => loadReport(e.target.value)}>
+          <option value="">— Choose a cohort —</option>
+          {cohorts.map(c => (
+            <option key={c.id} value={c.id}>
+              Book {c.book_number} — started {c.start_date} ({c.status})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted }}>Loading…</p>}
+      {error && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.danger }}>{error}</p>}
+
+      {report && !loading && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            {[
+              ['Registered', report.participant_count],
+              ['Pre Forms', report.pre.count],
+              ['Mid Forms', report.mid.count],
+              ['Post Forms', report.post.count],
+              ['Follow-Up', report.followup.count],
+            ].map(([label, val]) => (
+              <div key={String(label)} style={{ background: C.bg, borderRadius: 8, padding: '0.75rem', textAlign: 'center' as const }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: C.navy }}>{val}</div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', color: C.muted, textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Core measures comparison table */}
+          <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+            Core Measures (Avg 1–10)
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${C.border}` }}>
+                  <th style={{ textAlign: 'left' as const, padding: '0.5rem 0.75rem', color: C.navy }}>Measure</th>
+                  <th style={{ textAlign: 'center' as const, padding: '0.5rem 0.5rem', color: C.navy }}>Pre</th>
+                  <th style={{ textAlign: 'center' as const, padding: '0.5rem 0.5rem', color: C.navy }}>Post</th>
+                  <th style={{ textAlign: 'center' as const, padding: '0.5rem 0.5rem', color: C.navy }}>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CORE_MEASURES.map(m => {
+                  const preVal = report.pre[`avg_${m.key}` as keyof typeof report.pre] as number | null;
+                  const postVal = report.post[`avg_${m.key}` as keyof typeof report.post] as number | null;
+                  const arrow = trendArrow(preVal, postVal);
+                  const arrowColor = arrow.includes('↑') ? C.success : arrow.includes('↓') ? C.danger : C.muted;
+                  return (
+                    <tr key={m.key} style={{ borderBottom: `1px solid ${C.border}` }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: C.navy }}>{m.label}</td>
+                      <td style={{ textAlign: 'center' as const, padding: '0.5rem', color: C.muted }}>{preVal ?? '—'}</td>
+                      <td style={{ textAlign: 'center' as const, padding: '0.5rem', color: C.muted }}>{postVal ?? '—'}</td>
+                      <td style={{ textAlign: 'center' as const, padding: '0.5rem', color: arrowColor, fontWeight: 700 }}>{arrow || '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mid-program snapshot */}
+          {report.mid.count > 0 && (
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+                Mid-Program (Session 7)
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                {[
+                  ['Emotions (vs Wk1)', report.mid.avg_emotions],
+                  ['Manageability (vs Wk1)', report.mid.avg_manageability],
+                  ['Group Connection', report.mid.avg_connection],
+                ].map(([l, v]) => (
+                  <div key={String(l)} style={{ background: C.bg, borderRadius: 6, padding: '0.5rem 0.75rem', textAlign: 'center' as const }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: C.navy }}>{v ?? '—'}</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.68rem', color: C.muted }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Post-program extras */}
+          {report.post.count > 0 && (
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+                Post-Program Experience
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                {[
+                  ['Program Helpful', report.post.avg_program_helpful],
+                  ['Felt Safe', report.post.avg_safety],
+                  ['Facilitator Support', report.post.avg_facilitator_support],
+                ].map(([l, v]) => (
+                  <div key={String(l)} style={{ background: C.bg, borderRadius: 6, padding: '0.5rem 0.75rem', textAlign: 'center' as const }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: C.navy }}>{v ?? '—'}</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.68rem', color: C.muted }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Follow-up */}
+          {report.followup.count > 0 && (
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+                90-Day Follow-Up
+              </h3>
+              <div style={{ background: C.bg, borderRadius: 6, padding: '0.5rem 0.75rem', display: 'inline-block' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: C.navy }}>
+                  {report.followup.avg_manageability ?? '—'}
+                </span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, marginLeft: 8 }}>
+                  Manageability ({report.followup.count} responses)
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* QR Pack link */}
+          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: `1px solid ${C.border}` }}>
+            <a href={`/outcomes/qr-pack?cohort=${selectedCohort}`} target="_blank" rel="noopener noreferrer"
+              style={{ ...btn(C.navy, '#fff', true), textDecoration: 'none', display: 'inline-block' }}>
+              Print QR Pack
+            </a>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+type Tab = 'overview' | 'documents' | 'cohorts' | 'codes' | 'feedback' | 'reports' | 'support' | 'incident' | 'reflections' | 'outcomes' | 'youth';
 
 export default function HubDashboard() {
   const router = useRouter();
@@ -3895,7 +4104,7 @@ export default function HubDashboard() {
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab');
-      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'feedback' || p === 'support' || p === 'incident') return p as Tab;
+      if (p === 'reports' || p === 'cohorts' || p === 'documents' || p === 'codes' || p === 'feedback' || p === 'support' || p === 'incident' || p === 'outcomes') return p as Tab;
     }
     return 'overview';
   });
@@ -4020,7 +4229,7 @@ export default function HubDashboard() {
   }
 
   const TAB_LABELS: Record<Tab, string> = {
-    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log', youth: 'Youth (LGY)',
+    overview: 'Overview', documents: 'Documents', cohorts: 'My Cohorts', codes: 'Codes', feedback: 'Submit Feedback', reports: 'My Reports', support: 'Get Support', incident: 'Report Incident', reflections: 'Reflection Log', outcomes: 'Outcomes', youth: 'Youth (LGY)',
   };
 
   const hasLgy = (profile.lgy_certified_tracks ?? []).length > 0;
@@ -4088,7 +4297,7 @@ export default function HubDashboard() {
         <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', padding: '0 1.25rem', position: 'sticky', top: 58, zIndex: 99,
           overflowX: 'auto' }}>
-          {(['overview', 'documents', 'cohorts', 'codes', 'feedback', 'reports', 'support', 'incident', 'reflections'] as Tab[]).map(t => (
+          {(['overview', 'documents', 'cohorts', 'codes', 'feedback', 'reports', 'support', 'incident', 'reflections', 'outcomes'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem',
@@ -4205,6 +4414,7 @@ export default function HubDashboard() {
               {tab === 'support'  && <SupportTab />}
               {tab === 'incident' && <IncidentTab profile={profile} cohorts={cohorts} />}
               {tab === 'reflections' && <ReflectionTab profile={profile} cohorts={cohorts} />}
+              {tab === 'outcomes'    && <OutcomesTab cohorts={cohorts} />}
               {tab === 'youth'      && <YouthTab profile={profile} />}
             </>
           )}

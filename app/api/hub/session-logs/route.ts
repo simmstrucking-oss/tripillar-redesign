@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const { cohort_id, week_number, session_date, session_duration_minutes,
           participants_attended, group_composition_stable, co_facilitated,
-          facilitator_confidence_rating, notes, critical_incident } = body;
+          facilitator_confidence_rating, notes, critical_incident,
+          session_delivered, observation } = body;
 
   if (!cohort_id || !week_number || !session_date) {
     return NextResponse.json({ error: 'cohort_id, week_number, session_date required' }, { status: 400 });
@@ -72,6 +73,8 @@ export async function POST(req: NextRequest) {
     facilitator_confidence_rating: facilitator_confidence_rating ? Number(facilitator_confidence_rating) : null,
     notes:                      notes ?? null,
     critical_incident:          critical_incident ?? false,
+    session_delivered:          session_delivered ?? true,
+    observation:                observation ?? null,
   };
 
   // Upsert — unique on (cohort_id, week_number)
