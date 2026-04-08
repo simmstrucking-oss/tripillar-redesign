@@ -92,9 +92,9 @@ const FACILITATOR_SECTIONS: FacSectionDef[] = [
 
 // Answer Keys — restricted-documents only (Books 2-4; Book 1 is admin-only)
 const ANSWER_KEYS: Record<number, string> = {
-  2: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx',
-  3: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx',
-  4: '03_CERTIFICATION/LG_Assessment_Trainer_Answer_Key_Book4_CONFIDENTIAL.docx',
+  2: 'LG_Assessment_Trainer_Answer_Key_Book2_CONFIDENTIAL.docx',
+  3: 'LG_Assessment_Trainer_Answer_Key_Book3_CONFIDENTIAL.docx',
+  4: 'LG_Assessment_Trainer_Answer_Key_Book4_CONFIDENTIAL.docx',
 };
 
 const BOOK_NAMES: Record<number, string> = {
