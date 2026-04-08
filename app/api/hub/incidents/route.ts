@@ -26,6 +26,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Normalize participant_status to match DB CHECK constraint values
+    const STATUS_MAP: Record<string, string> = {
+      "stable":                    "Stable",
+      "referred to professional":  "Referred to professional",
+      "referred":                  "Referred to professional",
+      "unknown":                   "Unknown",
+      "911 called":                "911 called",
+      "911":                       "911 called",
+    };
+    const normalizedStatus =
+      STATUS_MAP[String(participant_status).toLowerCase().trim()] ?? participant_status;
+
+    const validStatuses = ["Stable", "Referred to professional", "Unknown", "911 called"];
+    if (!validStatuses.includes(normalizedStatus)) {
+      return NextResponse.json(
+        { error: `participant_status must be one of: ${validStatuses.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("critical_incident_reports")
       .insert({
@@ -36,7 +56,7 @@ export async function POST(req: NextRequest) {
         description,
         action_taken: action_taken || null,
         followup_planned: followup_planned || null,
-        participant_status,
+        participant_status: normalizedStatus,
       })
       .select()
       .single();
