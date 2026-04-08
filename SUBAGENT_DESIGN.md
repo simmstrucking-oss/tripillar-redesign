@@ -1,7 +1,36 @@
 # Tri-Pillars™ LLC — Subagent Design Spec
-**Last updated:** 2026-03-30
+**Last updated:** 2026-04-08
 
 Four specialized agents that Ember can spawn or orchestrate for background tasks.
+
+---
+
+## System State Summary (as of 2026-04-08)
+
+### Confirmed Database Tables (43 total in public schema)
+Hub Forms: cohorts, session_logs, facilitator_profiles, cohort_outcomes, consultation_requests, trainer_certifications, session_feedback_submissions, critical_incident_reports
+Participant Outcomes (built 2026-04-08): participant_registrations, outcomes_pre, outcomes_mid, outcomes_post, outcomes_followup
+Org/Prospect: organizations, prospects, prospect_call_requests, prospect_activity
+Legal: agreements, facilitator_signatures
+Memorial: memorial_entries
+Private (restricted): facilitator_reflections
+Additional: purchases, document_access_log, trainer_events, access_code_batches, access_codes, announcements, blog_posts, contact_submissions, facilitator_documents, health_check_log, journal_entries, metrics_cache, onboarding_reminder_log, participant_access, prospect_codes, report_log, session_progress, supplement_tokens, tracker_ratings, trainer_document_downloads, user_data, user_profiles
+
+### RLS Architecture (as of 2026-04-08)
+- SECURITY DEFINER function `get_my_facilitator_id()` prevents RLS recursion for session_feedback_submissions, critical_incident_reports, facilitator_reflections
+- facilitator_reflections: service_role relacl = `wdDxtm` — no INSERT, no SELECT — permanent
+- Two authenticated-only policies on facilitator_reflections. service_role has zero access. This is permanent architectural decision.
+- RLS migration: supabase/migrations/20260408_fix_rls_recursion.sql (commit 79ab672)
+- Reflections route fixed 2026-04-08: uses authenticated JWT client, never service_role (commit 80ec204)
+
+### Hub Forms Complete (2026-04-08)
+All 5 participant outcome forms live: Pre-Program, Mid-Program Pulse, Post-Program, Weekly Session Log (print), 90-Day Follow-Up
+QR pack page generates 4 QR codes per cohort
+Outcomes tab live in Hub with cohort selector, trend arrows, and Print QR Pack link
+Outcomes report auth-gated: facilitator JWT + cohort ownership check
+
+### Indexes
+121 indexes in public schema as of 2026-04-08 (up from ~37 pre-outcomes build)
 
 ---
 
@@ -137,6 +166,7 @@ To add: Vercel dashboard → Settings → Environment Variables → add VERCEL_T
 - Daily prospect activity digest (views, call requests) — emails only when activity exists
 - Cohort completion → auto PDF summary (planned)
 - Weekly/monthly/quarterly/annual reports (existing crons)
+- Participant Outcomes reporting: per-cohort pre/mid/post/followup trend analysis via Outcomes tab in Hub
 
 ### Known Gap
 Data Agent needs a read-only Supabase role scoped to reporting tables only.
@@ -162,6 +192,7 @@ Currently uses service_role for all queries. Low risk today (small team), medium
 - Never touch /wp-json/ (WordPress is decommissioned)
 - Risk classification before any action: LOW/MEDIUM/HIGH
 - HIGH risk → stop and report to Wayne before executing
+- facilitator_reflections: NEVER grant service_role access. Authenticated JWT only. Permanent.
 
 ---
 
