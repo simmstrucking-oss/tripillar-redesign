@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const PARTICIPANT_KIT_SEQUENCE_ID = 'PLACEHOLDER_REPLACE_WITH_REAL_ID';
+const PARTICIPANT_KIT_SEQUENCE_ID = '2714989';
 
 function sb() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!,
