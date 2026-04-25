@@ -8,7 +8,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Our Approach | Tri-Pillars™",
   description:
-    "Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    "Live and Grieve™ draws on five research frameworks and the philosophical companioning influence of Alan Wolfelt.",
 };
 
 const theoreticalFrameworks = [
@@ -50,14 +50,15 @@ const appliedFrameworks = [
     desc: "Grieving people are often their own harshest critics. Self-compassion practice — treating yourself with the same kindness you'd offer a friend — is not weakness. It's a core skill for sustained healing and re-engagement with life.",
     highlight: "Kindness toward yourself is not optional. It's the work.",
   },
-  {
-    number: "06",
-    title: "Companioning the Bereaved",
-    authors: "Alan Wolfelt",
-    desc: "Facilitators are not fixers. They are companions — present, non-judgmental, willing to enter the wilderness of grief alongside someone rather than trying to lead them out. This shapes how every session is delivered.",
-    highlight: "We walk beside, not ahead.",
-  },
 ];
+
+const philosophicalInfluence = {
+  title: "Companioning the Bereaved",
+  authors: "Alan Wolfelt",
+  label: "Philosophical Influence",
+  desc: "Facilitators are not fixers. They are companions — present, non-judgmental, willing to enter the wilderness of grief alongside someone rather than trying to lead them out. This shapes how every session is delivered.",
+  highlight: "We walk beside, not ahead.",
+};
 
 const comparison = [
   {
@@ -191,7 +192,7 @@ export default function OurApproachPage() {
         </div>
       </section>
 
-      {/* Six frameworks — two layers */}
+      {/* Five research frameworks plus Wolfelt companioning influence — two layers + philosophical stance */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -200,10 +201,10 @@ export default function OurApproachPage() {
                 The Tri&#8209;Pillars™ Framework
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-                Five research frameworks and Wolfelt companioning philosophy. Two layers. One integrated program.
+                Five Research Frameworks. One Companioning Influence. One Integrated Program.
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
-                Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.
+                Live and Grieve™ draws on the integrated architecture of five research frameworks and the philosophical companioning influence of Alan Wolfelt. The research frameworks operate in two layers — three theoretical, two applied. Wolfelt&apos;s companioning stance threads through the facilitator&apos;s posture from first session to last.
               </p>
             </div>
           </FadeIn>
@@ -279,6 +280,28 @@ export default function OurApproachPage() {
               </FadeIn>
             ))}
           </div>
+
+          {/* Philosophical influence — separate from research frameworks */}
+          <FadeIn>
+            <div className="mt-16 mb-4">
+              <p className="text-gold text-xs uppercase tracking-widest font-medium mb-6">
+                Philosophical Influence — Facilitator Stance
+              </p>
+            </div>
+          </FadeIn>
+          <FadeIn>
+            <div className="card-hover bg-card-bg border border-card-border shadow-sm rounded-2xl p-8 grid md:grid-cols-[80px_1fr_260px] gap-6 items-start">
+              <div className="text-3xl font-serif text-gold">{philosophicalInfluence.label.split(' ')[0]}</div>
+              <div>
+                <h3 className="font-serif text-2xl text-navy mb-1">{philosophicalInfluence.title}</h3>
+                <p className="text-sm text-muted mb-4">{philosophicalInfluence.authors} · <span className="italic">{philosophicalInfluence.label}</span></p>
+                <p className="text-base text-navy/80 leading-relaxed">{philosophicalInfluence.desc}</p>
+              </div>
+              <div className="text-sm italic text-navy/70 border-l-2 border-gold pl-4">
+                &ldquo;{philosophicalInfluence.highlight}&rdquo;
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
