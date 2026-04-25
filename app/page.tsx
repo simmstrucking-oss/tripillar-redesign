@@ -8,7 +8,7 @@ const differentiators = [
   {
     icon: "◈",
     title: "Rooted in Research",
-    desc: "Five research frameworks and the Wolfelt companioning philosophical influence guide everything we do — Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds, Meaning Reconstruction, Self-Compassion, and Wolfelt's Companioning. Not the five stages.",
+    desc: "Five research frameworks and the Wolfelt companioning philosophical influence guide everything we do — Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds, Meaning Reconstruction, and Self-Compassion. Plus the companioning philosophical stance of Alan Wolfelt. Not the five stages.",
   },
   {
     icon: "◈",

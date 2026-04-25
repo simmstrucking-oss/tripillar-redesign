@@ -61,7 +61,7 @@ export default function GriefEducationPage() {
         </FadeIn>
       </section>
 
-      {/* Six frameworks */}
+      {/* Five research frameworks + Wolfelt companioning influence */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -74,7 +74,7 @@ export default function GriefEducationPage() {
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
                 Three theoretical frameworks govern how grief moves across 52 weeks.
-                Three applied practice frameworks govern how every session is delivered.
+                Two applied practice frameworks govern how every session is delivered.
               </p>
             </div>
           </FadeIn>

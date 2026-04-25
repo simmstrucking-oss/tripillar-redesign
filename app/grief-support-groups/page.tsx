@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Grief Support Groups Near Me | Live and Grieve™",
   description:
-    "Looking for a grief support group? Live and Grieve™ is a 52-week structured program draws on five research frameworks and the Wolfelt companioning philosophical influence. No group near you? Start at solo.tripillarstudio.com.",
+    "Looking for a grief support group? Live and Grieve™ is a 52-week structured program that draws on five research frameworks and the Wolfelt companioning philosophical influence. No group near you? Start at solo.tripillarstudio.com.",
 };
 
 export default function GriefSupportGroupsPage() {
