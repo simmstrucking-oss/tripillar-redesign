@@ -8,7 +8,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Our Approach | Tri-Pillars™",
   description:
-    "Live and Grieve™ is grounded in six peer-reviewed frameworks — three theoretical frameworks that structure the program arc, and three applied practice frameworks that shape every session.",
+    "Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.",
 };
 
 const theoreticalFrameworks = [
@@ -200,10 +200,10 @@ export default function OurApproachPage() {
                 The Tri&#8209;Pillars™ Framework
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-                Six frameworks. Two layers. One integrated program.
+                Five research frameworks and Wolfelt companioning philosophy. Two layers. One integrated program.
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
-                Live and Grieve™ is grounded in six peer-reviewed frameworks — three theoretical frameworks that structure the program arc, and three applied practice frameworks that shape how every session is delivered.
+                Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.
               </p>
             </div>
           </FadeIn>
@@ -390,7 +390,7 @@ export default function OurApproachPage() {
               <p className="text-muted mb-6 text-sm leading-relaxed">
                 Download our free guide: <em>&ldquo;What Grief Research Actually
                 Says, And Why It Changes Everything&rdquo;</em>, and see how
-                our six frameworks work together.
+                our five research frameworks and companioning philosophy work together.
               </p>
               <div className="flex flex-col gap-3">
                 <Link

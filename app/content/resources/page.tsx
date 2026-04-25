@@ -57,7 +57,7 @@ export default function ResourcesPage() {
           </h2>
           <p className="text-muted leading-relaxed mb-6 max-w-2xl">
             Our full video library is available on YouTube. These lessons cover
-            each of the six research frameworks, practical facilitation guidance,
+            each of the five research frameworks and companioning philosophy, practical facilitation guidance,
             and real conversations about what grief looks like.
           </p>
           <a
@@ -79,7 +79,7 @@ export default function ResourcesPage() {
               Research Foundation
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-10">
-              The six frameworks behind Live and Grieve.
+              The research and philosophical foundations behind Live and Grieve.
             </h2>
           </FadeIn>
 

@@ -193,7 +193,7 @@ export default function AboutPage() {
                 Research Foundation
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-                Six frameworks. One integrated program.
+                Five frameworks. One integrated program.
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
                 Every component of Live and Grieve is rooted in peer-reviewed
@@ -234,7 +234,7 @@ export default function AboutPage() {
             Mission
           </p>
           <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">
-            Make evidence-based grief support accessible to every community.
+            Make evidence-informed grief support accessible to every community.
           </h2>
           <p className="text-muted max-w-2xl mx-auto leading-relaxed mb-8">
             We believe every person who has experienced loss deserves a place

@@ -22,7 +22,7 @@ const adultProgramSchema = {
   "@context": "https://schema.org",
   "@type": "EducationalOccupationalProgram",
   "name": "Live and Grieve™ Adult Program",
-  "description": "A 52-week peer-facilitated grief education program for adults, grounded in six peer-reviewed frameworks including the Dual Process Model, Worden's Tasks of Mourning, and Continuing Bonds Theory.",
+  "description": "A 52-week peer-facilitated grief education program for adults, draws on five research frameworks including the Dual Process Model, Worden's Tasks of Mourning, and Continuing Bonds Theory.",
   "provider": {
     "@type": "Organization",
     "name": "Tri-Pillars™ LLC",

@@ -20,7 +20,7 @@ const orgTypes = [
   {
     icon: "⛪",
     name: "Faith Communities",
-    desc: "Churches, synagogues, mosques, and other congregations wanting to offer structured, evidence-based grief support alongside spiritual care.",
+    desc: "Churches, synagogues, mosques, and other congregations wanting to offer structured, evidence-informed grief support alongside spiritual care.",
   },
   {
     icon: "🏛",

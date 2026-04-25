@@ -8,7 +8,7 @@ const differentiators = [
   {
     icon: "◈",
     title: "Rooted in Research",
-    desc: "Six peer-reviewed frameworks guide everything we do — three theoretical frameworks that structure the program arc (Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds) and three applied practice frameworks that shape every session (Meaning Reconstruction, Self-Compassion, Companioning). Not the five stages.",
+    desc: "Five research frameworks and the Wolfelt companioning philosophical influence guide everything we do — Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds, Meaning Reconstruction, Self-Compassion, and Wolfelt's Companioning. Not the five stages.",
   },
   {
     icon: "◈",
@@ -464,7 +464,7 @@ export default function HomePage() {
                   href="/our-approach"
                   className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
                 >
-                  All six frameworks →
+                  All five frameworks + companioning →
                 </Link>
                 <Link
                   href="/grief-education"

@@ -9,9 +9,9 @@ const CONTEXT = {
   program: {
     name: 'Live and Grieve™',
     description: '52-week structured grief education program. Not therapy. Community-based peer support with trained facilitators. In-person or virtual (Virtual Facilitation Addendum included with every license). Three facilitator tracks: Community, Professional, Ministry.',
-    locked_framework_sentence: 'Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.',
-    research_foundation: 'Program grounded in 6 peer-reviewed frameworks — 3 theoretical (Dual Process Model: Stroebe & Schut, Tasks of Mourning: Worden, Continuing Bonds: Klass/Silverman/Nickman) + 3 applied practice (Meaning Reconstruction: Neimeyer, Self-Compassion: Neff, Companioning the Bereaved: Wolfelt)',
-    framework_count: 6,
+    locked_framework_sentence: 'Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.',
+    research_foundation: 'Program grounded in five peer-reviewed research frameworks — 3 theoretical (Dual Process Model: Stroebe & Schut, Tasks of Mourning: Worden, Continuing Bonds: Klass/Silverman/Nickman) + 2 applied practice (Meaning Reconstruction: Neimeyer, Self-Compassion: Neff) — plus the Wolfelt Companioning philosophical influence (not a research framework)',
+    framework_count: 5,
     theoretical_frameworks: [
       'Dual Process Model (Stroebe & Schut, 1999) — governs the oscillation between loss-orientation and restoration-orientation',
       "Worden's Tasks of Mourning (2009) — frames participant progress across four quarters",
@@ -22,10 +22,10 @@ const CONTEXT = {
       'Self-Compassion (Neff, 2011) — underlying every Living Forward Activity',
       'Companioning the Bereaved (Wolfelt, 2006) — witness not fixer, 80/20 listening rule',
     ],
-    language_rule: 'LOCKED SSOT v1.1: Always reference SIX frameworks in the two-layer structure. NEVER say three frameworks without clarifying there are six. NEVER say six frameworks without noting the two-layer structure.',
+    language_rule: 'LOCKED SSOT v1.2 (2026-04-25): Canonical safe-claim — "Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence." Five research frameworks: Dual Process Model, Worden\'s Tasks, Continuing Bonds, Meaning Reconstruction, Self-Compassion. Wolfelt\'s Companioning is a philosophical influence, NOT a peer-reviewed research framework. NEVER say "six peer-reviewed frameworks." NEVER call Wolfelt a research framework.',
     youth_track: 'Live and Grieve Youth™ (LGY) — Elementary (ages 8-12) and Middle/High (ages 13-17). 13-session structured peer support. Family Bridge component included — grieving caregivers directed to adult LG Books 1-4.',
     pilot: 'Hampshire County WV — May 2026. $500 flat. Three social workers. Pre/post outcome tracking.',
-    closing_phrase: '"You carry it." — locked per SSOT v1.1. Never paraphrase.',
+    closing_phrase: '"You carry it." — locked per SSOT v1.2. Never paraphrase.',
     revenue_projections: { '2026': '~$17,000', '2027': '~$75,000', '2028': '~$174,000', '2029': '~$346,000' },
     policy_ammunition: {
       hhs_report: 'HHS Report to Congress (Nov 2024): grief services "fragmented and inequitable" — need for less medicalized approach. First federal report on grief services.',
