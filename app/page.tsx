@@ -219,7 +219,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-serif text-navy mb-4">Hear from our founders</h2>
           <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '12px', overflow: 'hidden' }}>
             <iframe
-              src="https://www.youtube.com/embed/H-zcSdzm9jg?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/VbDXjkq6oU0?rel=0&modestbranding=1"
               title="Live and Grieve™ — founders introduction"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
