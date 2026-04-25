@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "The Dual Process Model of Grief Explained | Live and Grieve™",
   description:
-    "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc. Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.",
+    "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
 };
 
 export default function DualProcessModelPage() {
@@ -105,10 +105,10 @@ export default function DualProcessModelPage() {
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
           <h2 className="font-serif text-3xl text-navy mb-6">
-            One of six frameworks. Two layers.
+            One of five research frameworks, plus Wolfelt companioning philosophy.
           </h2>
           <p className="text-muted leading-relaxed mb-6">
-            Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
           <div className="grid sm:grid-cols-2 gap-6 mb-8">
             <div className="bg-card-bg border border-card-border rounded-xl p-6">
@@ -129,7 +129,7 @@ export default function DualProcessModelPage() {
             </div>
           </div>
           <Link href="/our-approach" className="text-gold text-sm font-medium hover:underline">
-            Learn about all six frameworks →
+            Learn about all five frameworks and the companioning philosophy →
           </Link>
         </FadeIn>
       </section>
@@ -145,7 +145,7 @@ export default function DualProcessModelPage() {
               The program built on this research.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — free from Wayne and Jamie Simms. Includes the Dual Process Model and all six frameworks in plain language. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
+              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — free from Wayne and Jamie Simms. Includes the Dual Process Model and all five research frameworks in plain language. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

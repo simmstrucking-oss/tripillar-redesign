@@ -8,7 +8,7 @@ const differentiators = [
   {
     icon: "◈",
     title: "Rooted in Research",
-    desc: "Six peer-reviewed frameworks guide everything we do — three theoretical frameworks that structure the program arc (Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds) and three applied practice frameworks that shape every session (Meaning Reconstruction, Self-Compassion, Companioning). Not the five stages.",
+    desc: "Five research frameworks and the Wolfelt companioning philosophical influence guide everything we do — Dual Process Model, Worden's Tasks of Mourning, Continuing Bonds, Meaning Reconstruction, and Self-Compassion. Plus the companioning philosophical stance of Alan Wolfelt. Not the five stages.",
   },
   {
     icon: "◈",
@@ -219,7 +219,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-serif text-navy mb-4">Hear from our founders</h2>
           <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '12px', overflow: 'hidden' }}>
             <iframe
-              src="https://www.youtube.com/embed/H-zcSdzm9jg?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/VbDXjkq6oU0?rel=0&modestbranding=1"
               title="Live and Grieve™ — founders introduction"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -464,7 +464,7 @@ export default function HomePage() {
                   href="/our-approach"
                   className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:gap-3 transition-all"
                 >
-                  All six frameworks →
+                  All five frameworks + companioning →
                 </Link>
                 <Link
                   href="/grief-education"

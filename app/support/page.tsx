@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Support the Mission | Tri-Pillars™",
   description:
-    "Help expand access to evidence-based grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
+    "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
 };
 
 const funds = [
@@ -42,7 +42,7 @@ export default function SupportPage() {
             <span className="gold-text">more communities.</span>
           </h1>
           <p className="text-xl text-muted max-w-2xl leading-relaxed">
-            Every dollar goes toward making evidence-based grief support
+            Every dollar goes toward making evidence-informed grief support
             available to people who need it and cannot access it.
           </p>
         </div>

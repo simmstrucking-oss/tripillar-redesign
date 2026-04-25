@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Grief Facilitator Certification | Live and Grieve™",
   description:
-    "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required. Grounded in six peer-reviewed frameworks — three theoretical, three applied practice. Group Use License available for individual certified facilitators running a single cohort.",
+    "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required. Draws on five research frameworks and the Wolfelt companioning philosophical influence. Group Use License available for individual certified facilitators running a single cohort.",
 };
 
 export default function GriefFacilitatorCertificationPage() {
@@ -34,7 +34,7 @@ export default function GriefFacilitatorCertificationPage() {
             How to become a grief facilitator.
           </h1>
           <p className="text-xl text-muted max-w-2xl leading-relaxed">
-            No clinical license required. 14 contact hours. Grounded in six peer-reviewed frameworks.
+            No clinical license required. 14 contact hours. Draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
         </div>
       </section>
@@ -52,7 +52,7 @@ export default function GriefFacilitatorCertificationPage() {
             Live and Grieve™ Certified Facilitators complete 14 contact hours of book-specific training and gain access to the full program — Facilitator Hub, session guides, outcome tracking tools, and ongoing support. Three certification tracks: Community (no clinical credential required), Professional, and Ministry.
           </p>
           <p className="text-muted leading-relaxed">
-            Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
         </FadeIn>
       </section>

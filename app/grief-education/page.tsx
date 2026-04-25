@@ -9,7 +9,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "What Is Grief Education? | Live and Grieve™",
   description:
-    "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.",
+    "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
 };
 
 export default function GriefEducationPage() {
@@ -56,12 +56,12 @@ export default function GriefEducationPage() {
             Grief education grounded in contemporary research tells a different story. Grief is non-linear, deeply personal, and lifelong. The people we love don&apos;t stop mattering because they&apos;re gone. A structured grief education program creates space to understand that — and to live alongside loss rather than trying to resolve it.
           </p>
           <p className="text-muted leading-relaxed">
-            Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
         </FadeIn>
       </section>
 
-      {/* Six frameworks */}
+      {/* Five research frameworks + Wolfelt companioning influence */}
       <section className="py-24 bg-section-alt">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -70,11 +70,11 @@ export default function GriefEducationPage() {
                 The Research Foundation
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-                Six frameworks. Two layers.
+                Five frameworks + Wolfelt. Two layers.
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
                 Three theoretical frameworks govern how grief moves across 52 weeks.
-                Three applied practice frameworks govern how every session is delivered.
+                Two applied practice frameworks govern how every session is delivered.
               </p>
             </div>
           </FadeIn>
@@ -161,7 +161,7 @@ export default function GriefEducationPage() {
               Download the free guide.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — written by Wayne and Jamie Simms, grounded in six peer-reviewed frameworks. Free. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
+              &ldquo;The 7 Things Nobody Tells You About Grief&rdquo; — written by Wayne and Jamie Simms, drawing on five research frameworks and the Wolfelt companioning philosophical influence. Free. No group near you? Start at solo.tripillarstudio.com — $24.99 or three payments of $9.99.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

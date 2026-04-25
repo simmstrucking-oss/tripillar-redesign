@@ -8,7 +8,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Live and Grieve™ Program Overview | Tri-Pillars™",
   description:
-    "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion. Grounded in six peer-reviewed frameworks — three theoretical, three applied practice. Hampshire County WV pilot launching May 2026.",
+    "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion. Draws on five research frameworks and the Wolfelt companioning philosophical influence. Hampshire County WV pilot launching May 2026.",
 };
 
 const programBreadcrumbSchema = breadcrumbSchema([
@@ -145,7 +145,7 @@ export default function ProgramPage() {
                   <p className="text-gold text-xs uppercase tracking-widest mb-3 font-medium">For Individuals</p>
                   <h3 className="font-serif text-3xl text-navy mb-4">The Solo Companion</h3>
                   <p className="text-muted leading-relaxed mb-4">
-                    The full Live and Grieve™ Book 1 experience, self-guided and available now. No group required. No facilitator required. The same six-framework foundation. The same 13-week structure. On your phone, on your schedule.
+                    The full Live and Grieve™ Book 1 experience, self-guided and available now. No group required. No facilitator required. The same research and philosophical foundation. The same 13-week structure. On your phone, on your schedule.
                   </p>
                   <p className="text-muted leading-relaxed mb-6">
                     Available now at solo.tripillarstudio.com. $24.99 one-time or three payments of $9.99.
@@ -176,9 +176,9 @@ export default function ProgramPage() {
       <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
           <p className="text-gold text-xs uppercase tracking-widest mb-4 font-medium">Research Foundation</p>
-          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">Six frameworks. Two layers.</h2>
+          <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-6">Five frameworks. Two layers.</h2>
           <p className="text-muted leading-relaxed mb-8">
-            Live and Grieve™ is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
           <div className="grid sm:grid-cols-2 gap-6 mb-8">
             <div className="bg-card-bg border border-card-border rounded-xl p-6">
@@ -199,7 +199,7 @@ export default function ProgramPage() {
             </div>
           </div>
           <Link href="/our-approach" className="text-gold text-sm font-medium hover:underline">
-            Learn about all six frameworks →
+            Learn about all five frameworks and the companioning philosophy →
           </Link>
         </FadeIn>
       </section>

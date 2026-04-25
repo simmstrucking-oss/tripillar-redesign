@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "Grief Support Groups Near Me | Live and Grieve™",
   description:
-    "Looking for a grief support group? Live and Grieve™ is a 52-week structured program grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session. No group near you? Start at solo.tripillarstudio.com.",
+    "Looking for a grief support group? Live and Grieve™ is a 52-week structured program that draws on five research frameworks and the Wolfelt companioning philosophical influence. No group near you? Start at solo.tripillarstudio.com.",
 };
 
 export default function GriefSupportGroupsPage() {
@@ -49,7 +49,7 @@ export default function GriefSupportGroupsPage() {
             A grief support group is not a therapy group. It does not require a licensed clinician to lead. What it requires is structure, a research foundation, and a facilitator who knows how to hold space — not fix, not lead out of grief, but walk alongside.
           </p>
           <p className="text-muted leading-relaxed mb-4">
-            Live and Grieve™ is a 52-week structured grief education program delivered in closed cohort groups of 6–12. It is grounded in six peer-reviewed frameworks. Three theoretical frameworks structure the program arc. Three applied practice frameworks shape every session.
+            Live and Grieve™ is a 52-week structured grief education program delivered in closed cohort groups of 6–12. It draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
           <p className="text-muted leading-relaxed">
             Groups meet weekly. Cohorts are closed — the same people, building trust over time. In-person or virtual, through the Virtual Facilitation Addendum included with every license.
@@ -99,7 +99,7 @@ export default function GriefSupportGroupsPage() {
               The Solo Companion brings the group to you.
             </h2>
             <p className="text-muted mb-8 leading-relaxed max-w-xl mx-auto">
-              The Solo Companion is the full Live and Grieve™ Book 1 experience, built for individuals working through grief on their own. The same six-framework foundation. The same structured 13-week arc. No group required.
+              The Solo Companion is the full Live and Grieve™ Book 1 experience, built for individuals working through grief on their own. The same research and philosophical foundation. The same structured 13-week arc. No group required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -127,10 +127,10 @@ export default function GriefSupportGroupsPage() {
               The Full Program
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl text-navy mb-4">
-              Live and Grieve™ — 52 weeks. Six frameworks. One community.
+              Live and Grieve™ — 52 weeks. Five research frameworks and Wolfelt companioning philosophy. One community.
             </h2>
             <p className="text-muted mb-8 leading-relaxed">
-              For organizations — hospice, faith communities, schools, nonprofits, employers — Live and Grieve™ offers a licensable, facilitator-led program built on the same six-framework foundation. Hampshire County, West Virginia pilot launching May 2026.
+              For organizations — hospice, faith communities, schools, nonprofits, employers — Live and Grieve™ offers a licensable, facilitator-led program built on the same research and philosophical foundation. Hampshire County, West Virginia pilot launching May 2026.
             </p>
             <Link
               href="/program/adult"
