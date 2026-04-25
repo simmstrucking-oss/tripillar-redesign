@@ -4,7 +4,7 @@ import { verifyCronRequest } from '@/lib/cron-auth';
 export const dynamic = 'force-dynamic';
 
 const CONTEXT = {
-  updated: '2026-03-31-v3',
+  updated: '2026-04-25-v4',
 
   program: {
     name: 'Live and Grieve™',
@@ -20,8 +20,8 @@ const CONTEXT = {
     applied_practice_frameworks: [
       'Meaning Reconstruction (Neimeyer, 2001) — meaning-making arc through all four books',
       'Self-Compassion (Neff, 2011) — underlying every Living Forward Activity',
-      'Companioning the Bereaved (Wolfelt, 2006) — witness not fixer, 80/20 listening rule',
     ],
+    philosophical_influence: 'Companioning the Bereaved (Wolfelt, 2006) — witness not fixer, 80/20 listening rule. Philosophical stance shaping facilitator posture; NOT a research framework.',
     language_rule: 'LOCKED SSOT v1.2 (2026-04-25): Canonical safe-claim — "Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence." Five research frameworks: Dual Process Model, Worden\'s Tasks, Continuing Bonds, Meaning Reconstruction, Self-Compassion. Wolfelt\'s Companioning is a philosophical influence, NOT a peer-reviewed research framework. NEVER say "six peer-reviewed frameworks." NEVER call Wolfelt a research framework.',
     youth_track: 'Live and Grieve Youth™ (LGY) — Elementary (ages 8-12) and Middle/High (ages 13-17). 13-session structured peer support. Family Bridge component included — grieving caregivers directed to adult LG Books 1-4.',
     pilot: 'Hampshire County WV — May 2026. $500 flat. Three social workers. Pre/post outcome tracking.',

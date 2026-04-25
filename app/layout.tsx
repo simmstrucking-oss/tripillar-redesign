@@ -34,7 +34,7 @@ const organizationSchema = {
   "name": "Tri-Pillars™ LLC",
   "url": "https://tripillarstudio.com",
   "logo": "https://tripillarstudio.com/logo.png",
-  "description": "Tri-Pillars™ LLC operates Live and Grieve™, a 52-week peer-facilitated grief education program draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+  "description": "Tri-Pillars™ LLC operates Live and Grieve™, a 52-week peer-facilitated grief education program that draws on five research frameworks and the Wolfelt companioning philosophical influence.",
   "foundingDate": "2024",
   "founders": [
     { "@type": "Person", "name": "Wayne Simms" },
