@@ -52,7 +52,7 @@ export default function GriefFacilitatorCertificationPage() {
             Live and Grieve™ Certified Facilitators complete 14 contact hours of book-specific training and gain access to the full program — Facilitator Hub, session guides, outcome tracking tools, and ongoing support. Three certification tracks: Community (no clinical credential required), Professional, and Ministry.
           </p>
           <p className="text-muted leading-relaxed">
-            Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
         </FadeIn>
       </section>

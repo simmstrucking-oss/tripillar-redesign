@@ -9,7 +9,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "What Is Grief Education? | Live and Grieve™",
   description:
-    "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
 };
 
 export default function GriefEducationPage() {
@@ -56,7 +56,7 @@ export default function GriefEducationPage() {
             Grief education grounded in contemporary research tells a different story. Grief is non-linear, deeply personal, and lifelong. The people we love don&apos;t stop mattering because they&apos;re gone. A structured grief education program creates space to understand that — and to live alongside loss rather than trying to resolve it.
           </p>
           <p className="text-muted leading-relaxed">
-            Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
         </FadeIn>
       </section>

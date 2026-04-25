@@ -7,7 +7,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs";
 export const metadata: Metadata = {
   title: "The Dual Process Model of Grief Explained | Live and Grieve™",
   description:
-    "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc. Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
 };
 
 export default function DualProcessModelPage() {
@@ -108,7 +108,7 @@ export default function DualProcessModelPage() {
             One of five research frameworks, plus Wolfelt companioning philosophy.
           </h2>
           <p className="text-muted leading-relaxed mb-6">
-            Live and Grieve™ is draws on five research frameworks and the Wolfelt companioning philosophical influence.
+            Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
           <div className="grid sm:grid-cols-2 gap-6 mb-8">
             <div className="bg-card-bg border border-card-border rounded-xl p-6">

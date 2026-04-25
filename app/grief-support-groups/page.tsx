@@ -49,7 +49,7 @@ export default function GriefSupportGroupsPage() {
             A grief support group is not a therapy group. It does not require a licensed clinician to lead. What it requires is structure, a research foundation, and a facilitator who knows how to hold space — not fix, not lead out of grief, but walk alongside.
           </p>
           <p className="text-muted leading-relaxed mb-4">
-            Live and Grieve™ is a 52-week structured grief education program delivered in closed cohort groups of 6–12. It is draws on five research frameworks and the Wolfelt companioning philosophical influence.
+            Live and Grieve™ is a 52-week structured grief education program delivered in closed cohort groups of 6–12. It draws on five research frameworks and the Wolfelt companioning philosophical influence.
           </p>
           <p className="text-muted leading-relaxed">
             Groups meet weekly. Cohorts are closed — the same people, building trust over time. In-person or virtual, through the Virtual Facilitation Addendum included with every license.
