@@ -10,6 +10,24 @@ export const metadata: Metadata = {
   title: "Adult Program | Live and Grieve™",
   description:
     "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
+  openGraph: {
+    title: "Adult Program | Live and Grieve™",
+    description:
+      "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
+    url: "https://tripillarstudio.com/program/adult",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Adult Program | Live and Grieve™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Adult Program | Live and Grieve™",
+    description:
+      "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/program/adult" },
 };
 
 const adultBreadcrumbSchema = breadcrumbSchema([

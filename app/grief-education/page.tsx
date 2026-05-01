@@ -10,6 +10,24 @@ export const metadata: Metadata = {
   title: "What Is Grief Education? | Live and Grieve™",
   description:
     "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+  openGraph: {
+    title: "What Is Grief Education? | Live and Grieve™",
+    description:
+      "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    url: "https://tripillarstudio.com/grief-education",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "What Is Grief Education?" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "What Is Grief Education? | Live and Grieve™",
+    description:
+      "Grief education is structured, research-grounded support for people navigating loss. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/grief-education" },
 };
 
 export default function GriefEducationPage() {

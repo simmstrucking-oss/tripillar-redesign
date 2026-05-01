@@ -19,12 +19,40 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tripillarstudio.com"),
   title: "Tri-Pillars™ | Live and Grieve™",
   description:
     "A community-based grief support program that meets people where they are, not where they're supposed to be.",
   keywords: "grief support, grief program, Live and Grieve, Tri-Pillars, grief counseling, bereavement",
   verification: {
     google: "l1ap_cwrU8ELfmwUniMNyh2LBkINdaSRIHnukUILEgs",
+  },
+  openGraph: {
+    title: "Tri-Pillars™ | Live and Grieve™",
+    description:
+      "A community-based grief support program that meets people where they are, not where they're supposed to be.",
+    url: "https://tripillarstudio.com",
+    siteName: "Tri-Pillars™",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Live and Grieve™ — Structured Grief Education",
+      },
+    ],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tri-Pillars™ | Live and Grieve™",
+    description:
+      "A community-based grief support program that meets people where they are, not where they're supposed to be.",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: "https://tripillarstudio.com",
   },
 };
 

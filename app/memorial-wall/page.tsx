@@ -10,6 +10,24 @@ export const metadata: Metadata = {
   title: "Memorial Wall | Tri-Pillars™",
   description:
     "In whose memory Live and Grieve was built. A tribute to those we carry forward.",
+  openGraph: {
+    title: "Memorial Wall | Tri-Pillars™",
+    description:
+      "In whose memory Live and Grieve was built. A tribute to those we carry forward.",
+    url: "https://tripillarstudio.com/memorial-wall",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Memorial Wall | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Memorial Wall | Tri-Pillars™",
+    description:
+      "In whose memory Live and Grieve was built. A tribute to those we carry forward.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/memorial-wall" },
 };
 
 export const revalidate = 60; // revalidate every 60s so approvals go live quickly

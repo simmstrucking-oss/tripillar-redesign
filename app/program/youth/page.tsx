@@ -9,6 +9,24 @@ export const metadata: Metadata = {
   title: "Youth Program | Live and Grieve Youth™",
   description:
     "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
+  openGraph: {
+    title: "Youth Program | Live and Grieve Youth™",
+    description:
+      "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
+    url: "https://tripillarstudio.com/program/youth",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Youth Program | Live and Grieve Youth™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Youth Program | Live and Grieve Youth™",
+    description:
+      "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/program/youth" },
 };
 
 const youthBreadcrumbSchema = breadcrumbSchema([

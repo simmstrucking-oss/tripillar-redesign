@@ -7,6 +7,24 @@ export const metadata: Metadata = {
   title: "Content | Tri-Pillars™",
   description:
     "News, blog posts, and curated resources from the founders of Live and Grieve.",
+  openGraph: {
+    title: "Content | Tri-Pillars™",
+    description:
+      "News, blog posts, and curated resources from the founders of Live and Grieve.",
+    url: "https://tripillarstudio.com/content",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Content | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Content | Tri-Pillars™",
+    description:
+      "News, blog posts, and curated resources from the founders of Live and Grieve.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/content" },
 };
 
 interface BlogPost {

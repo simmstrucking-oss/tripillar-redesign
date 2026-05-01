@@ -9,6 +9,24 @@ export const metadata: Metadata = {
   title: "Our Approach | Tri-Pillars™",
   description:
     "Live and Grieve™ draws on five research frameworks and the philosophical companioning influence of Alan Wolfelt.",
+  openGraph: {
+    title: "Our Approach | Tri-Pillars™",
+    description:
+      "Live and Grieve™ draws on five research frameworks and the philosophical companioning influence of Alan Wolfelt.",
+    url: "https://tripillarstudio.com/our-approach",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Our Approach | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Our Approach | Tri-Pillars™",
+    description:
+      "Live and Grieve™ draws on five research frameworks and the philosophical companioning influence of Alan Wolfelt.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/our-approach" },
 };
 
 const theoreticalFrameworks = [

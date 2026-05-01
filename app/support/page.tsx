@@ -8,6 +8,24 @@ export const metadata: Metadata = {
   title: "Support the Mission | Tri-Pillars™",
   description:
     "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
+  openGraph: {
+    title: "Support the Mission | Tri-Pillars™",
+    description:
+      "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
+    url: "https://tripillarstudio.com/support",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Support the Mission | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Support the Mission | Tri-Pillars™",
+    description:
+      "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/support" },
 };
 
 const funds = [

@@ -8,6 +8,24 @@ export const metadata: Metadata = {
   title: "Grief Support Groups Near Me | Live and Grieve™",
   description:
     "Looking for a grief support group? Live and Grieve™ is a 52-week structured program that draws on five research frameworks and the Wolfelt companioning philosophical influence. No group near you? Start at solo.tripillarstudio.com.",
+  openGraph: {
+    title: "Grief Support Groups Near Me | Live and Grieve™",
+    description:
+      "Looking for a grief support group? Live and Grieve™ is a 52-week structured program that draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    url: "https://tripillarstudio.com/grief-support-groups",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Grief Support Groups Near Me" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Grief Support Groups Near Me | Live and Grieve™",
+    description:
+      "Looking for a grief support group? Live and Grieve™ is a 52-week structured program that draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/grief-support-groups" },
 };
 
 export default function GriefSupportGroupsPage() {

@@ -6,6 +6,24 @@ export const metadata: Metadata = {
   title: "Resources | Tri-Pillars™",
   description:
     "Video lessons, research citations, caregiver guides, and crisis resources from Tri-Pillars.",
+  openGraph: {
+    title: "Resources | Tri-Pillars™",
+    description:
+      "Video lessons, research citations, caregiver guides, and crisis resources from Tri-Pillars.",
+    url: "https://tripillarstudio.com/content/resources",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Resources | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resources | Tri-Pillars™",
+    description:
+      "Video lessons, research citations, caregiver guides, and crisis resources from Tri-Pillars.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/content/resources" },
 };
 
 const citations = [

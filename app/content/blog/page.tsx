@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "Blog | Tri-Pillars™",
   description:
     "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+  openGraph: {
+    title: "Blog | Tri-Pillars™",
+    description:
+      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+    url: "https://tripillarstudio.com/content/blog",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Blog | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Tri-Pillars™",
+    description:
+      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/content/blog" },
 };
 
 export default function BlogPage() {

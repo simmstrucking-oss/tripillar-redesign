@@ -10,6 +10,24 @@ export const metadata: Metadata = {
   title: "About Us | Tri-Pillars™",
   description:
     "Wayne and Jamie Simms built Live and Grieve after losing their son Jacoby and nephew Ian. Learn about the research and conviction behind the program.",
+  openGraph: {
+    title: "About Us | Tri-Pillars™",
+    description:
+      "Wayne and Jamie Simms built Live and Grieve after losing their son Jacoby and nephew Ian. Learn about the research and conviction behind the program.",
+    url: "https://tripillarstudio.com/about",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "About Us | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us | Tri-Pillars™",
+    description:
+      "Wayne and Jamie Simms built Live and Grieve after losing their son Jacoby and nephew Ian. Learn about the research and conviction behind the program.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/about" },
 };
 
 const values = [

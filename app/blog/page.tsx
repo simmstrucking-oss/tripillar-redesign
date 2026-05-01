@@ -6,6 +6,22 @@ import { breadcrumbSchema } from '@/lib/breadcrumbs';
 export const metadata: Metadata = {
   title: 'Blog | Tri-Pillars™',
   description: 'News, grief education, and program updates from Tri-Pillars™.',
+  openGraph: {
+    title: 'Blog | Tri-Pillars™',
+    description: 'News, grief education, and program updates from Tri-Pillars™.',
+    url: 'https://tripillarstudio.com/blog',
+    siteName: 'Tri-Pillars™',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Blog | Tri-Pillars™' }],
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog | Tri-Pillars™',
+    description: 'News, grief education, and program updates from Tri-Pillars™.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: 'https://tripillarstudio.com/blog' },
 };
 
 interface Post {

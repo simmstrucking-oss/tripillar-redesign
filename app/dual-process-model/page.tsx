@@ -8,6 +8,24 @@ export const metadata: Metadata = {
   title: "The Dual Process Model of Grief Explained | Live and Grieve™",
   description:
     "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc. Live and Grieve™ draws on five research frameworks and the Wolfelt companioning philosophical influence.",
+  openGraph: {
+    title: "The Dual Process Model of Grief Explained | Live and Grieve™",
+    description:
+      "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc.",
+    url: "https://tripillarstudio.com/dual-process-model",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "The Dual Process Model of Grief Explained" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Dual Process Model of Grief Explained | Live and Grieve™",
+    description:
+      "The Dual Process Model (Stroebe & Schut) is one of the three theoretical frameworks that structure the Live and Grieve™ program arc.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/dual-process-model" },
 };
 
 export default function DualProcessModelPage() {

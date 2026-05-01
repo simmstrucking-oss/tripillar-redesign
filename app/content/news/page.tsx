@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "News | Tri-Pillars™",
   description:
     "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+  openGraph: {
+    title: "News | Tri-Pillars™",
+    description:
+      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+    url: "https://tripillarstudio.com/content/news",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "News | Tri-Pillars™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "News | Tri-Pillars™",
+    description:
+      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/content/news" },
 };
 
 const news = [

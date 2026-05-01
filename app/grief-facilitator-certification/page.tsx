@@ -8,6 +8,24 @@ export const metadata: Metadata = {
   title: "Grief Facilitator Certification | Live and Grieve™",
   description:
     "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required. Draws on five research frameworks and the Wolfelt companioning philosophical influence. Group Use License available for individual certified facilitators running a single cohort.",
+  openGraph: {
+    title: "Grief Facilitator Certification | Live and Grieve™",
+    description:
+      "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required.",
+    url: "https://tripillarstudio.com/grief-facilitator-certification",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Grief Facilitator Certification" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Grief Facilitator Certification | Live and Grieve™",
+    description:
+      "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/grief-facilitator-certification" },
 };
 
 export default function GriefFacilitatorCertificationPage() {

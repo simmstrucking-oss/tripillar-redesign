@@ -9,6 +9,24 @@ export const metadata: Metadata = {
   title: "For Institutions | Live and Grieve™",
   description:
     "License Live and Grieve™ for your organization. Train your facilitators. Offer sustainable grief support to your community.",
+  openGraph: {
+    title: "For Institutions | Live and Grieve™",
+    description:
+      "License Live and Grieve™ for your organization. Train your facilitators. Offer sustainable grief support to your community.",
+    url: "https://tripillarstudio.com/institutions",
+    siteName: "Tri-Pillars™",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "For Institutions | Live and Grieve™" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "For Institutions | Live and Grieve™",
+    description:
+      "License Live and Grieve™ for your organization. Train your facilitators. Offer sustainable grief support to your community.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://tripillarstudio.com/institutions" },
 };
 
 const orgTypes = [
