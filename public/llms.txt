@@ -1,6 +1,6 @@
 # Live and Grieve™ — Tri-Pillars™ LLC
 
-> Live and Grieve™ is a structured, peer-facilitated grief education program for adults and youth. It is not therapy. It is community-based grief support grounded in five peer-reviewed research frameworks and the Wolfelt companioning philosophical influence, designed to be delivered by trained facilitators in hospitals, hospice organizations, churches, nonprofits, and corporate/EAP settings.
+> Live and Grieve™ is a structured, peer-facilitated grief education program for adults and youth. It is not therapy. It is community-based grief support grounded in five research frameworks and the companioning philosophy of Alan Wolfelt, designed to be delivered by trained facilitators in hospitals, hospice organizations, churches, nonprofits, and corporate/EAP settings.
 
 ## What This Site Is
 
@@ -17,19 +17,21 @@ tripillarstudio.com is the primary platform for Tri-Pillars™ LLC, the organiza
 
 **Live and Grieve Youth™ (LGY)** is the youth-focused parallel program for adolescents navigating grief.
 
-## Research Frameworks
+## Five Research Frameworks + Wolfelt Philosophical Influence
 
-Live and Grieve™ is grounded in five peer-reviewed research frameworks in two layers, plus Wolfelt's Companioning as a philosophical influence (not a peer-reviewed framework):
+Live and Grieve™ is grounded in five research frameworks and shaped by the companioning philosophy of Alan Wolfelt:
 
-**Layer 1 — Theoretical Foundation:**
+**Theoretical Foundation:**
 1. **Dual Process Model** (Stroebe & Schut, 1999) — oscillation between loss-orientation and restoration-orientation
 2. **Worden's Tasks of Mourning** (J. William Worden) — four active tasks of grief work
 3. **Continuing Bonds Theory** (Klass, Silverman & Nickman, 1996) — maintaining connection with the deceased
 
-**Layer 2 — Applied Practice:**
+**Applied Practice:**
 4. **Meaning Reconstruction** (Robert Neimeyer) — rebuilding a world of meaning after loss
 5. **Self-Compassion** (Kristin Neff) — applying self-compassion practices to grief
-**Philosophical Influence — Wolfelt's Companioning** (Alan Wolfelt) — witnessing grief rather than fixing it (philosophical influence, not a peer-reviewed framework)
+
+**Philosophical Influence:**
+- **Companioning the Bereaved** (Alan Wolfelt) — witnessing grief rather than fixing it; the spirit that shapes how all facilitation is practiced
 
 ## Key URLs
 
@@ -68,4 +70,3 @@ Live and Grieve™ is launching its first institutional pilot in Hampshire Count
 - Facilitators are companions and witnesses — not clinicians or counselors
 - The program does not claim clinical outcomes
 - No evidence-based claims are made about Live and Grieve™ or LGY
-
