@@ -282,7 +282,7 @@ const CONTEXT = {
     'Org Hub youth licensing',
     'Buffer: TikTok @liveandgrieve (10K) needs reconnecting — wrong account (@tri.pillars) was connected/removed',
     'Buffer: YouTube, X/Twitter, Jamie account pending',
-    'Supabase storage: upload TP_v5_0 and LGY_v6 final clean files',
+    'Supabase storage: Participant Appropriateness Guide UPDATED version (13922b) not yet uploaded — check LGY/99_Adult_Program_Assets/LG_Participant_Appropriateness_Guide_UPDATED.docx',
   ],
 };
 
