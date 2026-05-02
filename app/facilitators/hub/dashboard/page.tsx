@@ -3661,22 +3661,33 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
         skipNext.add(i + 1);
         rendered.push(
           <div key={`ref-${refIdx}`} style={{
-            background: '#FDFCF8', border: `1px solid ${C.gold}`,
-            borderRadius: 6, padding: '1rem 1.25rem', margin: '1rem 0',
+            background: '#fff', border: `2px solid ${C.gold}`,
+            borderRadius: 8, padding: '1.25rem 1.5rem', margin: '1.5rem 0',
+            boxShadow: '0 2px 8px rgba(184,148,47,0.10)',
           }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.68rem', fontWeight: 700,
-              textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: C.gold, marginBottom: 6 }}>
-              Reflection {refIdx + 1} of 13
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.75rem',
+            }}>
+              <span style={{
+                background: C.gold, color: '#fff', fontFamily: 'Inter, sans-serif',
+                fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' as const,
+                letterSpacing: '0.08em', borderRadius: 4, padding: '0.2rem 0.6rem',
+                whiteSpace: 'nowrap' as const,
+              }}>
+                Reflection {refIdx + 1} of 13
+              </span>
             </div>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy,
-              lineHeight: 1.65, margin: '0 0 0.6rem' }}>
+            <p style={{
+              fontFamily: 'Inter, sans-serif', fontSize: '0.95rem', color: C.navy,
+              lineHeight: 1.7, margin: '0 0 0.85rem', fontWeight: 500,
+            }}>
               {q.prompt}
             </p>
             <textarea
-              style={ta}
+              style={{ ...ta, minHeight: 130, border: `1px solid ${C.border}`, background: '#FDFCF8' }}
               value={answers[q.id] || ''}
               onChange={e => update(q.id, e.target.value)}
-              placeholder="Write here…"
+              placeholder="Write your response here…"
             />
           </div>
         );
