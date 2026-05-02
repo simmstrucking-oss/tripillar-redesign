@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyOutcomeSubmission } from '@/lib/outcomes-notify';
 
 function sb() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = sb();
-  const { data: cohort } = await supabase.from('cohorts').select('id').eq('id', cohortId).single();
+  const { data: cohort } = await supabase.from('cohorts').select('id, book_number, start_date').eq('id', cohortId).single();
   if (!cohort) return NextResponse.json({ error: 'Cohort not found' }, { status: 404 });
 
   const { error } = await supabase.from('outcomes_pre').upsert({
@@ -34,5 +35,30 @@ export async function POST(req: NextRequest) {
   }, { onConflict: 'email,cohort_id' });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify Wayne — non-fatal
+  notifyOutcomeSubmission({
+    phase: 'Pre-Program',
+    cohortId,
+    cohortLabel: `Book ${cohort.book_number} — started ${cohort.start_date}`,
+    email: email.toLowerCase().trim(),
+    scores: {
+      emotions:     scores.emotions,
+      disruption:   scores.disruption,
+      isolation:    scores.isolation,
+      meaning:      scores.meaning,
+      selfcare:     scores.selfcare,
+      manageability: scores.manageability,
+    },
+    openText: {
+      'What they hope to gain': openHope || null,
+    },
+    extras: {
+      'Loss type':       lossType || null,
+      'Time since loss': timeSinceLoss || null,
+      'Prior support':   priorSupport || null,
+    },
+  }).catch(() => {/* non-fatal */});
+
   return NextResponse.json({ ok: true });
 }
