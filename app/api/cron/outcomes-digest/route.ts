@@ -155,12 +155,14 @@ export async function GET(req: NextRequest) {
     html: brandedHtml('Daily Outcomes Digest', bodyHtml),
   });
 
-  // Log to report_log
-  await sb.from('report_log').insert({
-    report_type: 'outcomes-digest',
-    generated_at: new Date().toISOString(),
-    summary: `${total} new submissions: ${pre.length} pre, ${mid.length} mid, ${post.length} post, ${followup.length} followup`,
-  }).catch(() => {/* non-fatal */});
+  // Log to report_log — non-fatal
+  try {
+    await sb.from('report_log').insert({
+      report_type: 'outcomes-digest',
+      generated_at: new Date().toISOString(),
+      summary: `${total} new submissions: ${pre.length} pre, ${mid.length} mid, ${post.length} post, ${followup.length} followup`,
+    });
+  } catch { /* non-fatal */ }
 
   return NextResponse.json({ ok: true, total, pre: pre.length, mid: mid.length, post: post.length, followup: followup.length });
 }
