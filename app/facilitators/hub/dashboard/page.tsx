@@ -3731,18 +3731,31 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
-            {body("The Inner Work Guide is where your preparation begins. It invites you to spend some time with your own grief before sitting with others in theirs. Not because you need to have it figured out \u2014 but because the most grounded facilitation comes from self-awareness, not distance. Read it in full before training day.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Facilitator_Inner_Work_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
+            {body("Read through this guide before your training day. It invites you to sit with your own grief before sitting with others in theirs \u2014 not because you need to have it figured out, but because the most grounded facilitation comes from self-awareness, not distance.")}
+            <div style={{ background: '#FAFAF8', border: `1px solid ${C.border}`, borderRadius: 8, padding: '1.25rem 1.5rem', margin: '1rem 0', maxHeight: 420, overflowY: 'auto' as const }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: C.gold, margin: '0 0 0.25rem' }}>A Note Before You Begin</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>The Facilitator Certification Training teaches you what to do. This guide asks something harder: it asks you to know who you are when you walk into the room. Most facilitation failures are not failures of knowledge. They are failures of self-awareness.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>This guide is organized around five areas of inner work. None of them can be completed once and set aside. Read slowly. Write honestly. If something lands hard, stay with it.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.25rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Chapter 1 &mdash; Your Grief History</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Nobody facilitates grief from a neutral place. You have lost people. You have experienced grief that was witnessed and grief that was not. All of that is in the room with you, whether or not you named it during training.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Lived experience with loss is one of your most important assets as a facilitator. But unexamined, it leads you into the room wearing your own grief like a lens you don&rsquo;t know you&rsquo;re wearing. The question is not whether your grief enters the room. It does. The question is whether you know it&rsquo;s there.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>When a participant&rsquo;s story lands close to something in your own history, you may notice a tightening in your chest, an urge to speak, a wave of your own emotion. These are signals. They are not instructions. You can pause, breathe, stay in the room, and let the participant&rsquo;s experience belong to them.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.25rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Chapter 2 &mdash; The Presence You Bring</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Your nervous system is one of your primary facilitation tools. Human nervous systems co-regulate. The facilitator&rsquo;s regulated presence invites participants&rsquo; nervous systems toward regulation. You are the environment before you say a word.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Regulated facilitation looks like: slowing down when the room speeds up. Allowing silence. Not rushing to fix discomfort. The 15 minutes before a session begins are not administrative time &mdash; they are preparation time. Build an arrival practice that signals to your nervous system: I am here to be present, not to perform.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.25rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Chapter 3 &mdash; The Companions You Need</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>One of the most common mistakes new facilitators make is attempting to do this work alone. You need: a peer consultant who can receive your experience without judgment; a personal support structure (therapy, spiritual direction, a grief group of your own); and an ongoing supervision relationship with Tri-Pillars&trade;.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Secondary traumatic stress is real. STS in facilitators looks like: intrusive thoughts about a participant&rsquo;s story, numbness or detachment, dreading sessions you used to find meaningful, difficulty being present in your own relationships. If you recognize these signs, the response is not to push through. The response is to reach out.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.25rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Chapter 4 &mdash; The Silence and the Space</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>New facilitators almost universally struggle with silence. The discomfort is understandable &mdash; and it leads to filling the space. That is also, very often, exactly the wrong thing to do. Silence is where grief lives. The most powerful thing you can do after someone shares is nothing. Receive it. Let it land. Let the room hold it for a moment.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>You should be speaking no more than 20% of session time. If you are talking more than that, you are likely performing rather than facilitating. The 80/20 rule is a structural reminder of what your role actually is.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.25rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Chapter 5 &mdash; The Facilitator You Are Becoming</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0' }}>There is no arrival in this work. There is no moment when you become the finished facilitator. What grows over time is the capacity to be fully present with grief &mdash; your own and others&rsquo; &mdash; without being consumed by it. You bring yourself into every room. The invitation is to know who that is.</p>
             </div>
             {checkboxRow("I have read the Facilitator Inner Work Guide.")}
             {nextBtn(!checked)}
@@ -3766,18 +3779,47 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
-            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. The Participant Appropriateness Guide helps you make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
+            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. Read through the Participant Appropriateness Guide below to make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
+            <div style={{ background: '#FAFAF8', border: `1px solid ${C.border}`, borderRadius: 8, padding: '1.25rem 1.5rem', margin: '1rem 0', maxHeight: 420, overflowY: 'auto' as const }}>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>This guide answers one question: is this person ready for Live and Grieve&trade; right now? It does not decide whether someone needs support &mdash; they clearly do. It asks whether this particular format is the right support at this particular moment.</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>Live and Grieve&trade; is a structured peer support group. It is not therapy, crisis intervention, or a clinical program.</p>
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.5rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Who This Program Is Designed For</p>
+              {[
+                'Adults experiencing grief following significant loss \u2014 most commonly the death of a close family member, friend, or partner, but also significant non-death losses.',
+                'Able to participate in a group setting without clinical instability \u2014 they can sit with others\u2019 pain without it becoming a crisis for them.',
+                'Not in acute psychiatric crisis at the time of enrollment.',
+                'Willing to commit to weekly attendance for a 13-week quarter.',
+                'Seeking structured peer support alongside or instead of individual support.',
+              ].map((t, i) => <p key={i} style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.7, margin: '0 0 0.5rem', paddingLeft: '1rem', borderLeft: `2px solid ${C.border}` }}>{t}</p>)}
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.5rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Situations That Warrant Careful Consideration</p>
+              {[
+                ['Current Individual Therapy for Complicated Grief', 'May benefit from both \u2014 check with their therapist first.'],
+                ['Very Recent Loss \u2014 Within Past 4\u20136 Weeks', 'The earliest weeks of acute grief may feel overwhelming before some stabilization occurs. Use judgment.'],
+                ['Significant Trauma Alongside Grief', 'When death occurred through violence, suicide, or sudden traumatic accident, the grief is often complicated by trauma. Participants with complex PTSD or active trauma symptomatology that significantly impairs group participation should be referred first.'],
+                ['Active Substance Use as Coping', 'A person actively using to manage grief-related distress may need substance use support alongside or before the program.'],
+              ].map(([title, desc], i) => (
+                <div key={i} style={{ marginBottom: '0.75rem' }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, margin: '0 0 0.2rem' }}>{title}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.7, margin: 0 }}>{desc}</p>
+                </div>
+              ))}
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.danger, margin: '1.25rem 0 0.5rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>Who the Program Is Not Designed For</p>
+              {[
+                ['Acute Psychiatric Crisis', 'Active suicidal ideation with plan or intent. Active psychosis. Acute manic episode. Any mental health state requiring immediate clinical intervention.'],
+                ['Current Active Addiction Without Clinical Support', 'Primary presenting issue is substance dependence where grief is a contributing factor but not the primary driver.'],
+                ['Active Behavioral Disruption Risk', 'A person whose behavior is likely to significantly harm the group environment \u2014 through persistent monopolization, threatening behavior, or inability to hold confidentiality.'],
+              ].map(([title, desc], i) => (
+                <div key={i} style={{ marginBottom: '0.75rem' }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.danger, margin: '0 0 0.2rem' }}>{title}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.7, margin: 0 }}>{desc}</p>
+                </div>
+              ))}
+
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, margin: '1.25rem 0 0.5rem', borderTop: `1px solid ${C.border}`, paddingTop: '1rem' }}>The Pre-Enrollment Conversation</p>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.7, margin: '0 0 0' }}>Every prospective participant should have a brief conversation with you before their first session &mdash; to confirm they understand what the program is and isn&rsquo;t, to confirm commitment to group agreements, and to allow you to make a basic appropriateness judgment. This is a care practice, not a gatekeeping mechanism. When uncertain, contact Tri-Pillars&trade; at wayne@tripillarstudio.com.</p>
             </div>
             {checkboxRow("I have read the Participant Appropriateness Guide.")}
             {nextBtn(!checked)}
@@ -3789,18 +3831,27 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
-            {body("The Code of Conduct describes how Live and Grieve\u2122 facilitators show up \u2014 in the room, in relationships with participants, and in the wider community. It\u2019s not a list of rules so much as a shared standard of care. Read it in full before you sign.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
+            {body("Read the Code of Conduct in full, then check the box and sign below. This is a condition of your certification.")}
+            <div style={{ background: '#FAFAF8', border: `1px solid ${C.border}`, borderRadius: 8, padding: '1.25rem 1.5rem', margin: '1rem 0', maxHeight: 420, overflowY: 'auto' as const }}>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.85rem' }}>The Live and Grieve&trade; program was built because grief deserves to be held with care, dignity, and consistency. The people who walk into your group are trusting you with their most tender experiences. This Code of Conduct exists to honor that trust. It is not a bureaucratic requirement. It is a statement of who we are.</p>
+              {[
+                ['01', 'Participant Wellbeing Comes First', 'The safety, dignity, and wellbeing of every participant is the primary obligation of every facilitator. Never prioritize session completion over participant safety. Recognize when a participant needs support beyond the scope of this program and act on it promptly.'],
+                ['02', 'Operate Within Scope of Practice', 'A Live and Grieve\u2122 Facilitator provides structured grief support within a defined curriculum. Never diagnose, label, or clinically assess a participant\u2019s mental health. Never provide therapeutic interventions beyond the scope of the curriculum. When a participant\u2019s needs exceed the scope of the program, refer promptly and warmly.'],
+                ['03', 'Protect Confidentiality', 'What is shared in a Live and Grieve\u2122 group stays in that group. Never share participant disclosures with anyone outside the group without explicit permission, except where mandatory reporting applies. Protect participant records and any identifying information from unauthorized access.'],
+                ['04', 'Fulfill Mandatory Reporting Obligations', 'Confidentiality does not apply when there is credible reason to believe that a participant or someone they know is in danger. Know the mandatory reporting laws in your jurisdiction before your first session. Act without delay when a participant expresses suicidal ideation or intent to harm another person.'],
+                ['05', 'Maintain Appropriate Boundaries', 'The facilitator-participant relationship carries inherent power. Do not enter into romantic, sexual, financial, or dependent relationships with current participants. Avoid dual relationships that could compromise your ability to hold a neutral, safe space. Boundary violations involving current participants are grounds for immediate certification review.'],
+                ['06', 'Deliver the Program with Fidelity', 'Facilitate from the current authorized version of the Master Facilitator Manual. Do not substitute, omit, or significantly alter curriculum content without written authorization from Tri-Pillars\u2122.'],
+                ['07', 'Represent the Program and Brand with Integrity', 'Do not make claims about program outcomes that exceed what the research supports. Do not imply endorsement by Tri-Pillars\u2122 for activities outside your certification scope.'],
+                ['08', 'Practice Self-Care and Seek Support', 'Facilitating grief is demanding work. Do not facilitate when you are in acute personal crisis without appropriate supervision in place. Recognize and respond to signs of secondary traumatic stress in yourself.'],
+                ['09', 'Pursue Ongoing Competency', 'Complete annual certification renewal requirements by the renewal deadline. Stay informed about updates to the Live and Grieve\u2122 curriculum and apply them promptly.'],
+                ['10', 'Report Concerns and Cooperate with Review', 'Report concerns about another facilitator\u2019s conduct to Tri-Pillars\u2122 in good faith. Cooperate fully with any review or inquiry initiated by Tri-Pillars\u2122. Do not retaliate against any person who reports a concern in good faith.'],
+              ].map(([num, title, desc]) => (
+                <div key={num} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: `1px solid ${C.border}` }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, color: C.gold, margin: '0 0 0.15rem', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{num}</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.88rem', fontWeight: 700, color: C.navy, margin: '0 0 0.3rem' }}>{title}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.7, margin: 0 }}>{desc}</p>
+                </div>
+              ))}
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
               fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
@@ -4048,14 +4099,10 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
                   })}
                 </div>
 
-                {/* Open Full Manual button */}
-                <button
-                  onClick={() => { findAndOpenDoc('FM'); }}
-                  disabled={openingDoc}
-                  style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, margin: '1rem 0' }}
-                >
-                  {openingDoc ? 'Loading\u2026' : `Open Full Manual \u2014 Book ${firstBook}`}
-                </button>
+                {/* Manual note — no external link */}
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, margin: '0.75rem 0', fontStyle: 'italic' }}>
+                  The full Master Facilitator Manual is available in your Documents tab after onboarding is complete.
+                </p>
 
                 {checkboxRow('I have read Week 1 of the Master Facilitator Manual and am ready for training day.')}
               </>
