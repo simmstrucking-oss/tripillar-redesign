@@ -3601,7 +3601,14 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
     const s = initSaved();
     return IWG_REFLECTIONS_LIST.slice(0, 13).every(q => (s[q.id] || '').trim().length > 0);
   });
-  const allAnswered = IWG_REFLECTIONS_LIST.slice(0, 13).every(q => (answers[q.id] || '').trim().length > 0);
+  // Check all sub-questions answered (split prompts by '?')
+  const allAnswered = IWG_REFLECTIONS_LIST.slice(0, 13).every(q => {
+    const parts = q.prompt.split('?').map(s => s.trim()).filter(s => s.length > 3);
+    return parts.every((_, si) => {
+      const key = si === 0 && parts.length === 1 ? q.id : `${q.id}_${si}`;
+      return (answers[key] || '').trim().length > 0;
+    });
+  });
 
   function update(id: string, val: string) {
     const next = { ...answers, [id]: val };
@@ -3659,36 +3666,43 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
         // The next paragraph in IWG_CONTENT is the question text — skip it
         // (we use the full prompt from IWG_REFLECTIONS_LIST instead)
         skipNext.add(i + 1);
+        // Split prompt into individual questions on '?'
+        const subQuestions = q.prompt
+          .split('?')
+          .map(s => s.trim())
+          .filter(s => s.length > 3)
+          .map(s => s.endsWith('?') ? s : s + '?');
+
         rendered.push(
           <div key={`ref-${refIdx}`} style={{
             background: '#fff', border: `2px solid ${C.gold}`,
             borderRadius: 8, padding: '1.25rem 1.5rem', margin: '1.5rem 0',
             boxShadow: '0 2px 8px rgba(184,148,47,0.10)',
           }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.75rem',
+            <span style={{
+              background: C.gold, color: '#fff', fontFamily: 'Inter, sans-serif',
+              fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' as const,
+              letterSpacing: '0.08em', borderRadius: 4, padding: '0.2rem 0.6rem',
+              display: 'inline-block', marginBottom: '1rem',
             }}>
-              <span style={{
-                background: C.gold, color: '#fff', fontFamily: 'Inter, sans-serif',
-                fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' as const,
-                letterSpacing: '0.08em', borderRadius: 4, padding: '0.2rem 0.6rem',
-                whiteSpace: 'nowrap' as const,
-              }}>
-                Reflection {refIdx + 1} of 13
-              </span>
-            </div>
-            <p style={{
-              fontFamily: 'Inter, sans-serif', fontSize: '0.95rem', color: C.navy,
-              lineHeight: 1.7, margin: '0 0 0.85rem', fontWeight: 500,
-            }}>
-              {q.prompt}
-            </p>
-            <textarea
-              style={{ ...ta, minHeight: 130, border: `1px solid ${C.border}`, background: '#FDFCF8' }}
-              value={answers[q.id] || ''}
-              onChange={e => update(q.id, e.target.value)}
-              placeholder="Write your response here…"
-            />
+              Reflection {refIdx + 1} of 13
+            </span>
+            {subQuestions.map((sq, si) => (
+              <div key={si} style={{ marginBottom: si < subQuestions.length - 1 ? '1rem' : 0 }}>
+                <p style={{
+                  fontFamily: 'Inter, sans-serif', fontSize: '0.95rem', color: C.navy,
+                  lineHeight: 1.7, margin: '0 0 0.5rem', fontWeight: 500,
+                }}>
+                  {sq}
+                </p>
+                <textarea
+                  style={{ ...ta, minHeight: 110, border: `1px solid ${C.border}`, background: '#FDFCF8' }}
+                  value={(answers[`${q.id}_${si}`] !== undefined ? answers[`${q.id}_${si}`] : (si === 0 ? (answers[q.id] || '') : ''))}
+                  onChange={e => update(`${q.id}_${si}`, e.target.value)}
+                  placeholder="Write your response here…"
+                />
+              </div>
+            ))}
           </div>
         );
         refIdx++;
