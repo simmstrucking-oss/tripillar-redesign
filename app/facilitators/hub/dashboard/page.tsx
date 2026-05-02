@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 import SignatureField from '@/app/components/SignatureField';
-import { WEEK1_CONTENT, type DocParagraph } from '@/lib/week1-content';
+import { WEEK1_CONTENT, IWG_CONTENT, PAG_CONTENT, COC_CONTENT, type DocParagraph } from '@/lib/week1-content';
 
 /* ── Fonts ── */
 const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
@@ -3537,6 +3537,37 @@ ${reflHtml}
   );
 }
 
+/* ── Shared inline document renderer (same pattern as Step 5 Week 1) ── */
+function renderDocInline(content: DocParagraph[], C: Record<string, string>) {
+  return (
+    <div style={{
+      background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 8,
+      padding: '1.5rem 1.75rem', margin: '1.25rem 0', maxHeight: '60vh',
+      overflowY: 'auto', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+      lineHeight: 1.75, color: C.navy,
+    }}>
+      {content.map((p, i) => {
+        if (!p.text.trim()) return <div key={i} style={{ height: '0.5rem' }} />;
+        if (p.style === 'Heading 1') return (
+          <h2 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem', fontWeight: 700, color: C.navy, margin: '1.5rem 0 0.5rem', borderBottom: `2px solid ${C.gold}`, paddingBottom: '0.4rem' }}>{p.text}</h2>
+        );
+        if (p.style === 'Heading 2') return (
+          <h3 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.975rem', fontWeight: 600, color: C.navy, margin: '1.25rem 0 0.35rem', borderLeft: `3px solid ${C.gold}`, paddingLeft: '0.6rem' }}>{p.text}</h3>
+        );
+        if (p.style === 'Heading 3') return (
+          <h4 key={i} style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, margin: '1rem 0 0.25rem', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>{p.text}</h4>
+        );
+        if (p.style === 'List Paragraph') return (
+          <div key={i} style={{ paddingLeft: '1.25rem', margin: '0.2rem 0', position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 0, color: C.gold }}>›</span>{p.text}
+          </div>
+        );
+        return <p key={i} style={{ margin: '0.35rem 0' }}>{p.text}</p>;
+      })}
+    </div>
+  );
+}
+
 /* ── Onboarding Wizard (replaces checklist) ── */
 function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview = false }: {
   profile: Profile;
@@ -3732,18 +3763,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
             {body("The Inner Work Guide is where your preparation begins. It invites you to spend some time with your own grief before sitting with others in theirs. Not because you need to have it figured out \u2014 but because the most grounded facilitation comes from self-awareness, not distance. Read it in full before training day.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Facilitator_Inner_Work_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
-            </div>
+            {renderDocInline(IWG_CONTENT, C)}
             {checkboxRow("I have read the Facilitator Inner Work Guide.")}
             {nextBtn(!checked)}
           </div>
@@ -3767,18 +3787,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
             {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. The Participant Appropriateness Guide helps you make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
-            </div>
+            {renderDocInline(PAG_CONTENT, C)}
             {checkboxRow("I have read the Participant Appropriateness Guide.")}
             {nextBtn(!checked)}
           </div>
@@ -3790,18 +3799,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
             {body("The Code of Conduct describes how Live and Grieve\u2122 facilitators show up \u2014 in the room, in relationships with participants, and in the wider community. It\u2019s not a list of rules so much as a shared standard of care. Read it in full before you sign.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
-              </button>
-              <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
-                disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                ↓ Download / Print
-              </button>
-            </div>
+            {renderDocInline(COC_CONTENT, C)}
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
               fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
               <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
