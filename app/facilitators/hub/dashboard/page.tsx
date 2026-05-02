@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 import SignatureField from '@/app/components/SignatureField';
@@ -3273,6 +3273,106 @@ interface OnboardingState {
   books_certified?: number[];
 }
 
+/* ── Grief Inventory Form (Step 2) ── */
+const INVENTORY_QUESTIONS = [
+  {
+    id: 'q1',
+    prompt: 'List the significant losses in your life. Not just deaths — include losses of relationship, identity, health, safety, or meaning. For each one, write: How old were you? Who supported you? How did you grieve — or not grieve — at the time?',
+  },
+  {
+    id: 'q2',
+    prompt: 'Which of these losses feel fully integrated — present but not raw? Which ones are still active in some way?',
+  },
+  {
+    id: 'q3',
+    prompt: 'If you were sitting in your own group as a participant, which week\u2019s topic would be hardest for you to sit with? What would that activate?',
+  },
+  {
+    id: 'q4',
+    prompt: 'Have you done your own grief work — through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?',
+  },
+];
+
+const STORAGE_KEY = 'lg_grief_inventory_v1';
+
+function GriefInventoryForm({ onComplete }: { onComplete: () => void }) {
+  const saved = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') : {};
+  const [answers, setAnswers] = React.useState<Record<string, string>>(saved);
+  const [saved2, setSaved2] = React.useState(Object.keys(saved).length === 4 && INVENTORY_QUESTIONS.every(q => (saved[q.id] || '').trim().length > 0));
+
+  function update(id: string, val: string) {
+    const next = { ...answers, [id]: val };
+    setAnswers(next);
+    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }
+
+  function save() {
+    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+    setSaved2(true);
+    onComplete();
+  }
+
+  function printInventory() {
+    const win = window.open('', '_blank')!;
+    win.document.write(`<!DOCTYPE html><html><head><title>Grief Inventory</title>
+    <style>body{font-family:Georgia,serif;max-width:680px;margin:40px auto;color:#1a1a1a;line-height:1.7}
+    h1{font-size:1.3rem;margin-bottom:4px}h2{font-size:1rem;color:#1c3028;margin:2rem 0 6px}
+    .ans{background:#f9f9f7;border:1px solid #ddd;border-radius:4px;padding:12px 16px;min-height:80px;white-space:pre-wrap;font-family:Georgia,serif;font-size:0.95rem}
+    .note{font-size:0.8rem;color:#888;margin-top:32px}
+    @media print{body{margin:20px}}</style></head><body>
+    <h1>Live and Grieve\u2122 \u2014 Facilitator Grief Inventory</h1>
+    <p style="color:#888;font-size:0.85rem">Chapter 1 \u2014 Private and confidential</p>
+    ${INVENTORY_QUESTIONS.map((q, i) => `<h2>Reflection ${i + 1}</h2><p>${q.prompt}</p><div class="ans">${(answers[q.id] || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') || '&nbsp;'}</div>`).join('')}
+    <p class="note">This inventory is for your personal use. It is not submitted or reviewed by Tri-Pillars\u2122.</p>
+    </body></html>`);
+    win.document.close();
+    win.print();
+  }
+
+  const allAnswered = INVENTORY_QUESTIONS.every(q => (answers[q.id] || '').trim().length > 0);
+  const ta: React.CSSProperties = {
+    width: '100%', minHeight: 110, padding: '0.6rem 0.75rem',
+    border: `1px solid ${C.border}`, borderRadius: 6, resize: 'vertical' as const,
+    fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy,
+    background: '#FDFCF8', boxSizing: 'border-box' as const, lineHeight: 1.6,
+  };
+  const label: React.CSSProperties = {
+    display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem',
+    fontWeight: 600, color: C.navy, marginBottom: 6,
+    textTransform: 'uppercase' as const, letterSpacing: '0.03em',
+  };
+
+  return (
+    <div style={{ marginTop: '1.25rem' }}>
+      {INVENTORY_QUESTIONS.map((q, i) => (
+        <div key={q.id} style={{ marginBottom: '1.5rem' }}>
+          <label style={label}>Reflection {i + 1}</label>
+          <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, margin: '0 0 8px', lineHeight: 1.65 }}>{q.prompt}</p>
+          <textarea
+            style={ta}
+            value={answers[q.id] || ''}
+            onChange={e => update(q.id, e.target.value)}
+            placeholder="Write here\u2026"
+          />
+        </div>
+      ))}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '0.5rem' }}>
+        <button onClick={save} disabled={!allAnswered}
+          style={{ ...btn(C.gold, '#fff'), opacity: allAnswered ? 1 : 0.5 }}>
+          {saved2 ? '\u2713 Saved' : 'Save Inventory'}
+        </button>
+        <button onClick={printInventory}
+          style={{ ...btn(C.navy, '#fff') }}>
+          Print / Download
+        </button>
+      </div>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '10px 0 0' }}>
+        Your answers are saved only on this device and are never submitted to Tri-Pillars\u2122.
+      </p>
+    </div>
+  );
+}
+
 /* ── Onboarding Wizard (replaces checklist) ── */
 function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview = false }: {
   profile: Profile;
@@ -3453,8 +3553,9 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(2)}
             {heading("Step 2 of 7 \u2014 Your Grief Inventory")}
-            {body("Chapter 1 of the Inner Work Guide includes a Grief Inventory. It\u2019s yours \u2014 you won\u2019t submit it, and no one will review it. But we ask that you complete it before training day and come having sat with your own answers. Facilitators who have spent time with their own grief show up differently in the room. This is part of that.")}
-            {checkboxRow("I have completed the Grief Inventory from Chapter 1.")}
+            {body("These four reflections are yours alone \u2014 private, not submitted, not reviewed by anyone. Write as much or as little as feels right. Come to training day having sat with your own answers.")}
+            <GriefInventoryForm onComplete={() => setChecked(true)} />
+            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Inventory saved</div>}
             {nextBtn(!checked)}
           </div>
         )}
