@@ -3588,6 +3588,173 @@ const IWG_REFLECTIONS_LIST = [
   { id: 'r13', section: 'Chapter 4 — Presence and Language', prompt: 'Think of a facilitation moment \u2014 real or imagined \u2014 where you filled space that did not need to be filled. What were you protecting yourself from? What did the group miss because of it?' },
 ];
 
+/* ── IWG Inline Form — renders guide content with embedded reflection textareas ── */
+function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: () => void; initialAnswers?: Record<string, string> | null; isPreview?: boolean }) {
+  const initSaved = (): Record<string, string> => {
+    if (initialAnswers && Object.keys(initialAnswers).length > 0) return initialAnswers;
+    if (typeof window === 'undefined') return {};
+    try { return JSON.parse(localStorage.getItem(IWG_REFLECTIONS_STORAGE) || '{}'); } catch { return {}; }
+  };
+  const [answers, setAnswers] = React.useState<Record<string, string>>(initSaved);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isSaved, setIsSaved] = React.useState(() => {
+    const s = initSaved();
+    return IWG_REFLECTIONS_LIST.slice(0, 13).every(q => (s[q.id] || '').trim().length > 0);
+  });
+  const allAnswered = IWG_REFLECTIONS_LIST.slice(0, 13).every(q => (answers[q.id] || '').trim().length > 0);
+
+  function update(id: string, val: string) {
+    const next = { ...answers, [id]: val };
+    setAnswers(next);
+    setIsSaved(false);
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(IWG_REFLECTIONS_STORAGE, JSON.stringify(next)); } catch { /* noop */ }
+    }
+  }
+
+  async function save() {
+    setIsSaving(true);
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(IWG_REFLECTIONS_STORAGE, JSON.stringify(answers)); } catch { /* noop */ }
+    }
+    if (!isPreview) {
+      try {
+        await fetch('/api/hub/onboarding', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ inner_work_reflections: answers }),
+        });
+      } catch { /* non-fatal */ }
+    }
+    setIsSaving(false);
+    setIsSaved(true);
+    onComplete();
+  }
+
+  const ta: React.CSSProperties = {
+    width: '100%', minHeight: 120, padding: '0.6rem 0.75rem',
+    border: `1px solid ${C.gold}`, borderRadius: 5, resize: 'vertical' as const,
+    fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy,
+    background: '#FFFEF9', boxSizing: 'border-box' as const, lineHeight: 1.65,
+    marginTop: '0.5rem',
+  };
+
+  // Walk IWG_CONTENT and inject textareas at REFLECTION markers (first 13 only)
+  let refIdx = 0;
+  const rendered: React.ReactNode[] = [];
+
+  IWG_CONTENT.forEach((p, i) => {
+    if (!p.text.trim()) {
+      rendered.push(<div key={i} style={{ height: '0.4rem' }} />);
+      return;
+    }
+
+    if (p.text === 'REFLECTION') {
+      if (refIdx < 13) {
+        const q = IWG_REFLECTIONS_LIST[refIdx];
+        rendered.push(
+          <div key={`ref-${refIdx}`} style={{
+            background: '#FDFCF8', border: `1px solid ${C.gold}`,
+            borderRadius: 6, padding: '1rem 1.25rem', margin: '1rem 0',
+          }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.68rem', fontWeight: 700,
+              textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: C.gold, marginBottom: 6 }}>
+              Reflection {refIdx + 1} of 13
+            </div>
+            <textarea
+              style={ta}
+              value={answers[q.id] || ''}
+              onChange={e => update(q.id, e.target.value)}
+              placeholder="Write here…"
+            />
+          </div>
+        );
+        refIdx++;
+      }
+      return;
+    }
+
+    if (p.style === 'Heading 1' || p.text.startsWith('CHAPTER')) {
+      rendered.push(
+        <h2 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem', fontWeight: 700,
+          color: C.navy, margin: '2rem 0 0.4rem', borderBottom: `2px solid ${C.gold}`, paddingBottom: '0.35rem' }}>
+          {p.text}
+        </h2>
+      );
+      return;
+    }
+
+    if (p.style === 'Heading 2') {
+      rendered.push(
+        <h3 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', fontWeight: 700,
+          color: C.navy, margin: '1.5rem 0 0.35rem' }}>
+          {p.text}
+        </h3>
+      );
+      return;
+    }
+
+    if (p.style === 'Heading 3' || p.text.startsWith('PRACTICE')) {
+      rendered.push(
+        <div key={i} style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700,
+          textTransform: 'uppercase' as const, letterSpacing: '0.07em', color: C.muted,
+          margin: '1.25rem 0 0.25rem' }}>
+          {p.text}
+        </div>
+      );
+      return;
+    }
+
+    if (p.style === 'Quote' || p.style === 'Intense Quote') {
+      rendered.push(
+        <blockquote key={i} style={{ borderLeft: `3px solid ${C.gold}`, margin: '1rem 0',
+          padding: '0.5rem 1rem', fontFamily: 'Georgia, serif', fontStyle: 'italic',
+          fontSize: '1rem', color: C.navy, background: '#FDFCF8' }}>
+          {p.text}
+        </blockquote>
+      );
+      return;
+    }
+
+    if (p.style === 'List Paragraph' || p.text.startsWith('•') || p.text.startsWith('-')) {
+      rendered.push(
+        <li key={i} style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+          color: C.navy, lineHeight: 1.7, margin: '0.2rem 0 0.2rem 1.25rem' }}>
+          {p.text.replace(/^[•\-]\s*/, '')}
+        </li>
+      );
+      return;
+    }
+
+    rendered.push(
+      <p key={i} style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+        color: p.text.length < 60 && p.text === p.text.toUpperCase() ? C.muted : C.navy,
+        lineHeight: 1.75, margin: '0.5rem 0' }}>
+        {p.text}
+      </p>
+    );
+  });
+
+  return (
+    <div style={{ background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 8,
+      padding: '1.5rem 1.75rem', margin: '0.5rem 0 1.25rem' }}>
+      {rendered}
+      <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: `1px solid ${C.border}` }}>
+        <button onClick={save} disabled={!allAnswered || isSaving}
+          style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+          {isSaving ? 'Saving…' : isSaved ? '✓ Reflections Saved' : 'Save My Reflections'}
+        </button>
+        {!allAnswered && (
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '0.5rem 0 0' }}>
+            Complete all 13 reflections to continue.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onComplete: () => void; initialAnswers?: Record<string, string> | null; isPreview?: boolean }) {
   const initSaved = (): Record<string, string> => {
     if (initialAnswers && Object.keys(initialAnswers).length > 0) return initialAnswers;
@@ -3858,26 +4025,21 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 1 — Inner Work Guide with Reflections */}
+        {/* Step 1 — Inner Work Guide with Reflections inline */}
         {step === 1 && (
           <div>
             {progressBar(1)}
-            {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
-            {body("The Inner Work Guide is where your preparation begins. Read it in full, then answer each reflection below. Your answers are private \u2014 saved to your account, never reviewed by anyone. You can save progress and return at any time.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0 0' }}>
-              <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
-              </button>
+            {heading("Step 1 of 7 — The Inner Work Guide")}
+            {body("Read the guide in full and answer each reflection as you go. Your answers are private — saved to your account, never reviewed by anyone. You can save progress and return at any time.")}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 1rem' }}>
               <button onClick={() => findAndDownloadDoc('Facilitator_Inner_Work_Guide')}
                 disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                style={{ ...btn(C.muted, '#fff', true), opacity: openingDoc ? 0.6 : 1 }}>
                 ↓ Download / Print
               </button>
             </div>
-            <IWGReflectionsForm onComplete={() => setChecked(true)} initialAnswers={onboarding.inner_work_reflections} isPreview={isPreview} />
-            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Reflections saved</div>}
+            <IWGInlineForm onComplete={() => setChecked(true)} initialAnswers={onboarding.inner_work_reflections} isPreview={isPreview} />
+            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>✓ Reflections saved</div>}
             {nextBtn(!checked)}
           </div>
         )}
