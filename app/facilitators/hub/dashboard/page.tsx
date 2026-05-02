@@ -435,6 +435,33 @@ function StarRating({ value, onChange, label, hint }: {
   );
 }
 
+/* ── Shared print utility ── */
+function printForm(title: string, rows: { label: string; value: string | number | boolean | null | undefined }[]) {
+  const rowsHtml = rows.map(r => {
+    const val = r.value === true ? 'Yes' : r.value === false ? 'No' : (r.value ?? '—');
+    return `<div class="row"><div class="label">${r.label}</div><div class="value">${String(val).replace(/\n/g, '<br>') || '—'}</div></div>`;
+  }).join('');
+  const win = window.open('', '_blank')!;
+  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+<style>
+body{font-family:Georgia,serif;max-width:680px;margin:40px auto;color:#1a1a1a;font-size:0.95rem;line-height:1.6}
+h1{font-family:Georgia,serif;font-size:1.4rem;color:#1c3028;margin:0 0 4px}
+.sub{font-size:0.8rem;color:#888;margin:0 0 24px}
+.row{border-bottom:1px solid #e5e5e5;padding:10px 0;display:grid;grid-template-columns:200px 1fr;gap:16px}
+.label{font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9a7b2f;padding-top:2px}
+.value{color:#1c3028;white-space:pre-wrap}
+.note{font-size:0.75rem;color:#aaa;margin-top:32px;border-top:1px solid #eee;padding-top:10px}
+@media print{button{display:none}}
+</style></head><body>
+<h1>${title}</h1>
+<p class="sub">Live and Grieve™ · Tri-Pillars™ LLC · Printed ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
+${rowsHtml}
+<p class="note">This document was generated from the Live and Grieve™ Facilitator Hub. Keep for your records.</p>
+</body></html>`);
+  win.document.close();
+  win.print();
+}
+
 /* ── 2B: Single week log row/modal ── */
 function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
   cohortId: string; weekNum: number; log?: SessionLog; onSaved: () => void;
@@ -643,10 +670,22 @@ function WeekLogRow({ cohortId, weekNum, log, onSaved }: {
           {msg && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem',
             color: msg.startsWith('Error') ? C.danger : C.success, margin: '0 0 0.75rem' }}>{msg}</p>}
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
             <button type="submit" disabled={saving} style={btn(C.navy, '#fff', true)}>
               {saving ? 'Saving…' : 'Save Session Log'}
             </button>
+            <button type="button" onClick={() => printForm(`Session ${weekNum} Log`, [
+              { label: 'Week', value: weekNum },
+              { label: 'Duration (min)', value: form.session_duration_minutes },
+              { label: 'Participants Attended', value: form.participants_attended },
+              { label: 'Session Delivered', value: form.session_delivered },
+              { label: 'Group Stable', value: form.group_composition_stable },
+              { label: 'Co-Facilitated', value: form.co_facilitated },
+              { label: 'Confidence Rating', value: form.facilitator_confidence_rating },
+              { label: 'Notes', value: form.notes },
+              { label: 'Observation', value: form.observation },
+              { label: 'Critical Incident', value: form.critical_incident },
+            ])} style={btn(C.muted, '#fff', true)}>↓ Print / Save PDF</button>
             <button type="button" onClick={() => setOpen(false)} style={btn(C.bg, C.navy, true)}>Cancel</button>
           </div>
         </form>
@@ -829,9 +868,20 @@ function PreProgramForm({ cohortId, existing, onSaved }: {
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
           color: msg.includes('Error') ? C.danger : C.success, margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
       )}
-      <button type="submit" disabled={saving} style={btn(C.navy, '#fff')}>
-        {saving ? 'Saving…' : 'Save Pre-Program Data'}
-      </button>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+        <button type="submit" disabled={saving} style={btn(C.navy, '#fff')}>
+          {saving ? 'Saving…' : 'Save Pre-Program Data'}
+        </button>
+        <button type="button" onClick={() => printForm('Pre-Program Setup', [
+          { label: 'Participant Count', value: partCount },
+          { label: 'Setting Type', value: settingType },
+          { label: 'Community Type', value: communityType },
+          { label: 'Time Since Loss', value: timeSinceLoss },
+          { label: 'Age Ranges', value: Object.entries(ageRanges).filter(([,v])=>Number(v)>0).map(([k,v])=>`${AGE_LABELS[k]}: ${v}`).join(', ') || '—' },
+          { label: 'Loss Types', value: Object.entries(lossTypes).filter(([,v])=>Number(v)>0).map(([k,v])=>`${LOSS_LABELS[k]}: ${v}`).join(', ') || '—' },
+          { label: 'Prior Support', value: Object.entries(priorSupport).filter(([,v])=>Number(v)>0).map(([k,v])=>`${SUPPORT_LABELS[k]}: ${v}`).join(', ') || '—' },
+        ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
+      </div>
     </form>
   );
 }
@@ -967,9 +1017,19 @@ function PostProgramForm({ cohortId, preCount, existing, onSaved }: {
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
           color: msg.startsWith('Error') ? C.danger : C.gold, margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
       )}
-      <button type="submit" disabled={saving} style={btn(C.gold, '#fff')}>
-        {saving ? 'Submitting…' : 'Submit Outcomes & Generate Report'}
-      </button>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+        <button type="submit" disabled={saving} style={btn(C.gold, '#fff')}>
+          {saving ? 'Submitting…' : 'Submit Outcomes & Generate Report'}
+        </button>
+        <button type="button" onClick={() => printForm('Post-Program Outcomes', [
+          { label: 'Participants Completed', value: postCount },
+          { label: 'Grief Intensity Rating', value: grief },
+          { label: 'Connection Rating', value: connection },
+          { label: 'Self-Care Rating', value: selfCare },
+          { label: 'Hope Rating', value: hope },
+          { label: 'Facilitator Observations', value: observations },
+        ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
+      </div>
     </form>
   );
 }
@@ -1124,10 +1184,19 @@ function CohortSummaryForm({ cohortId, facilitatorId, onCompleted }: {
           margin: '0 0 0.75rem', fontWeight: 600 }}>{msg}</p>
       )}
 
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' as const }}>
         <button type="submit" disabled={saving} style={btn(C.navy, '#fff')}>
           {saving ? 'Submitting…' : 'Submit Summary & Complete Cohort'}
         </button>
+        <button type="button" onClick={() => printForm('Cohort Completion Summary', [
+          { label: 'Total Enrolled', value: form.total_enrolled },
+          { label: 'Total Completed', value: form.total_completed },
+          { label: 'Dropout Reasons', value: form.dropout_reasons },
+          { label: 'Facilitator Assessment', value: form.facilitator_assessment },
+          { label: 'Would Run Again', value: form.would_run_again },
+          { label: 'Notable Outcomes', value: form.notable_outcomes },
+          { label: 'Curriculum Feedback', value: form.curriculum_feedback },
+        ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
         <button type="button" onClick={() => setOpen(false)} style={btn(C.border, C.navy, true)}>
           Cancel
         </button>
@@ -2532,9 +2601,18 @@ function FeedbackTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[]
           </p>
         )}
 
-        <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
-          {submitting ? 'Submitting…' : 'Submit Feedback'}
-        </button>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+          <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
+            {submitting ? 'Submitting…' : 'Submit Feedback'}
+          </button>
+          <button type="button" onClick={() => printForm('Session Feedback', [
+            { label: 'Session Number', value: form.session_number },
+            { label: 'Participants Present', value: form.participants_present },
+            { label: 'Forms Collected', value: form.forms_collected },
+            { label: 'Avg Satisfaction', value: form.avg_satisfaction },
+            { label: 'Themes / Comments', value: form.themes },
+          ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
+        </div>
       </form>
     </div>
   );
@@ -3028,9 +3106,19 @@ function IncidentTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort[]
               </div>
             )}
 
-            <button type="submit" disabled={submitting} style={btn(C.danger)}>
-              {submitting ? 'Submitting…' : 'Submit Critical Incident Report'}
-            </button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+              <button type="submit" disabled={submitting} style={btn(C.danger)}>
+                {submitting ? 'Submitting…' : 'Submit Critical Incident Report'}
+              </button>
+              <button type="button" onClick={() => printForm('Critical Incident Report', [
+                { label: 'Date of Incident', value: form.incident_date },
+                { label: 'Session Number', value: form.session_number },
+                { label: 'Description', value: form.description },
+                { label: 'Action Taken', value: form.action_taken },
+                { label: 'Follow-up Planned', value: form.followup_planned },
+                { label: 'Participant Status', value: form.participant_status },
+              ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
+            </div>
           </form>
         )}
       </div>
@@ -3184,9 +3272,18 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
             </p>
           )}
 
-          <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
-            {submitting ? 'Saving…' : 'Save Reflection'}
-          </button>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
+            <button type="submit" disabled={submitting} style={btn(C.navy, '#fff')}>
+              {submitting ? 'Saving…' : 'Save Reflection'}
+            </button>
+            <button type="button" onClick={() => printForm('Facilitator Reflection', [
+              { label: 'Session Number', value: form.session_number },
+              { label: 'What Went Well', value: form.went_well },
+              { label: 'Challenges', value: form.challenges },
+              { label: 'Concerns', value: form.concerns },
+              { label: 'Self-Care Practice', value: form.self_care },
+            ])} style={btn(C.muted, '#fff')}>↓ Print / Save PDF</button>
+          </div>
         </form>
       </div>
 
@@ -3951,23 +4048,14 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
                   })}
                 </div>
 
-                {/* Open Full Manual buttons */}
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-                  <button
-                    onClick={() => { findAndOpenDoc('FM'); }}
-                    disabled={openingDoc}
-                    style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}
-                  >
-                    {openingDoc ? 'Loading\u2026' : `Open Full Manual \u2014 Book ${firstBook}`}
-                  </button>
-                  <button
-                    onClick={() => { findAndDownloadDoc('FM'); }}
-                    disabled={openingDoc}
-                    style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}
-                  >
-                    ↓ Download / Print
-                  </button>
-                </div>
+                {/* Open Full Manual button */}
+                <button
+                  onClick={() => { findAndOpenDoc('FM'); }}
+                  disabled={openingDoc}
+                  style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, margin: '1rem 0' }}
+                >
+                  {openingDoc ? 'Loading\u2026' : `Open Full Manual \u2014 Book ${firstBook}`}
+                </button>
 
                 {checkboxRow('I have read Week 1 of the Master Facilitator Manual and am ready for training day.')}
               </>
