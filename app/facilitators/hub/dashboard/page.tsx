@@ -3490,9 +3490,13 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           d.path.includes(pathFragment)
         );
         if (found?.url) {
-          // Use location.href to avoid popup blocker (async fetch breaks window.open trust)
+          // .docx files would trigger a download on mobile — open in Google Docs Viewer instead
+          const rawUrl = found.url;
+          const viewUrl = rawUrl.toLowerCase().endsWith('.docx')
+            ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`
+            : rawUrl;
           const a = document.createElement('a');
-          a.href = found.url;
+          a.href = viewUrl;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
           document.body.appendChild(a);
