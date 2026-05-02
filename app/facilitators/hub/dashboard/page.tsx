@@ -3640,7 +3640,7 @@ function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onCompl
   return (
     <div style={{ marginTop: '1rem' }}>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '0 0 1.25rem', lineHeight: 1.6 }}>
-        Answer each reflection after reading the guide. Your responses are saved to your account and are completely private \u2014 never reviewed by anyone at Tri-Pillars\u2122. You can save progress and return at any time.
+        Answer each reflection after reading the guide. Your responses are saved to your account and are completely private — never reviewed by anyone at Tri-Pillars™. You can save progress and return at any time.
       </p>
 
       {IWG_REFLECTIONS_LIST.map((q, i) => (
