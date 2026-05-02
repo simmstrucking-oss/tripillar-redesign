@@ -3643,8 +3643,11 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
   // Walk IWG_CONTENT and inject textareas at REFLECTION markers (first 13 only)
   let refIdx = 0;
   const rendered: React.ReactNode[] = [];
+  const skipNext = new Set<number>();
 
   IWG_CONTENT.forEach((p, i) => {
+    if (skipNext.has(i)) return;
+
     if (!p.text.trim()) {
       rendered.push(<div key={i} style={{ height: '0.4rem' }} />);
       return;
@@ -3653,6 +3656,9 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
     if (p.text === 'REFLECTION') {
       if (refIdx < 13) {
         const q = IWG_REFLECTIONS_LIST[refIdx];
+        // The next paragraph in IWG_CONTENT is the question text — skip it
+        // (we use the full prompt from IWG_REFLECTIONS_LIST instead)
+        skipNext.add(i + 1);
         rendered.push(
           <div key={`ref-${refIdx}`} style={{
             background: '#FDFCF8', border: `1px solid ${C.gold}`,
@@ -3662,6 +3668,10 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
               textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: C.gold, marginBottom: 6 }}>
               Reflection {refIdx + 1} of 13
             </div>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy,
+              lineHeight: 1.65, margin: '0 0 0.6rem' }}>
+              {q.prompt}
+            </p>
             <textarea
               style={ta}
               value={answers[q.id] || ''}
