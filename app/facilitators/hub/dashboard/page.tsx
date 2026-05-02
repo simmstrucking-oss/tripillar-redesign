@@ -3391,7 +3391,13 @@ function GriefInventoryForm({ onComplete, initialAnswers, isPreview }: { onCompl
   };
   const [answers, setAnswers] = React.useState<Record<string, string>>(initSaved);
   const [isSaving, setIsSaving] = React.useState(false);
-  const allAnswered = GRIEF_INV_REFLECTIONS.every(q => (answers[q.id] || '').trim().length > 0);
+  const allAnswered = GRIEF_INV_REFLECTIONS.every(q => {
+    const parts = q.prompt.split('?').map((s: string) => s.trim()).filter((s: string) => s.length > 3);
+    return parts.every((_: string, si: number) => {
+      const key = parts.length === 1 ? q.id : `${q.id}_${si}`;
+      return (answers[key] || '').trim().length > 0;
+    });
+  });
   const [isSaved, setIsSaved] = React.useState(() => {
     const s = initSaved();
     return GRIEF_INV_REFLECTIONS.every(q => (s[q.id] || '').trim().length > 0);
@@ -3501,14 +3507,26 @@ ${reflHtml}
       <div style={sectionH}>The Inventory</div>
       <p style={{ ...prose, marginTop: '0.5rem' }}>Before you facilitate your first group, complete this inventory honestly. Return to it at every annual renewal.</p>
 
-      {/* 4 Reflection fields */}
-      {GRIEF_INV_REFLECTIONS.map((q, i) => (
-        <div key={q.id} style={refBox}>
-          <div style={refLabel}>Reflection {i + 1}</div>
-          <p style={refQ}>{q.prompt}</p>
-          <textarea style={ta} value={answers[q.id] || ''} onChange={e => update(q.id, e.target.value)} placeholder="Write here\u2026" />
-        </div>
-      ))}
+      {/* 4 Reflection fields — each sub-question gets its own textarea */}
+      {GRIEF_INV_REFLECTIONS.map((q, i) => {
+        const subQs = q.prompt.split('?').map((s: string) => s.trim()).filter((s: string) => s.length > 3).map((s: string) => s.endsWith('?') ? s : s + '?');
+        return (
+          <div key={q.id} style={refBox}>
+            <div style={refLabel}>Reflection {i + 1}</div>
+            {subQs.map((sq: string, si: number) => (
+              <div key={si} style={{ marginBottom: si < subQs.length - 1 ? '1rem' : 0 }}>
+                <p style={refQ}>{sq}</p>
+                <textarea
+                  style={ta}
+                  value={subQs.length === 1 ? (answers[q.id] || '') : (answers[`${q.id}_${si}`] !== undefined ? answers[`${q.id}_${si}`] : (si === 0 ? (answers[q.id] || '') : ''))}
+                  onChange={e => update(subQs.length === 1 ? q.id : `${q.id}_${si}`, e.target.value)}
+                  placeholder="Write here…"
+                />
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       {/* What This Means in Practice */}
       <div style={sectionH}>What This Means in Practice</div>
