@@ -3412,11 +3412,11 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         {/* Step 0 — Intro */}
         {step === 0 && (
           <div style={{ textAlign: 'center' }}>
-            {heading("Before we begin.")}
-            {body("This Hub is your home base for everything Live and Grieve\u2122. Before your certification training, we are going to walk you through seven steps. Each one matters. Take your time with each screen before moving forward.")}
+            {heading("Welcome.")}
+            {body("We\u2019re glad you\u2019re here. This Hub is where your journey as a Live and Grieve\u2122 facilitator begins \u2014 and where it continues long after training day. Over the next seven steps, we\u2019ll walk through your preparation together. Some is reading. Some is reflection. Some is practical. Take your time with each one.")}
             <button onClick={advance}
               style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
-              I am ready. Let&apos;s begin.
+              I&apos;m ready. Let&apos;s begin.
             </button>
           </div>
         )}
@@ -3426,7 +3426,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
-            {body("This is the foundation of everything you are about to do. Before you can hold space for someone else\u2019s grief, you need to have sat with your own. Read the Inner Work Guide in full before your training day.")}
+            {body("The Inner Work Guide is where your preparation begins. It invites you to spend some time with your own grief before sitting with others in theirs. Not because you need to have it figured out \u2014 but because the most grounded facilitation comes from self-awareness, not distance. Read it in full before training day.")}
             <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
               disabled={openingDoc}
               style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
@@ -3442,7 +3442,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(2)}
             {heading("Step 2 of 7 \u2014 Your Grief Inventory")}
-            {body("Chapter 1 of the Inner Work Guide contains a Grief Inventory. Complete it before training day. You do not submit it \u2014 it is for you. But you need to have done it. Come to training having sat with your own answers. This is not optional.")}
+            {body("Chapter 1 of the Inner Work Guide includes a Grief Inventory. It\u2019s yours \u2014 you won\u2019t submit it, and no one will review it. But we ask that you complete it before training day and come having sat with your own answers. Facilitators who have spent time with their own grief show up differently in the room. This is part of that.")}
             {checkboxRow("I have completed the Grief Inventory from Chapter 1.")}
             {nextBtn(!checked)}
           </div>
@@ -3453,7 +3453,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
-            {body("Before you sit across from someone who wants to enroll in Live and Grieve\u2122, you need to understand who this program is and is not designed for. Read the Participant Appropriateness Guide now.")}
+            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. The Participant Appropriateness Guide helps you make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
             <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
               disabled={openingDoc}
               style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
@@ -3469,7 +3469,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
-            {body("This governs everything you do in this role. Read it carefully before you sign it.")}
+            {body("The Code of Conduct describes how Live and Grieve\u2122 facilitators show up \u2014 in the room, in relationships with participants, and in the wider community. It\u2019s not a list of rules so much as a shared standard of care. Read it in full before you sign.")}
             <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
               disabled={openingDoc}
               style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
@@ -3501,7 +3501,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
 
             {firstBook ? (
               <>
-                {body('Read Week 1 of your Master Facilitator Manual below before training day. Every layer is here — participant workbook content, facilitation notes, and facilitator tips. Read it in full. Know the structure before you walk into the room.')}
+                {body('Below is Week 1 of your Master Facilitator Manual. Read it before training day. Every layer is here \u2014 what participants will be working through, how the session is structured, and guidance for you as you hold the room. Familiarity with Week 1 before training day will make the experience much richer.')}
 
                 {/* Inline Week 1 content */}
                 <div style={{
@@ -3755,7 +3755,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(6)}
             {heading("Step 6 of 7 \u2014 Your Training Day")}
-            {body("Confirm your training details below so we know you are ready.")}
+            {body("You\u2019re almost there. Confirm your training details below so we have everything on file and can prepare well for your day together.")}
             <div style={{ display: 'grid', gap: '0.75rem', maxWidth: 400 }}>
               <div>
                 <label style={fieldLabel}>Training Date</label>
@@ -3790,11 +3790,11 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         {step === 7 && (
           <div>
             {progressBar(7)}
-            {heading("Step 7 of 7 \u2014 You are ready.")}
-            {body("Pre-training preparation is complete. Tri-Pillars\u2122 will see you at certification training. If anything comes up before then \u2014 questions, concerns, anything at all \u2014 use the Get Support tab. That is what it is there for.")}
+            {heading("Step 7 of 7 \u2014 You\u2019re ready.")}
+            {body("Your pre-training preparation is complete. We\u2019ll see you on training day. Between now and then, your Hub is here \u2014 and so are we. If anything comes up \u2014 questions, something you want to think through, anything at all \u2014 the Get Support tab is always open.")}
             <button onClick={completeOnboarding}
               style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
-              Enter your Hub.
+              Enter your Hub
             </button>
           </div>
         )}
