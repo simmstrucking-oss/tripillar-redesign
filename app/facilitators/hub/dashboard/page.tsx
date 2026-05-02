@@ -3150,7 +3150,11 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
   const loadReflections = useCallback(async () => {
     setLoadingHistory(true);
     try {
-      const res = await fetch(`/api/hub/reflections?facilitator_id=${profile.id}`);
+      const { data: { session } } = await getSupabaseBrowser().auth.getSession();
+      const jwt = session?.access_token ?? '';
+      const res = await fetch(`/api/hub/reflections?facilitator_id=${profile.id}`, {
+        headers: { 'Authorization': `Bearer ${jwt}` },
+      });
       const data = await res.json();
       if (res.ok) setReflections(data.reflections ?? []);
     } catch { /* silent */ }
@@ -3163,9 +3167,11 @@ function ReflectionTab({ profile, cohorts }: { profile: Profile; cohorts: Cohort
     e.preventDefault();
     setSubmitting(true); setMsg(null);
     try {
+      const { data: { session } } = await getSupabaseBrowser().auth.getSession();
+      const jwt = session?.access_token ?? '';
       const res = await fetch('/api/hub/reflections', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
         body: JSON.stringify({
           facilitator_id: profile.id,
           cohort_id: form.cohort_id || null,
