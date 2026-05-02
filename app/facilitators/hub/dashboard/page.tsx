@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 import SignatureField from '@/app/components/SignatureField';
-import { WEEK1_CONTENT, type DocParagraph } from '@/lib/week1-content';
+import { WEEK1_CONTENT, IWG_CONTENT, PAG_CONTENT, COC_CONTENT, type DocParagraph } from '@/lib/week1-content';
 
 /* ── Fonts ── */
 const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap';
@@ -3369,6 +3369,7 @@ interface OnboardingState {
   dismissed_orientation: boolean;
   books_certified?: number[];
   grief_inventory?: Record<string, string> | null;
+  inner_work_reflections?: Record<string, string> | null;
 }
 
 /* ── Chapter 1 Guided Walkthrough (Step 2) ── */
@@ -3532,6 +3533,137 @@ ${reflHtml}
       </div>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
         Your reflections are saved to your account and never reviewed by Tri-Pillars&trade; or anyone else.
+      </p>
+    </div>
+  );
+}
+
+/* ── Shared inline document renderer ── */
+function renderDocInline(content: DocParagraph[], C: Record<string, string>) {
+  return (
+    <div style={{
+      background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 8,
+      padding: '1.5rem 1.75rem', margin: '1.25rem 0', maxHeight: '60vh',
+      overflowY: 'auto', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+      lineHeight: 1.75, color: C.navy,
+    }}>
+      {content.map((p, i) => {
+        if (!p.text.trim()) return <div key={i} style={{ height: '0.5rem' }} />;
+        if (p.style === 'Heading 1') return (
+          <h2 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem', fontWeight: 700, color: C.navy, margin: '1.5rem 0 0.5rem', borderBottom: `2px solid ${C.gold}`, paddingBottom: '0.4rem' }}>{p.text}</h2>
+        );
+        if (p.style === 'Heading 2') return (
+          <h3 key={i} style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.975rem', fontWeight: 600, color: C.navy, margin: '1.25rem 0 0.35rem', borderLeft: `3px solid ${C.gold}`, paddingLeft: '0.6rem' }}>{p.text}</h3>
+        );
+        if (p.style === 'Heading 3') return (
+          <h4 key={i} style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: C.navy, margin: '1rem 0 0.25rem', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>{p.text}</h4>
+        );
+        if (p.style === 'List Paragraph') return (
+          <div key={i} style={{ paddingLeft: '1.25rem', margin: '0.2rem 0', position: 'relative' as const }}>
+            <span style={{ position: 'absolute' as const, left: 0, color: C.gold }}>›</span>{p.text}
+          </div>
+        );
+        return <p key={i} style={{ margin: '0.35rem 0' }}>{p.text}</p>;
+      })}
+    </div>
+  );
+}
+
+/* ── IWG Reflections Form (Step 1) ── */
+const IWG_REFLECTIONS_STORAGE = 'lg_iwg_reflections_v1';
+
+const IWG_REFLECTIONS_LIST = [
+  { id: 'r1', section: 'Chapter 1 — Your Grief History', prompt: 'List the significant losses in your life. Not just deaths \u2014 include losses of relationship, identity, health, safety, or meaning. For each one, write: How old were you? Who supported you? How did you grieve \u2014 or not grieve \u2014 at the time?' },
+  { id: 'r2', section: 'Chapter 1 — Your Grief History', prompt: 'Which of these losses feel fully integrated \u2014 present but not raw? Which ones are still active in some way?' },
+  { id: 'r3', section: 'Chapter 1 — Your Grief History', prompt: 'If you were sitting in your own group as a participant, which week\u2019s topic would be hardest for you to sit with? What would that activate?' },
+  { id: 'r4', section: 'Chapter 1 — Your Grief History', prompt: 'Have you done your own grief work \u2014 through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?' },
+  { id: 'r5', section: 'Chapter 2 — Your Nervous System', prompt: 'Think of a time when you were facilitating \u2014 or in any high-stakes interpersonal moment \u2014 when you were genuinely regulated. What did that feel like in your body? What made it possible?' },
+  { id: 'r6', section: 'Chapter 2 — Your Nervous System', prompt: 'Think of a time when you were activated in the room. What happened? What did you do? What do you wish you had done?' },
+  { id: 'r7', section: 'Chapter 2 — Your Nervous System', prompt: 'Write your arrival practice. Be specific \u2014 not \u201cI will breathe\u201d but exactly what, for how long, with what intention.' },
+  { id: 'r8', section: 'Chapter 3 — Peer Consultation and Support', prompt: 'Who are your current peer consultants? If you do not have one, name one person you could approach. What would you need to say to begin that relationship?' },
+  { id: 'r9', section: 'Chapter 3 — Peer Consultation and Support', prompt: 'What is your current personal support structure? Where do you go when you are not okay? Is it enough for this work?' },
+  { id: 'r10', section: 'Chapter 3 — Peer Consultation and Support', prompt: 'Have you experienced any signs of secondary traumatic stress before \u2014 in this work or in other caregiving roles? What helped? What made it worse?' },
+  { id: 'r11', section: 'Chapter 4 — Presence and Language', prompt: 'On a scale of 1\u201310, how comfortable are you with silence in emotionally charged settings? What drives your impulse to fill it? What would it mean to trust the silence?' },
+  { id: 'r12', section: 'Chapter 4 — Presence and Language', prompt: 'Which of the \u201cclosing\u201d phrases do you find yourself drawn to, even though you know better? What does that impulse protect in you?' },
+  { id: 'r13', section: 'Chapter 4 — Presence and Language', prompt: 'Think of a facilitation moment \u2014 real or imagined \u2014 where you filled space that did not need to be filled. What were you protecting yourself from? What did the group miss because of it?' },
+];
+
+function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onComplete: () => void; initialAnswers?: Record<string, string> | null; isPreview?: boolean }) {
+  const initSaved = (): Record<string, string> => {
+    if (initialAnswers && Object.keys(initialAnswers).length > 0) return initialAnswers;
+    if (typeof window === 'undefined') return {};
+    try { return JSON.parse(localStorage.getItem(IWG_REFLECTIONS_STORAGE) || '{}'); } catch { return {}; }
+  };
+  const [answers, setAnswers] = React.useState<Record<string, string>>(initSaved);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const allAnswered = IWG_REFLECTIONS_LIST.every(q => (answers[q.id] || '').trim().length > 0);
+  const [isSaved, setIsSaved] = React.useState(() => {
+    const s = initSaved();
+    return IWG_REFLECTIONS_LIST.every(q => (s[q.id] || '').trim().length > 0);
+  });
+
+  function update(id: string, val: string) {
+    const next = { ...answers, [id]: val };
+    setAnswers(next);
+    setIsSaved(false);
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(IWG_REFLECTIONS_STORAGE, JSON.stringify(next)); } catch { /* noop */ }
+    }
+  }
+
+  async function save() {
+    setIsSaving(true);
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(IWG_REFLECTIONS_STORAGE, JSON.stringify(answers)); } catch { /* noop */ }
+    }
+    if (!isPreview) {
+      try {
+        await fetch('/api/hub/onboarding', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ inner_work_reflections: answers }),
+        });
+      } catch { /* non-fatal — localStorage is fallback */ }
+    }
+    setIsSaving(false);
+    setIsSaved(true);
+    onComplete();
+  }
+
+  const refBox: React.CSSProperties = { background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 6, padding: '14px 16px', marginBottom: '1.25rem' };
+  const refLabel: React.CSSProperties = { fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.gold, marginBottom: 4 };
+  const refSection: React.CSSProperties = { fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', color: C.muted, marginBottom: 6 };
+  const refQ: React.CSSProperties = { fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '0.95rem', color: C.navy, margin: '0 0 10px', lineHeight: 1.65 };
+  const ta: React.CSSProperties = { width: '100%', minHeight: 100, padding: '0.55rem 0.75rem', border: `1px solid ${C.border}`, borderRadius: 5, resize: 'vertical' as const, fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, background: '#fff', boxSizing: 'border-box' as const, lineHeight: 1.6 };
+
+  return (
+    <div style={{ marginTop: '1rem' }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: C.muted, margin: '0 0 1.25rem', lineHeight: 1.6 }}>
+        Answer each reflection after reading the guide. Your responses are saved to your account and are completely private \u2014 never reviewed by anyone at Tri-Pillars\u2122. You can save progress and return at any time.
+      </p>
+
+      {IWG_REFLECTIONS_LIST.map((q, i) => (
+        <div key={q.id} style={refBox}>
+          <div style={refLabel}>Reflection {i + 1}</div>
+          <div style={refSection}>{q.section}</div>
+          <p style={refQ}>{q.prompt}</p>
+          <textarea style={ta} value={answers[q.id] || ''} onChange={e => update(q.id, e.target.value)} placeholder="Write here\u2026" />
+        </div>
+      ))}
+
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '1rem' }}>
+        <button onClick={save} disabled={!allAnswered || isSaving} style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+          {isSaving ? 'Saving\u2026' : isSaved ? '\u2713 Saved' : 'Save My Reflections'}
+        </button>
+      </div>
+      {!allAnswered && (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
+          Complete all {IWG_REFLECTIONS_LIST.length} reflections to continue.
+        </p>
+      )}
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
+        Your reflections are private and never reviewed by Tri-Pillars\u2122 or anyone else.
       </p>
     </div>
   );
@@ -3726,13 +3858,13 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 1 — Inner Work Guide */}
+        {/* Step 1 — Inner Work Guide with Reflections */}
         {step === 1 && (
           <div>
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
-            {body("The Inner Work Guide is where your preparation begins. It invites you to spend some time with your own grief before sitting with others in theirs. Not because you need to have it figured out \u2014 but because the most grounded facilitation comes from self-awareness, not distance. Read it in full before training day.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
+            {body("The Inner Work Guide is where your preparation begins. Read it in full, then answer each reflection below. Your answers are private \u2014 saved to your account, never reviewed by anyone. You can save progress and return at any time.")}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0 0' }}>
               <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
                 disabled={openingDoc}
                 style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
@@ -3744,7 +3876,8 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
                 ↓ Download / Print
               </button>
             </div>
-            {checkboxRow("I have read the Facilitator Inner Work Guide.")}
+            <IWGReflectionsForm onComplete={() => setChecked(true)} initialAnswers={onboarding.inner_work_reflections} isPreview={isPreview} />
+            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Reflections saved</div>}
             {nextBtn(!checked)}
           </div>
         )}
@@ -3761,21 +3894,17 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 3 — Participant Appropriateness Guide */}
+        {/* Step 3 — Participant Appropriateness Guide (inline) */}
         {step === 3 && (
           <div>
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
-            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. The Participant Appropriateness Guide helps you make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
-              </button>
+            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. Read the guide below in full before moving on.")}
+            {renderDocInline(PAG_CONTENT, C)}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
                 disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1, fontSize: '0.82rem' }}>
                 ↓ Download / Print
               </button>
             </div>
@@ -3784,21 +3913,17 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 4 — Code of Conduct */}
+        {/* Step 4 — Code of Conduct (inline) */}
         {step === 4 && (
           <div>
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
-            {body("The Code of Conduct describes how Live and Grieve\u2122 facilitators show up \u2014 in the room, in relationships with participants, and in the wider community. It\u2019s not a list of rules so much as a shared standard of care. Read it in full before you sign.")}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
-              <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
-                disabled={openingDoc}
-                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-                {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
-              </button>
+            {body("Read the Code of Conduct below in full. When you\u2019ve read it, check the box and sign.")}
+            {renderDocInline(COC_CONTENT, C)}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
                 disabled={openingDoc}
-                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1, fontSize: '0.82rem' }}>
                 ↓ Download / Print
               </button>
             </div>
