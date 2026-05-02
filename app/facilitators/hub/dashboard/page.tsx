@@ -3548,7 +3548,7 @@ ${reflHtml}
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '1.25rem' }}>
-        <button onClick={save} disabled={!allAnswered || isSaving} style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+        <button onClick={save} disabled={isSaving} style={{ ...btn(C.gold, '#fff'), opacity: !isSaving ? 1 : 0.5 }}>
           {isSaving ? 'Saving\u2026' : isSaved ? '\u2713 Saved' : 'Save My Reflections'}
         </button>
         <button onClick={printChapter} style={btn(C.navy, '#fff')}>
@@ -3800,15 +3800,10 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
       padding: '1.5rem 1.75rem', margin: '0.5rem 0 1.25rem' }}>
       {rendered}
       <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: `1px solid ${C.border}` }}>
-        <button onClick={save} disabled={!allAnswered || isSaving}
-          style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+        <button onClick={save} disabled={isSaving}
+          style={{ ...btn(C.gold, '#fff'), opacity: !isSaving ? 1 : 0.5 }}>
           {isSaving ? 'Saving…' : isSaved ? '✓ Reflections Saved' : 'Save My Reflections'}
         </button>
-        {!allAnswered && (
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '0.5rem 0 0' }}>
-            Complete all 13 reflections to continue.
-          </p>
-        )}
       </div>
     </div>
   );
@@ -3879,15 +3874,10 @@ function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onCompl
       ))}
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '1rem' }}>
-        <button onClick={save} disabled={!allAnswered || isSaving} style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+        <button onClick={save} disabled={isSaving} style={{ ...btn(C.gold, '#fff'), opacity: !isSaving ? 1 : 0.5 }}>
           {isSaving ? 'Saving\u2026' : isSaved ? '\u2713 Saved' : 'Save My Reflections'}
         </button>
       </div>
-      {!allAnswered && (
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
-          Complete all {IWG_REFLECTIONS_LIST.length} reflections to continue.
-        </p>
-      )}
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
         Your reflections are private and never reviewed by Tri-Pillars\u2122 or anyone else.
       </p>
