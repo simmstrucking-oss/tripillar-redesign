@@ -3273,101 +3273,150 @@ interface OnboardingState {
   books_certified?: number[];
 }
 
-/* ── Grief Inventory Form (Step 2) ── */
-const INVENTORY_QUESTIONS = [
-  {
-    id: 'q1',
-    prompt: 'List the significant losses in your life. Not just deaths — include losses of relationship, identity, health, safety, or meaning. For each one, write: How old were you? Who supported you? How did you grieve — or not grieve — at the time?',
-  },
-  {
-    id: 'q2',
-    prompt: 'Which of these losses feel fully integrated — present but not raw? Which ones are still active in some way?',
-  },
-  {
-    id: 'q3',
-    prompt: 'If you were sitting in your own group as a participant, which week\u2019s topic would be hardest for you to sit with? What would that activate?',
-  },
-  {
-    id: 'q4',
-    prompt: 'Have you done your own grief work — through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?',
-  },
+/* ── Chapter 1 Guided Walkthrough (Step 2) ── */
+const GRIEF_INV_STORAGE = 'lg_grief_inventory_v1';
+
+const GRIEF_INV_REFLECTIONS = [
+  { id: 'q1', prompt: 'List the significant losses in your life. Not just deaths \u2014 include losses of relationship, identity, health, safety, or meaning. For each one, write: How old were you? Who supported you? How did you grieve \u2014 or not grieve \u2014 at the time?' },
+  { id: 'q2', prompt: 'Which of these losses feel fully integrated \u2014 present but not raw? Which ones are still active in some way?' },
+  { id: 'q3', prompt: 'If you were sitting in your own group as a participant, which week\u2019s topic would be hardest for you to sit with? What would that activate?' },
+  { id: 'q4', prompt: 'Have you done your own grief work \u2014 through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?' },
 ];
 
-const STORAGE_KEY = 'lg_grief_inventory_v1';
-
 function GriefInventoryForm({ onComplete }: { onComplete: () => void }) {
-  const saved = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') : {};
-  const [answers, setAnswers] = React.useState<Record<string, string>>(saved);
-  const [saved2, setSaved2] = React.useState(Object.keys(saved).length === 4 && INVENTORY_QUESTIONS.every(q => (saved[q.id] || '').trim().length > 0));
+  const initSaved = (): Record<string, string> => {
+    if (typeof window === 'undefined') return {};
+    try { return JSON.parse(localStorage.getItem(GRIEF_INV_STORAGE) || '{}'); } catch { return {}; }
+  };
+  const [answers, setAnswers] = React.useState<Record<string, string>>(initSaved);
+  const allAnswered = GRIEF_INV_REFLECTIONS.every(q => (answers[q.id] || '').trim().length > 0);
+  const [isSaved, setIsSaved] = React.useState(() => {
+    const s = initSaved();
+    return GRIEF_INV_REFLECTIONS.every(q => (s[q.id] || '').trim().length > 0);
+  });
 
   function update(id: string, val: string) {
     const next = { ...answers, [id]: val };
     setAnswers(next);
-    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(GRIEF_INV_STORAGE, JSON.stringify(next)); } catch { /* noop */ }
+    }
   }
 
   function save() {
-    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
-    setSaved2(true);
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(GRIEF_INV_STORAGE, JSON.stringify(answers)); } catch { /* noop */ }
+    }
+    setIsSaved(true);
     onComplete();
   }
 
-  function printInventory() {
+  function printChapter() {
+    const ans = answers;
+    const reflHtml = GRIEF_INV_REFLECTIONS.map((q, i) =>
+      `<div class="reflection"><div class="ref-label">Reflection ${i + 1}</div><p class="ref-q">${q.prompt}</p><div class="ans">${(ans[q.id] || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') || '&nbsp;'}</div></div>`
+    ).join('');
     const win = window.open('', '_blank')!;
-    win.document.write(`<!DOCTYPE html><html><head><title>Grief Inventory</title>
-    <style>body{font-family:Georgia,serif;max-width:680px;margin:40px auto;color:#1a1a1a;line-height:1.7}
-    h1{font-size:1.3rem;margin-bottom:4px}h2{font-size:1rem;color:#1c3028;margin:2rem 0 6px}
-    .ans{background:#f9f9f7;border:1px solid #ddd;border-radius:4px;padding:12px 16px;min-height:80px;white-space:pre-wrap;font-family:Georgia,serif;font-size:0.95rem}
-    .note{font-size:0.8rem;color:#888;margin-top:32px}
-    @media print{body{margin:20px}}</style></head><body>
-    <h1>Live and Grieve\u2122 \u2014 Facilitator Grief Inventory</h1>
-    <p style="color:#888;font-size:0.85rem">Chapter 1 \u2014 Private and confidential</p>
-    ${INVENTORY_QUESTIONS.map((q, i) => `<h2>Reflection ${i + 1}</h2><p>${q.prompt}</p><div class="ans">${(answers[q.id] || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') || '&nbsp;'}</div>`).join('')}
-    <p class="note">This inventory is for your personal use. It is not submitted or reviewed by Tri-Pillars\u2122.</p>
-    </body></html>`);
+    win.document.write(`<!DOCTYPE html><html><head><title>Chapter 1 \u2014 Your Grief History</title>
+<style>
+body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#1a1a1a;line-height:1.75;font-size:1rem}
+h1{font-family:'Georgia',serif;font-size:1.5rem;color:#1c3028;margin:0 0 4px}
+.subtitle{font-size:0.85rem;color:#888;margin:0 0 28px}
+h2{font-family:Georgia,serif;font-size:1.1rem;color:#1c3028;margin:2rem 0 6px;border-bottom:1px solid #ddd;padding-bottom:4px}
+.prose{margin:0 0 1rem}
+.pull{border-left:3px solid #9a7b2f;padding:10px 16px;margin:1.5rem 0;font-style:italic;color:#1c3028;background:#faf8f2}
+.reflection{margin:1.5rem 0;padding:16px 20px;border:1px solid #ddd;border-radius:6px;background:#fdfcf8}
+.ref-label{font-family:Arial,sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9a7b2f;margin-bottom:6px}
+.ref-q{margin:0 0 10px;font-style:italic;color:#1c3028}
+.ans{min-height:80px;color:#222;white-space:pre-wrap;font-family:Georgia,serif}
+.practice{background:#eef4ef;border-left:3px solid #1c3028;padding:14px 18px;margin:1.5rem 0;border-radius:0 6px 6px 0}
+.practice-label{font-family:Arial,sans-serif;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1c3028;margin-bottom:8px}
+.note{font-size:0.8rem;color:#aaa;margin-top:40px;border-top:1px solid #eee;padding-top:12px}
+@media print{body{margin:20px}button{display:none}}
+</style></head><body>
+<h1>Chapter 1 \u2014 Your Grief History</h1>
+<p class="subtitle">Live and Grieve\u2122 \u2014 Facilitator\u2019s Inner Work Guide \u00b7 Private and confidential</p>
+<p class="prose">Nobody facilitates grief from a neutral place. You have lost people. You have experienced grief that was witnessed and grief that was not. You have had losses that were honored and losses that were dismissed. All of that is in the room with you, whether or not you named it during training.</p>
+<p class="prose">This is not a liability. Lived experience with loss is one of your most important assets as a facilitator. It is the source of your credibility, your empathy, and your ability to say \u201cI know\u201d and mean it. But unexamined lived experience is something different. Unexamined, it leads you into the room wearing your own grief like a lens you don\u2019t know you\u2019re wearing.</p>
+<div class="pull">The question is not whether your grief enters the room. It does. The question is whether you know it\u2019s there.</div>
+<h2>The Inventory</h2>
+<p class="prose">Before you facilitate your first group, complete this inventory honestly. Return to it at every annual renewal.</p>
+${reflHtml}
+<h2>What This Means in Practice</h2>
+<p class="prose">Knowing your grief history does not mean it won\u2019t surface in the room. It means you will recognize it when it does. That recognition is the difference between a moment you can manage and a moment that manages you.</p>
+<p class="prose">When a participant\u2019s story lands close to something in your own history, you may notice: a tightening in your chest, an urge to speak, a wave of your own emotion, a desire to end the moment sooner than it needs to end. These are signals. They are not instructions.</p>
+<p class="prose">When you notice a signal, you have a choice. You can pause, breathe, stay in the room, and let the participant\u2019s experience belong to them. Or you can let your history pull you somewhere that isn\u2019t yours to go.</p>
+<div class="practice"><div class="practice-label">Practice \u2014 The Recognition Practice</div>
+<p style="margin:0">After each session, sit with this question for 5 minutes: <em>Was there a moment where I felt something that belonged to me rather than to the group?</em> Write it down in your Facilitator Reflection Log without judgment. Note what the trigger was, what you noticed in your body, and what you did. Over time, patterns will emerge \u2014 these patterns are your growth edge.</p></div>
+<p class="note">This chapter is for your personal use. Your reflections are not submitted or reviewed by Tri-Pillars\u2122.</p>
+</body></html>`);
     win.document.close();
     win.print();
   }
 
-  const allAnswered = INVENTORY_QUESTIONS.every(q => (answers[q.id] || '').trim().length > 0);
-  const ta: React.CSSProperties = {
-    width: '100%', minHeight: 110, padding: '0.6rem 0.75rem',
-    border: `1px solid ${C.border}`, borderRadius: 6, resize: 'vertical' as const,
-    fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy,
-    background: '#FDFCF8', boxSizing: 'border-box' as const, lineHeight: 1.6,
-  };
-  const label: React.CSSProperties = {
-    display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem',
-    fontWeight: 600, color: C.navy, marginBottom: 6,
-    textTransform: 'uppercase' as const, letterSpacing: '0.03em',
-  };
+  // Styles
+  const prose: React.CSSProperties = { fontFamily: 'Georgia, serif', fontSize: '0.97rem', color: C.navy, lineHeight: 1.75, margin: '0 0 1rem' };
+  const pullQ: React.CSSProperties = { borderLeft: `3px solid ${C.gold}`, padding: '10px 16px', margin: '1.25rem 0', fontStyle: 'italic', fontFamily: 'Georgia, serif', color: C.navy, background: '#FAF8F2', fontSize: '1rem', lineHeight: 1.7 };
+  const sectionH: React.CSSProperties = { fontFamily: 'Georgia, serif', fontWeight: 700, fontSize: '1.05rem', color: C.navy, margin: '1.75rem 0 0.5rem', paddingBottom: '0.3rem', borderBottom: `1px solid ${C.border}` };
+  const refBox: React.CSSProperties = { background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 6, padding: '14px 16px', marginBottom: '1.25rem' };
+  const refLabel: React.CSSProperties = { fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.gold, marginBottom: 6 };
+  const refQ: React.CSSProperties = { fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '0.95rem', color: C.navy, margin: '0 0 10px', lineHeight: 1.65 };
+  const ta: React.CSSProperties = { width: '100%', minHeight: 100, padding: '0.55rem 0.75rem', border: `1px solid ${C.border}`, borderRadius: 5, resize: 'vertical' as const, fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, background: '#fff', boxSizing: 'border-box' as const, lineHeight: 1.6 };
+  const practiceBox: React.CSSProperties = { background: '#EEF4EF', borderLeft: `3px solid ${C.navy}`, borderRadius: '0 6px 6px 0', padding: '14px 18px', margin: '1.5rem 0' };
+  const practiceLabel: React.CSSProperties = { fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: C.navy, marginBottom: 8 };
 
   return (
-    <div style={{ marginTop: '1.25rem' }}>
-      {INVENTORY_QUESTIONS.map((q, i) => (
-        <div key={q.id} style={{ marginBottom: '1.5rem' }}>
-          <label style={label}>Reflection {i + 1}</label>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, margin: '0 0 8px', lineHeight: 1.65 }}>{q.prompt}</p>
-          <textarea
-            style={ta}
-            value={answers[q.id] || ''}
-            onChange={e => update(q.id, e.target.value)}
-            placeholder="Write here\u2026"
-          />
+    <div style={{ marginTop: '1rem' }}>
+      {/* Chapter header */}
+      <div style={{ background: C.navy, color: '#fff', borderRadius: 6, padding: '16px 20px', marginBottom: '1.25rem' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', opacity: 0.7, marginBottom: 4 }}>Chapter 1</div>
+        <div style={{ fontFamily: 'Georgia, serif', fontSize: '1.15rem', fontWeight: 700 }}>Your Grief History</div>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', opacity: 0.75, marginTop: 2 }}>What you carry into every room you enter</div>
+      </div>
+
+      {/* Intro prose */}
+      <p style={prose}>Nobody facilitates grief from a neutral place. You have lost people. You have experienced grief that was witnessed and grief that was not. You have had losses that were honored and losses that were dismissed. All of that is in the room with you, whether or not you named it during training.</p>
+      <p style={prose}>This is not a liability. Lived experience with loss is one of your most important assets as a facilitator. It is the source of your credibility, your empathy, and your ability to say &ldquo;I know&rdquo; and mean it. But unexamined lived experience is something different. Unexamined, it leads you into the room wearing your own grief like a lens you don&rsquo;t know you&rsquo;re wearing.</p>
+
+      {/* Pull quote */}
+      <div style={pullQ}>The question is not whether your grief enters the room. It does. The question is whether you know it&rsquo;s there.</div>
+
+      {/* Inventory heading */}
+      <div style={sectionH}>The Inventory</div>
+      <p style={{ ...prose, marginTop: '0.5rem' }}>Before you facilitate your first group, complete this inventory honestly. Return to it at every annual renewal.</p>
+
+      {/* 4 Reflection fields */}
+      {GRIEF_INV_REFLECTIONS.map((q, i) => (
+        <div key={q.id} style={refBox}>
+          <div style={refLabel}>Reflection {i + 1}</div>
+          <p style={refQ}>{q.prompt}</p>
+          <textarea style={ta} value={answers[q.id] || ''} onChange={e => update(q.id, e.target.value)} placeholder="Write here\u2026" />
         </div>
       ))}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '0.5rem' }}>
-        <button onClick={save} disabled={!allAnswered}
-          style={{ ...btn(C.gold, '#fff'), opacity: allAnswered ? 1 : 0.5 }}>
-          {saved2 ? '\u2713 Saved' : 'Save Inventory'}
+
+      {/* What This Means in Practice */}
+      <div style={sectionH}>What This Means in Practice</div>
+      <p style={{ ...prose, marginTop: '0.5rem' }}>Knowing your grief history does not mean it won&rsquo;t surface in the room. It means you will recognize it when it does. That recognition is the difference between a moment you can manage and a moment that manages you.</p>
+      <p style={prose}>When a participant&rsquo;s story lands close to something in your own history, you may notice: a tightening in your chest, an urge to speak, a wave of your own emotion, a desire to end the moment sooner than it needs to end. These are signals. They are not instructions.</p>
+      <p style={prose}>When you notice a signal, you have a choice. You can pause, breathe, stay in the room, and let the participant&rsquo;s experience belong to them. Or you can let your history pull you somewhere that isn&rsquo;t yours to go.</p>
+
+      {/* Practice box */}
+      <div style={practiceBox}>
+        <div style={practiceLabel}>Practice &mdash; The Recognition Practice</div>
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: C.navy, margin: 0, lineHeight: 1.7 }}>After each session, sit with this question for 5 minutes: <em>Was there a moment where I felt something that belonged to me rather than to the group?</em> Write it down in your Facilitator Reflection Log without judgment. Note what the trigger was, what you noticed in your body, and what you did. Over time, patterns will emerge &mdash; these patterns are your growth edge.</p>
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '1.25rem' }}>
+        <button onClick={save} disabled={!allAnswered} style={{ ...btn(C.gold, '#fff'), opacity: allAnswered ? 1 : 0.5 }}>
+          {isSaved ? '\u2713 Saved' : 'Save My Reflections'}
         </button>
-        <button onClick={printInventory}
-          style={{ ...btn(C.navy, '#fff') }}>
+        <button onClick={printChapter} style={btn(C.navy, '#fff')}>
           Print / Download
         </button>
       </div>
-      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '10px 0 0' }}>
-        Your answers are saved only on this device and are never submitted to Tri-Pillars\u2122.
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
+        Your reflections are saved on this device only and are never submitted to Tri-Pillars&trade;.
       </p>
     </div>
   );
