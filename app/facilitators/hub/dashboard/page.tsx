@@ -3271,6 +3271,7 @@ interface OnboardingState {
   training_confirmed: boolean;
   dismissed_orientation: boolean;
   books_certified?: number[];
+  grief_inventory?: Record<string, string> | null;
 }
 
 /* ── Chapter 1 Guided Walkthrough (Step 2) ── */
@@ -3283,12 +3284,15 @@ const GRIEF_INV_REFLECTIONS = [
   { id: 'q4', prompt: 'Have you done your own grief work \u2014 through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?' },
 ];
 
-function GriefInventoryForm({ onComplete }: { onComplete: () => void }) {
+function GriefInventoryForm({ onComplete, initialAnswers, isPreview }: { onComplete: () => void; initialAnswers?: Record<string, string> | null; isPreview?: boolean }) {
   const initSaved = (): Record<string, string> => {
+    // Prefer server-loaded answers; fall back to localStorage
+    if (initialAnswers && Object.keys(initialAnswers).length > 0) return initialAnswers;
     if (typeof window === 'undefined') return {};
     try { return JSON.parse(localStorage.getItem(GRIEF_INV_STORAGE) || '{}'); } catch { return {}; }
   };
   const [answers, setAnswers] = React.useState<Record<string, string>>(initSaved);
+  const [isSaving, setIsSaving] = React.useState(false);
   const allAnswered = GRIEF_INV_REFLECTIONS.every(q => (answers[q.id] || '').trim().length > 0);
   const [isSaved, setIsSaved] = React.useState(() => {
     const s = initSaved();
@@ -3303,10 +3307,24 @@ function GriefInventoryForm({ onComplete }: { onComplete: () => void }) {
     }
   }
 
-  function save() {
+  async function save() {
+    setIsSaving(true);
+    // Mirror to localStorage always
     if (typeof window !== 'undefined') {
       try { localStorage.setItem(GRIEF_INV_STORAGE, JSON.stringify(answers)); } catch { /* noop */ }
     }
+    // Persist to Supabase via onboarding API (authenticated)
+    if (!isPreview) {
+      try {
+        await fetch('/api/hub/onboarding', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ grief_inventory: answers }),
+        });
+      } catch { /* non-fatal — localStorage is the fallback */ }
+    }
+    setIsSaving(false);
     setIsSaved(true);
     onComplete();
   }
@@ -3408,15 +3426,15 @@ ${reflHtml}
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, marginTop: '1.25rem' }}>
-        <button onClick={save} disabled={!allAnswered} style={{ ...btn(C.gold, '#fff'), opacity: allAnswered ? 1 : 0.5 }}>
-          {isSaved ? '\u2713 Saved' : 'Save My Reflections'}
+        <button onClick={save} disabled={!allAnswered || isSaving} style={{ ...btn(C.gold, '#fff'), opacity: (allAnswered && !isSaving) ? 1 : 0.5 }}>
+          {isSaving ? 'Saving\u2026' : isSaved ? '\u2713 Saved' : 'Save My Reflections'}
         </button>
         <button onClick={printChapter} style={btn(C.navy, '#fff')}>
           Print / Download
         </button>
       </div>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
-        Your reflections are saved on this device only and are never submitted to Tri-Pillars&trade;.
+        Your reflections are saved to your account and never reviewed by Tri-Pillars&trade; or anyone else.
       </p>
     </div>
   );
@@ -3603,7 +3621,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(2)}
             {heading("Step 2 of 7 \u2014 Your Grief Inventory")}
             {body("These four reflections are yours alone \u2014 private, not submitted, not reviewed by anyone. Write as much or as little as feels right. Come to training day having sat with your own answers.")}
-            <GriefInventoryForm onComplete={() => setChecked(true)} />
+            <GriefInventoryForm onComplete={() => setChecked(true)} initialAnswers={onboarding.grief_inventory} isPreview={isPreview} />
             {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Inventory saved</div>}
             {nextBtn(!checked)}
           </div>

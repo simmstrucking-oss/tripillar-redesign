@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile, error } = await sb()
     .from('facilitator_profiles')
-    .select('id, cert_status, onboarding_checklist, onboarding_complete, onboarding_step, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
+    .select('id, cert_status, onboarding_checklist, onboarding_complete, onboarding_step, training_date, training_location, training_confirmed, dismissed_orientation, books_certified, grief_inventory')
     .eq('user_id', user.id)
     .single();
 
@@ -138,6 +138,21 @@ export async function PATCH(req: NextRequest) {
     const { error } = await supabase
       .from('facilitator_profiles')
       .update({ dismissed_trainer_orientation: true })
+      .eq('id', profile.id);
+
+    if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Case 7: Save grief inventory (q1–q4, stored as JSONB on facilitator_profiles)
+  if (body.grief_inventory !== undefined) {
+    const inv = body.grief_inventory;
+    if (typeof inv !== 'object' || inv === null) {
+      return NextResponse.json({ error: 'grief_inventory must be an object' }, { status: 400 });
+    }
+    const { error } = await supabase
+      .from('facilitator_profiles')
+      .update({ grief_inventory: inv })
       .eq('id', profile.id);
 
     if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });
