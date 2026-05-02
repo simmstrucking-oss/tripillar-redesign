@@ -3706,7 +3706,7 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
       return;
     }
 
-    if (p.style === 'Quote' || p.style === 'Intense Quote') {
+    if ((p.style as string) === 'Quote' || (p.style as string) === 'Intense Quote') {
       rendered.push(
         <blockquote key={i} style={{ borderLeft: `3px solid ${C.gold}`, margin: '1rem 0',
           padding: '0.5rem 1rem', fontFamily: 'Georgia, serif', fontStyle: 'italic',
