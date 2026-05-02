@@ -3479,32 +3479,58 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
     onUpdate({ onboarding_step: newStep });
   }
 
+    async function getDocUrl(pathFragment: string): Promise<string | null> {
+    const res = await fetch('/api/hub/documents', { credentials: 'include' });
+    const data = await res.json();
+    const sections = data.sections ?? [];
+    for (const s of sections) {
+      const found = s.documents?.find((d: { path: string; url: string | null }) =>
+        d.path.includes(pathFragment)
+      );
+      if (found?.url) return found.url;
+    }
+    return null;
+  }
+
   async function findAndOpenDoc(pathFragment: string) {
     setOpeningDoc(true);
     try {
-      const res = await fetch('/api/hub/documents', { credentials: 'include' });
-      const data = await res.json();
-      const sections = data.sections ?? [];
-      for (const s of sections) {
-        const found = s.documents?.find((d: { path: string; url: string | null }) =>
-          d.path.includes(pathFragment)
-        );
-        if (found?.url) {
-          // .docx files would trigger a download on mobile — open in Google Docs Viewer instead
-          const rawUrl = found.url;
-          const viewUrl = rawUrl.toLowerCase().endsWith('.docx')
-            ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`
-            : rawUrl;
-          const a = document.createElement('a');
-          a.href = viewUrl;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          setOpeningDoc(false);
-          return;
-        }
+      const rawUrl = await getDocUrl(pathFragment);
+      if (rawUrl) {
+        // .docx files would trigger a download on mobile — open in Google Docs Viewer instead
+        const viewUrl = rawUrl.toLowerCase().endsWith('.docx')
+          ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`
+          : rawUrl;
+        const a = document.createElement('a');
+        a.href = viewUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setOpeningDoc(false);
+        return;
+      }
+      alert('Document not available yet. Please check back later.');
+    } catch { alert('Failed to load document.'); }
+    setOpeningDoc(false);
+  }
+
+  async function findAndDownloadDoc(pathFragment: string) {
+    setOpeningDoc(true);
+    try {
+      const rawUrl = await getDocUrl(pathFragment);
+      if (rawUrl) {
+        const a = document.createElement('a');
+        a.href = rawUrl;
+        a.download = '';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setOpeningDoc(false);
+        return;
       }
       alert('Document not available yet. Please check back later.');
     } catch { alert('Failed to load document.'); }
@@ -3609,11 +3635,18 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
             {body("The Inner Work Guide is where your preparation begins. It invites you to spend some time with your own grief before sitting with others in theirs. Not because you need to have it figured out \u2014 but because the most grounded facilitation comes from self-awareness, not distance. Read it in full before training day.")}
-            <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
-              disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-              {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
-            </button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
+              <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
+                disabled={openingDoc}
+                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
+              </button>
+              <button onClick={() => findAndDownloadDoc('Facilitator_Inner_Work_Guide')}
+                disabled={openingDoc}
+                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                ↓ Download / Print
+              </button>
+            </div>
             {checkboxRow("I have read the Facilitator Inner Work Guide.")}
             {nextBtn(!checked)}
           </div>
@@ -3637,11 +3670,18 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
             {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. The Participant Appropriateness Guide helps you make thoughtful enrollment decisions \u2014 not to turn people away, but to make sure every person who walks in is in the right place at the right time.")}
-            <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
-              disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-              {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
-            </button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
+              <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
+                disabled={openingDoc}
+                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
+              </button>
+              <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
+                disabled={openingDoc}
+                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                ↓ Download / Print
+              </button>
+            </div>
             {checkboxRow("I have read the Participant Appropriateness Guide.")}
             {nextBtn(!checked)}
           </div>
@@ -3653,11 +3693,18 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
             {body("The Code of Conduct describes how Live and Grieve\u2122 facilitators show up \u2014 in the room, in relationships with participants, and in the wider community. It\u2019s not a list of rules so much as a shared standard of care. Read it in full before you sign.")}
-            <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
-              disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-              {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
-            </button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
+              <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
+                disabled={openingDoc}
+                style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
+              </button>
+              <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
+                disabled={openingDoc}
+                style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+                ↓ Download / Print
+              </button>
+            </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
               fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
               <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
@@ -3904,14 +3951,23 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
                   })}
                 </div>
 
-                {/* Open Full Manual button */}
-                <button
-                  onClick={() => { findAndOpenDoc('FM'); }}
-                  disabled={openingDoc}
-                  style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, marginBottom: '1rem' }}
-                >
-                  {openingDoc ? 'Loading\u2026' : `Open Full Master Facilitator Manual \u2014 Book ${firstBook}`}
-                </button>
+                {/* Open Full Manual buttons */}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '1rem 0' }}>
+                  <button
+                    onClick={() => { findAndOpenDoc('FM'); }}
+                    disabled={openingDoc}
+                    style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}
+                  >
+                    {openingDoc ? 'Loading\u2026' : `Open Full Manual \u2014 Book ${firstBook}`}
+                  </button>
+                  <button
+                    onClick={() => { findAndDownloadDoc('FM'); }}
+                    disabled={openingDoc}
+                    style={{ ...btn(C.muted, '#fff'), opacity: openingDoc ? 0.6 : 1 }}
+                  >
+                    ↓ Download / Print
+                  </button>
+                </div>
 
                 {checkboxRow('I have read Week 1 of the Master Facilitator Manual and am ready for training day.')}
               </>
