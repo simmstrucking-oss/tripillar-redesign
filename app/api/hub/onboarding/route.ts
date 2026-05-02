@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile, error } = await sb()
     .from('facilitator_profiles')
-    .select('id, cert_status, onboarding_checklist, onboarding_complete, onboarding_step, training_date, training_location, training_confirmed, dismissed_orientation, books_certified')
+    .select('id, cert_status, onboarding_checklist, onboarding_complete, onboarding_step, training_date, training_location, training_confirmed, dismissed_orientation, books_certified, inner_work_reflections')
     .eq('user_id', user.id)
     .single();
 
@@ -138,6 +138,17 @@ export async function PATCH(req: NextRequest) {
     const { error } = await supabase
       .from('facilitator_profiles')
       .update({ dismissed_trainer_orientation: true })
+      .eq('id', profile.id);
+
+    if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Case 7: Save Inner Work Guide reflections
+  if (body.inner_work_reflections !== undefined) {
+    const { error } = await supabase
+      .from('facilitator_profiles')
+      .update({ inner_work_reflections: body.inner_work_reflections })
       .eq('id', profile.id);
 
     if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 });

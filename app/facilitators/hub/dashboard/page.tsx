@@ -3245,6 +3245,7 @@ interface OnboardingState {
   training_confirmed: boolean;
   dismissed_orientation: boolean;
   books_certified?: number[];
+  inner_work_reflections?: Record<string, string> | null;
 }
 
 /* ── Onboarding Wizard (replaces checklist) ── */
@@ -3265,11 +3266,51 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
   const [trainingSaved, setTrainingSaved] = useState(false);
   const [openingDoc, setOpeningDoc] = useState(false);
 
+  // Inner Work Guide reflections — load from saved state on mount
+  const [iwgAnswers, setIwgAnswers] = useState<Record<string, string>>(
+    (onboarding.inner_work_reflections as Record<string, string>) ?? {}
+  );
+  const [iwgSaving, setIwgSaving] = useState(false);
+  const [iwgSaved, setIwgSaved] = useState(false);
+
+  const IWG_REFLECTIONS = [
+    "List the significant losses in your life. Not just deaths \u2014 include losses of relationship, identity, health, safety, or meaning. For each one, write: How old were you? Who supported you? How did you grieve \u2014 or not grieve \u2014 at the time?",
+    "Which of these losses feel fully integrated \u2014 present but not raw? Which ones are still active in some way?",
+    "If you were sitting in your own group as a participant, which week\u2019s topic would be hardest for you to sit with? What would that activate?",
+    "Have you done your own grief work \u2014 through therapy, a grief group, spiritual practice, or another process? If not, what is getting in the way?",
+    "Think of a time when you were facilitating \u2014 or in any high-stakes interpersonal moment \u2014 when you were genuinely regulated. What did that feel like in your body? What made it possible?",
+    "Think of a time when you were activated in the room. What happened? What did you do? What do you wish you had done?",
+    "Write your arrival practice. Be specific \u2014 not \u201cI will breathe\u201d but exactly what, for how long, with what intention.",
+    "Who are your current peer consultants? If you do not have one, name one person you could approach. What would you need to say to begin that relationship?",
+    "What is your current personal support structure? Where do you go when you are not okay? Is it enough for this work?",
+    "Have you experienced any signs of secondary traumatic stress before \u2014 in this work or in other caregiving roles? What helped? What made it worse?",
+    "On a scale of 1\u201310, how comfortable are you with silence in emotionally charged settings? What drives your impulse to fill it? What would it mean to trust the silence?",
+    "Which of the \u201cclosing\u201d phrases do you find yourself drawn to, even though you know better? What does that impulse protect in you?",
+    "Think of a facilitation moment \u2014 real or imagined \u2014 where you filled space that did not need to be filled. What were you protecting yourself from? What did the group miss because of it?",
+  ];
+
+  const iwgAllAnswered = IWG_REFLECTIONS.every((_, i) => (iwgAnswers[String(i)] ?? '').trim().length > 0);
+
+  async function saveIwgAnswers() {
+    if (!iwgAllAnswered || isPreview) return;
+    setIwgSaving(true);
+    await fetch('/api/hub/onboarding', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ inner_work_reflections: iwgAnswers }),
+    });
+    setIwgSaving(false);
+    setIwgSaved(true);
+    onUpdate({ inner_work_reflections: iwgAnswers });
+  }
+
   // Reset per-step state when step changes
   useEffect(() => {
     setChecked(false);
     setSigned(false);
     setTrainingSaved(false);
+    setIwgSaved(false);
   }, [step]);
 
   async function advance() {
@@ -3395,19 +3436,62 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 1 — Inner Work Guide */}
+        {/* Step 1 — Inner Work Guide with Reflection Questions */}
         {step === 1 && (
           <div>
             {progressBar(1)}
             {heading("Step 1 of 7 \u2014 The Inner Work Guide")}
-            {body("This is the foundation of everything you are about to do. Before you can hold space for someone else\u2019s grief, you need to have sat with your own. Read the Inner Work Guide in full before your training day.")}
+            {body("This is the foundation of everything you are about to do. Before you can hold space for someone else\u2019s grief, you need to have sat with your own. Read the Inner Work Guide, then answer each reflection below. Your answers are private \u2014 they save to your profile and are never shared. You can save progress and return at any time.")}
             <button onClick={() => findAndOpenDoc('Facilitator_Inner_Work_Guide')}
               disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
+              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, marginBottom: '1.5rem' }}>
               {openingDoc ? 'Loading...' : 'Open Inner Work Guide'}
             </button>
-            {checkboxRow("I have read the Facilitator Inner Work Guide.")}
-            {nextBtn(!checked)}
+            <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.05rem', color: C.navy, margin: '0 0 1.25rem', fontStyle: 'italic' }}>
+                Reflections
+              </p>
+              {IWG_REFLECTIONS.map((prompt, i) => (
+                <div key={i} style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: C.navy, fontFamily: 'Inter, sans-serif',
+                    fontWeight: 600, marginBottom: '0.4rem', lineHeight: 1.5 }}>
+                    {i + 1}. {prompt}
+                  </label>
+                  <textarea
+                    value={iwgAnswers[String(i)] ?? ''}
+                    onChange={e => {
+                      setIwgAnswers(prev => ({ ...prev, [String(i)]: e.target.value }));
+                      setIwgSaved(false);
+                    }}
+                    rows={4}
+                    placeholder="Write your response here\u2026"
+                    style={{
+                      width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.75rem',
+                      border: `1px solid ${C.border}`, borderRadius: 6,
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy,
+                      background: '#FDFCF8', resize: 'vertical', lineHeight: 1.6,
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={saveIwgAnswers}
+                  disabled={iwgSaving || !iwgAllAnswered}
+                  style={{ ...btn(C.gold, '#fff'), opacity: (!iwgAllAnswered || iwgSaving) ? 0.4 : 1 }}>
+                  {iwgSaving ? 'Saving\u2026' : iwgSaved ? 'Saved \u2713' : 'Save Reflections'}
+                </button>
+                {!iwgAllAnswered && (
+                  <span style={{ fontSize: '0.8rem', color: C.muted, fontFamily: 'Inter, sans-serif' }}>
+                    Complete all {IWG_REFLECTIONS.length} reflections to continue.
+                  </span>
+                )}
+              </div>
+            </div>
+            <div style={{ marginTop: '1.5rem' }}>
+              {nextBtn(!iwgSaved)}
+            </div>
           </div>
         )}
 
@@ -3422,33 +3506,145 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 3 — Participant Appropriateness Guide */}
+        {/* Step 3 — Participant Appropriateness Guide (inline) */}
         {step === 3 && (
           <div>
             {progressBar(3)}
             {heading("Step 3 of 7 \u2014 Who This Program Serves")}
-            {body("Before you sit across from someone who wants to enroll in Live and Grieve\u2122, you need to understand who this program is and is not designed for. Read the Participant Appropriateness Guide now.")}
-            <button onClick={() => findAndOpenDoc('Participant_Appropriateness_Guide')}
-              disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-              {openingDoc ? 'Loading...' : 'Open Participant Appropriateness Guide'}
-            </button>
-            {checkboxRow("I have read the Participant Appropriateness Guide.")}
+            {body("Read the Participant Appropriateness Guide below in full before moving forward. You need to understand who this program is and is not designed for before you sit across from someone who wants to enroll.")}
+            <div style={{
+              background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 8,
+              padding: '1.5rem 1.75rem', margin: '1.25rem 0', maxHeight: '55vh',
+              overflowY: 'auto', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+              lineHeight: 1.75, color: C.navy,
+            }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem' }}>LIVE AND GRIEVE™</p>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.95rem', margin: '0 0 0.25rem' }}>Participant Appropriateness Guide</p>
+              <p style={{ fontSize: '0.8rem', color: C.muted, margin: '0 0 1.25rem', fontStyle: 'italic' }}>A Screening Framework for Facilitators, Referring Professionals, and Partner Organizations</p>
+              <p style={{ margin: '0 0 1rem' }}>This guide answers one question: is this person ready for Live and Grieve™ right now? It does not determine whether someone deserves support — it determines whether this particular format is the right support at this particular time.</p>
+              <p style={{ margin: '0 0 1rem' }}>Live and Grieve™ is a structured peer support group. It is not therapy, crisis intervention, or a clinical treatment program. Its power comes from its structure, its consistency, and the relational environment of a group. That power depends on participants who are able to engage with all three.</p>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Who This Program Is Designed For</p>
+              <p style={{ margin: '0 0 0.5rem' }}>Live and Grieve™ is designed for adults who are:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Experiencing grief following significant loss — most commonly the death of a close family member or long-term partner</li>
+                <li>Able to participate in a group setting without clinical instability</li>
+                <li>Not in acute psychiatric crisis at the time of enrollment</li>
+                <li>Willing to commit to weekly attendance for a 13-week quarter</li>
+                <li>Seeking a structured peer support experience alongside or instead of individual support</li>
+              </ul>
+              <p style={{ margin: '0 0 1rem' }}>The program also serves individuals experiencing significant non-death losses: the end of a long-term relationship, loss of a career or vocation, loss of identity through serious illness or disability, or cumulative grief across multiple losses.</p>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Appropriateness Indicators</p>
+              <p style={{ fontWeight: 600, margin: '0.75rem 0 0.25rem' }}>Stable Enough to Engage</p>
+              <p style={{ margin: '0 0 1rem' }}>The person is not in a state of acute crisis. They may be in significant pain — that is expected and appropriate. But they are able to arrive, sit in a circle, hear others share, and participate in a structured format.</p>
+              <p style={{ fontWeight: 600, margin: '0.75rem 0 0.25rem' }}>Able to Hold Confidentiality</p>
+              <p style={{ margin: '0 0 1rem' }}>The person understands and can commit to the group confidentiality agreement. They will not share what others say in the room outside the room.</p>
+              <p style={{ fontWeight: 600, margin: '0.75rem 0 0.25rem' }}>Not Seeking Therapy in a Group Format</p>
+              <p style={{ margin: '0 0 1rem' }}>The person understands that this is a peer support group, not a therapy group. The facilitator is not their therapist. The group is not a substitute for individual clinical care.</p>
+              <p style={{ fontWeight: 600, margin: '0.75rem 0 0.25rem' }}>Willing to Attend Consistently</p>
+              <p style={{ margin: '0 0 1rem' }}>The person is able to commit to weekly attendance for 13 weeks. Occasional absences are expected. Chronic absence disrupts the group.</p>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Situations That Warrant Careful Consideration</p>
+              <p style={{ margin: '0 0 0.5rem' }}>The following situations do not automatically exclude someone, but they warrant a conversation:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li><strong>Current individual therapy for complicated grief</strong> — may benefit from the group as a complement; coordinate with their therapist</li>
+                <li><strong>Very recent loss (within 4–6 weeks)</strong> — may find the group format overwhelming before some initial processing has occurred</li>
+                <li><strong>Significant trauma alongside grief</strong> — when death occurred through violence, suicide, or sudden traumatic accident; PTSD with active symptomatology should begin with individual support first</li>
+                <li><strong>Active substance use as a coping mechanism</strong> — the group&apos;s emotional content may intensify use; consult Tri-Pillars™</li>
+                <li><strong>Cognitive or communication differences</strong> — the workbook and verbal discussion structure assumes standard literacy; adaptations may be possible</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Who the Program Is Not Designed For</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li><strong>Acute psychiatric crisis</strong> — active suicidal ideation with plan or intent; active psychosis; acute manic episode</li>
+                <li><strong>Current active addiction without clinical support</strong> — substance dependence where grief is a contributing factor but not the primary presenting issue</li>
+                <li><strong>Seeking individual therapy in a group format</strong> — consistently monopolizing group time or seeking one-on-one attention</li>
+                <li><strong>Active behavioral disruption risk</strong> — behavior likely to significantly harm the group environment</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>The Pre-Enrollment Conversation</p>
+              <p style={{ margin: '0 0 1rem' }}>Every prospective participant should have a brief conversation with you before their first session. This is not a clinical intake. It is a care practice. Its purpose is to ensure the person understands what the program is and is not, confirm their commitment to the group agreements, and allow you to make a basic appropriateness judgment.</p>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>When to Consult Tri-Pillars™</p>
+              <p style={{ margin: '0 0 0.5rem' }}>Contact Tri-Pillars™ (wayne@tripillarstudio.com) when:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>You are uncertain whether a specific person is appropriate and want consultation before deciding</li>
+                <li>A person has enrolled and you are concerned mid-cohort that the format is not right for them</li>
+                <li>You are considering asking a participant to pause or discontinue participation</li>
+                <li>A referral source is sending participants who do not fit the appropriateness criteria</li>
+              </ul>
+              <p style={{ fontSize: '0.8rem', color: C.muted, margin: '1.25rem 0 0', fontStyle: 'italic' }}>
+                If a participant presents in crisis: Suicide &amp; Crisis Lifeline — call or text 988. Veterans Crisis Line — call 988, press 1.
+              </p>
+            </div>
+            {checkboxRow("I have read the Participant Appropriateness Guide and understand who this program serves.")}
             {nextBtn(!checked)}
           </div>
         )}
 
-        {/* Step 4 — Code of Conduct */}
+        {/* Step 4 — Code of Conduct (inline) */}
         {step === 4 && (
           <div>
             {progressBar(4)}
             {heading("Step 4 of 7 \u2014 The Code of Conduct")}
-            {body("This governs everything you do in this role. Read it carefully before you sign it.")}
-            <button onClick={() => findAndOpenDoc('Code_of_Conduct')}
-              disabled={openingDoc}
-              style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1 }}>
-              {openingDoc ? 'Loading...' : 'Open Code of Conduct'}
-            </button>
+            {body("Read the Code of Conduct below in full. This governs everything you do in this role. When you have read it, check the box and sign.")}
+            <div style={{
+              background: '#FDFCF8', border: `1px solid ${C.border}`, borderRadius: 8,
+              padding: '1.5rem 1.75rem', margin: '1.25rem 0', maxHeight: '55vh',
+              overflowY: 'auto', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+              lineHeight: 1.75, color: C.navy,
+            }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem' }}>LIVE AND GRIEVE™</p>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.95rem', margin: '0 0 0.25rem' }}>Facilitator Code of Conduct</p>
+              <p style={{ fontSize: '0.8rem', color: C.muted, margin: '0 0 1.25rem', fontStyle: 'italic' }}>Signing this document is a condition of certification and must be renewed annually.</p>
+              <p style={{ margin: '0 0 1rem' }}>This Code of Conduct defines the professional and ethical standards expected of every Live and Grieve™ certified facilitator. It applies in all settings where you operate in your facilitator role — including group sessions, pre-enrollment conversations, follow-up contact, and any public representation of the program.</p>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Relational Boundaries</p>
+              <p style={{ margin: '0 0 0.5rem' }}>As a Live and Grieve™ facilitator, you:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Maintain clear boundaries between your facilitation role and any personal relationship with participants</li>
+                <li>Do not enter into romantic or sexual relationships with current participants</li>
+                <li>Do not provide individual therapy, counseling, or clinical services to participants in the context of this program</li>
+                <li>Do not accept gifts of significant monetary value from participants</li>
+                <li>Refer participants to appropriate professional resources when individual needs exceed the scope of peer support</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Program Integrity</p>
+              <p style={{ margin: '0 0 0.5rem' }}>You deliver the program as designed:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Do not substitute, omit, or significantly alter curriculum content without written authorization from Tri-Pillars™</li>
+                <li>Present the program accurately — as a structured peer support group, not as therapy or clinical treatment</li>
+                <li>Do not represent yourself as a therapist, counselor, or clinical professional in the context of Live and Grieve™ unless you hold those credentials independently</li>
+                <li>Protect the integrity of the group container — sessions run on time, agreements are upheld, and the space is consistently held</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Confidentiality</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Hold participant disclosures with strict confidentiality, except where disclosure is required by law (imminent safety risk, mandatory reporting)</li>
+                <li>Do not share participant information with third parties, including referring organizations, without explicit participant consent</li>
+                <li>Maintain confidentiality even after a participant leaves the group</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Self-Care and Sustainability</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Recognize and respond to signs of secondary traumatic stress in yourself</li>
+                <li>Maintain at least one peer consultant or supervisory relationship while you are actively facilitating</li>
+                <li>Do not facilitate while in a state of acute personal crisis that would impair your ability to hold the group</li>
+                <li>Complete the annual renewal requirements, including the Inner Work Guide review, before your certification lapses</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Representation and Attribution</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Represent your certification status accurately — do not claim active certification if your certification has lapsed</li>
+                <li>Credit Live and Grieve™ and Tri-Pillars™ appropriately in any public representation of the program</li>
+                <li>Do not reproduce, distribute, or sell program materials without written authorization</li>
+                <li>Notify Tri-Pillars™ promptly if your professional credentials, employment status, or organizational context changes significantly</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1rem 0 0.5rem' }}>Accountability</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>Report any serious incident — participant safety concern, group disruption, or boundary violation — to Tri-Pillars™ within 48 hours</li>
+                <li>Cooperate fully with any review or inquiry initiated by Tri-Pillars™</li>
+                <li>Understand that violations of this Code may result in suspension or revocation of certification</li>
+              </ul>
+              <p style={{ fontWeight: 700, margin: '1.25rem 0 0.5rem' }}>Attestation</p>
+              <p style={{ margin: '0 0 0.5rem' }}>By signing below, I affirm that:</p>
+              <ul style={{ margin: '0 0 1rem', paddingLeft: '1.25rem' }}>
+                <li>I have read this Code of Conduct in full</li>
+                <li>I understand and agree to abide by its terms</li>
+                <li>I understand that my certification depends on continued adherence to these standards</li>
+                <li>I will complete this attestation annually as a condition of certification renewal</li>
+              </ul>
+            </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: C.navy,
               fontFamily: 'Inter, sans-serif', cursor: 'pointer', margin: '1rem 0' }}>
               <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
