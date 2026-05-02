@@ -3322,7 +3322,18 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         const found = s.documents?.find((d: { path: string; url: string | null }) =>
           d.path.includes(pathFragment)
         );
-        if (found?.url) { window.open(found.url, '_blank'); setOpeningDoc(false); return; }
+        if (found?.url) {
+          // Use location.href to avoid popup blocker (async fetch breaks window.open trust)
+          const a = document.createElement('a');
+          a.href = found.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setOpeningDoc(false);
+          return;
+        }
       }
       alert('Document not available yet. Please check back later.');
     } catch { alert('Failed to load document.'); }
