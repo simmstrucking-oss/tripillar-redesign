@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const ADMIN_SECRET = 'tripillar-admin-2024';
 
 const MIGRATION_SQL = `
+ALTER TABLE facilitator_profiles ADD COLUMN IF NOT EXISTS inner_work_reflections JSONB DEFAULT NULL;
 ALTER TABLE cohorts ADD COLUMN IF NOT EXISTS followup_reminder_sent BOOLEAN DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS participant_registrations (
