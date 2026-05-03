@@ -1756,7 +1756,7 @@ function CodesCard({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }
             <li><strong>One batch per cohort session.</strong> Generate the number of codes equal to your group size — if you have 12 participants, generate 12 codes.</li>
             <li><strong>Codes expire</strong> at your cohort end date plus 6 weeks by default. You can adjust this manually.</li>
             <li><strong>Distribute before your first session for that book.</strong> Participants enter their code at solo.tripillarstudio.com to unlock their supplement.</li>
-            <li><strong>Outcome assessments (Pre, Mid, Post, 90-Day) are separate.</strong> Those are accessed through your Cohort QR codes in the Cohorts tab — no code required from participants.</li>
+            <li><strong>Outcome assessments (Pre, Mid, Post, 90-Day) are separate.</strong> Those are accessed through QR codes in the <strong>Outcomes tab</strong> — print your QR Pack there. No code required from participants.</li>
           </ul>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted,
             margin: '0.75rem 0 0', fontStyle: 'italic' }}>
@@ -4716,6 +4716,22 @@ function OutcomesTab({ cohorts }: { cohorts: Cohort[] }) {
   return (
     <div style={card}>
       <h2 style={sectionTitle}>Participant Outcomes</h2>
+
+      {/* How touchpoints work */}
+      <div style={{ background: '#F5F0E8', border: '1px solid #D4B896', borderRadius: 8,
+        padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', fontWeight: 700,
+          color: '#1a2f4a', textTransform: 'uppercase' as const, letterSpacing: '0.05em',
+          margin: '0 0 0.6rem' }}>How Participant Outcome Touchpoints Work</h3>
+        <ul style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#1a2f4a',
+          lineHeight: 1.75, margin: 0, paddingLeft: '1.25rem' }}>
+          <li><strong>There are 4 touchpoints per cohort:</strong> Pre-Program (Week 1), Mid-Program (Week 7), Post-Program (Week 13), and 90-Day Follow-Up.</li>
+          <li><strong>Participants complete them via QR code</strong> — no login or code required from participants. Each QR links directly to their form.</li>
+          <li><strong>Print your QR Pack</strong> using the button below after selecting a cohort. Give participants the correct QR at each touchpoint. You can print it once and reuse it for the full 13 weeks.</li>
+          <li><strong>Responses are tracked here</strong> — once your cohort is selected, this tab shows aggregate results across all 4 touchpoints so you can see how your group is progressing.</li>
+          <li><strong>These are completely separate from Solo Companion codes.</strong> Codes are for the digital Group Supplement only — not outcome forms.</li>
+        </ul>
+      </div>
 
       <div style={{ marginBottom: '1rem' }}>
         <label style={fieldLabel}>Select Cohort</label>
