@@ -4151,7 +4151,32 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(3)}
             {heading("Step 3 of 6 \u2014 Your Grief Inventory")}
-            {body("These four reflections are yours alone \u2014 private, not submitted, not reviewed by anyone. Write as much or as little as feels right. Come to training day having sat with your own answers.")}
+
+            {/* Chapter 1 context from the IWG */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Chapter 1 &mdash; Your Grief History
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                What you carry into every room you enter
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                Nobody facilitates grief from a neutral place. You have lost people. You have experienced grief that was witnessed and grief that was not. You have had losses that were honored and losses that were dismissed. All of that is in the room with you, whether or not you named it during training.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This is not a liability. Lived experience with loss is one of your most important assets as a facilitator. It is the source of your credibility, your empathy, and your ability to say &ldquo;I know&rdquo; and mean it. But unexamined lived experience is something different. Unexamined, it leads you into the room wearing your own grief like a lens you don&rsquo;t know you&rsquo;re wearing.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 1rem' }}>
+                The question is not whether your grief enters the room. It does. The question is whether you know it&rsquo;s there.
+              </p>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', fontWeight: 700, color: C.navy, margin: '0 0 0.4rem' }}>
+                The Inventory
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0' }}>
+                Before you facilitate your first group, complete this inventory honestly. Return to it at every annual renewal.
+              </p>
+            </div>
+
             <GriefInventoryForm onComplete={() => setChecked(true)} initialAnswers={onboarding.grief_inventory} isPreview={isPreview} />
             {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Inventory saved</div>}
             {nextBtn(!checked)}
