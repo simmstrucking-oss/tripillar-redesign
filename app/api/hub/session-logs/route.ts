@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserFromRequest } from '@/lib/auth-helper';
+import { notifyWayne } from '@/lib/notify-wayne';
 
 const getUser = (req: NextRequest) => getUserFromRequest(req);
 
@@ -82,5 +83,12 @@ export async function POST(req: NextRequest) {
     .upsert(payload, { onConflict: 'cohort_id,week_number' }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify Wayne — non-fatal
+  notifyWayne(
+    `Session Log Submitted — Week ${week_number} (Book ${cohort.book_number})`,
+    `A weekly session log was submitted.\n\nWeek: ${week_number}\nDate: ${session_date}\nBook: ${cohort.book_number}\nAttended: ${participants_attended ?? 0}\nDelivered: ${session_delivered ?? true}\nCritical Incident: ${critical_incident ?? false}\nConfidence Rating: ${facilitator_confidence_rating ?? 'N/A'}\n\nNotes:\n${notes ?? 'None'}\n\nSubmitted: ${new Date().toISOString()}`
+  ).catch(() => {});
+
   return NextResponse.json({ ok: true, log: data });
 }

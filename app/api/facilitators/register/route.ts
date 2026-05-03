@@ -8,6 +8,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyWayne } from '@/lib/notify-wayne';
 
 const REGISTRATION_PASSCODE = '333';
 const FACILITATOR_WELCOME_SEQUENCE = 2701285;
@@ -149,6 +150,12 @@ export async function POST(req: NextRequest) {
   } catch {
     // Non-fatal
   }
+
+  // Notify Wayne — non-fatal
+  notifyWayne(
+    `New Facilitator Registered — ${fullName}`,
+    `A new facilitator has registered.\n\nName: ${fullName}\nEmail: ${normalizedEmail}\nCert ID: ${certId}\nCert Renewal: ${renewalDate}\nTrack: Community\n\nRegistered: ${new Date().toISOString()}`
+  ).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

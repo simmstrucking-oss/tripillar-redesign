@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserFromRequest } from '@/lib/auth-helper';
+import { notifyWayne } from '@/lib/notify-wayne';
 
 const getUser = (req: NextRequest) => getUserFromRequest(req);
 
@@ -60,6 +61,13 @@ export async function POST(req: NextRequest) {
   }).select('id').single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify Wayne — non-fatal
+  notifyWayne(
+    `Session Feedback Submitted — Session ${sn}`,
+    `Facilitator session feedback submitted.\n\nSession: ${sn}\nParticipants Present: ${pp}\nForms Collected: ${fc}\nAvg Satisfaction: ${avgSat ?? 'N/A'}/5\n\nThemes/Notes:\n${themes ?? 'None'}\n\nSubmitted: ${new Date().toISOString()}`
+  ).catch(() => {});
+
   return NextResponse.json({ success: true, id: data.id });
 }
 

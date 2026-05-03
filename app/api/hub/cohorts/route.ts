@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserFromRequest } from '@/lib/auth-helper';
+import { notifyWayne } from '@/lib/notify-wayne';
 
 const getUser = (req: NextRequest) => getUserFromRequest(req);
 
@@ -84,5 +85,12 @@ export async function POST(req: NextRequest) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify Wayne — non-fatal
+  notifyWayne(
+    `New Cohort Logged — Book ${book_number}`,
+    `A facilitator logged a new cohort.\n\nBook: ${book_number}\nStart Date: ${start_date}\nEnd Date: ${end_date ?? 'TBD'}\nParticipant Count: ${participant_count ?? 'TBD'}\n\nNotes:\n${notes ?? 'None'}\n\nCohort ID: ${data.id}\nCreated: ${new Date().toISOString()}`
+  ).catch(() => {});
+
   return NextResponse.json({ ok: true, cohort: data });
 }

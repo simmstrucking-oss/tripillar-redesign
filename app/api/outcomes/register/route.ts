@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyWayne } from '@/lib/notify-wayne';
 
 const PARTICIPANT_KIT_SEQUENCE_ID = '2714989';
 
@@ -59,6 +60,12 @@ export async function POST(req: NextRequest) {
   } catch {
     // Kit enrollment is best-effort — don't fail the registration
   }
+
+  // Notify Wayne — non-fatal
+  notifyWayne(
+    `New Participant Registered — Cohort ${cohortId}`,
+    `A participant registered for outcome tracking.\n\nEmail: ${email.toLowerCase().trim()}\nDisplay Name: ${displayName || 'Not provided'}\nCohort ID: ${cohortId}\n\nRegistered: ${new Date().toISOString()}`
+  ).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

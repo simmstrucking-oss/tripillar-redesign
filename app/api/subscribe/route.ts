@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { notifyWayne } from "@/lib/notify-wayne";
 
 const KIT_API_SECRET = process.env.KIT_API_SECRET!;
 const KIT_BASE = "https://api.convertkit.com/v3";
@@ -70,6 +71,12 @@ export async function POST(req: NextRequest) {
     if (isAlreadyActive) {
       return NextResponse.json({ status: "already_subscribed" });
     }
+
+    // Notify Wayne of new newsletter subscriber — non-fatal
+    notifyWayne(
+      `New Newsletter Subscriber — ${email}`,
+      `Someone subscribed to the Live and Grieve™ newsletter.\n\nEmail: ${email}\nSubscribed: ${new Date().toISOString()}`
+    ).catch(() => {});
 
     return NextResponse.json({ status: "subscribed" });
   } catch (err) {
