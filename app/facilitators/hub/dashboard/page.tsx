@@ -3886,11 +3886,12 @@ function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onCompl
 }
 
 /* ── Onboarding Wizard (replaces checklist) ── */
-function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview = false }: {
+function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigate, isPreview = false }: {
   profile: Profile;
   onboarding: OnboardingState;
   onUpdate: (ob: Partial<OnboardingState>) => void;
   onComplete: () => void;
+  onNavigate?: (tab: Tab) => void;
   isPreview?: boolean;
 }) {
   const [step, setStep] = useState(onboarding.onboarding_step ?? 0);
@@ -4497,14 +4498,18 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
                   })}
                 </div>
 
-                {/* Open Full Manual button */}
-                <button
-                  onClick={() => { findAndOpenDoc('FM'); }}
-                  disabled={openingDoc}
-                  style={{ ...btn(C.navy, '#fff'), opacity: openingDoc ? 0.6 : 1, margin: '1rem 0' }}
-                >
-                  {openingDoc ? 'Loading\u2026' : `Open Full Manual \u2014 Book ${firstBook}`}
-                </button>
+                {/* Practice reflection log button */}
+                <div style={{ background: C.goldLt, border: `1px solid ${C.gold}40`, borderRadius: 8, padding: '1rem 1.25rem', margin: '1.25rem 0 0.5rem' }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.88rem', color: C.navy, lineHeight: 1.65, margin: '0 0 0.75rem' }}>
+                    Before training day, try submitting a practice reflection. The Reflection Log is where you&rsquo;ll record your thoughts after every session you facilitate. Getting familiar with it now means one less thing to learn on the other side of training.
+                  </p>
+                  <button
+                    onClick={() => { onComplete(); if (onNavigate) onNavigate('reflections'); }}
+                    style={{ ...btn(C.gold, '#fff'), fontSize: '0.88rem', padding: '0.55rem 1.25rem' }}
+                  >
+                    Open My Reflection Log &rarr;
+                  </button>
+                </div>
 
                 {checkboxRow('I have read Week 1 of the Master Facilitator Manual and am ready for training day.')}
               </>
@@ -4962,6 +4967,7 @@ export default function HubDashboard() {
             onboarding={onboarding}
             onUpdate={updateOnboarding}
             onComplete={() => setShowWelcome(false)}
+            onNavigate={(t) => { setShowWelcome(false); setTab(t); }}
             isPreview={false}
           />
         </div>
