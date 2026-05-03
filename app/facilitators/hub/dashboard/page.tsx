@@ -1498,6 +1498,69 @@ function CohortExpandRow({ c, expanded, onToggle, logs, outcome, feedback, onDat
             </div>
           )}
 
+          {/* ── Participant Outcome Touchpoints ── */}
+          <div style={{ marginTop: '1.5rem', padding: '1.25rem',
+            background: '#F5F0E8', borderRadius: 10, border: '1px solid #D4B896' }}>
+            <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 700,
+              color: '#1a2f4a', textTransform: 'uppercase' as const, letterSpacing: '0.05em',
+              margin: '0 0 0.75rem' }}>
+              📋 Participant Outcome Touchpoints
+            </h3>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#1a2f4a',
+              lineHeight: 1.7, margin: '0 0 0.75rem' }}>
+              There are <strong>4 touchpoints</strong> in this cohort where participants complete a short outcomes form. These are not done inside the app — participants scan a <strong>QR code</strong> you provide. No login or code is required from them.
+            </p>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter, sans-serif',
+              fontSize: '0.82rem', marginBottom: '1rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #D4B896' }}>
+                  {['Touchpoint', 'When to Distribute', 'Time Required'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '0.4rem 0.6rem', color: '#5a6a7a',
+                      fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase' as const,
+                      letterSpacing: '0.04em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Pre-Program Form', 'Before Session 1 begins', '~5 min'],
+                  ['Mid-Program Pulse', 'At Session 7, before participants leave', '~5 min'],
+                  ['Post-Program Form', 'At Session 13, before closing ceremony', '~5 min'],
+                  ['90-Day Follow-Up', 'Your site contact sends this ~90 days after Session 13', '~5 min'],
+                ].map(([tp, when, time]) => (
+                  <tr key={tp} style={{ borderBottom: '1px solid #D4B896' }}>
+                    <td style={{ padding: '0.45rem 0.6rem', fontWeight: 600, color: '#1a2f4a' }}>{tp}</td>
+                    <td style={{ padding: '0.45rem 0.6rem', color: '#1a2f4a' }}>{when}</td>
+                    <td style={{ padding: '0.45rem 0.6rem', color: '#5a6a7a' }}>{time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.83rem', color: '#1a2f4a',
+              lineHeight: 1.6, margin: '0 0 1rem' }}>
+              <strong>How to use:</strong> Click <em>Print QR Pack</em> below to open a printable page with all 4 QR codes for this cohort. Print it once and keep it in your program binder. Hand participants the correct QR code at each touchpoint — they scan it with their phone camera and complete the form in their browser.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+              <a
+                href={`/outcomes/qr-pack?cohort=${c.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...btn(C.navy, '#fff', true), textDecoration: 'none', display: 'inline-block' }}>
+                🖨 Print QR Pack
+              </a>
+              <a
+                href={`/outcomes/participant-guide`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...btn(C.gold, '#fff', true), textDecoration: 'none', display: 'inline-block' }}>
+                📄 Print Participant Guide
+              </a>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: '#5a6a7a' }}>
+                Use Ctrl/Cmd + P to print either page
+              </span>
+            </div>
+          </div>
+
           {/* 2D — Cohort Completion Summary (only for non-completed cohorts) */}
           {c.status !== 'completed' && (
             <CohortSummaryForm cohortId={c.id} facilitatorId={facilitatorId} onCompleted={onDataSaved} />
