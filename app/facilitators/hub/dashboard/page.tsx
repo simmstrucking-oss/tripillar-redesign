@@ -1741,11 +1741,27 @@ function CodesCard({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }
       {/* ── Generate Section ── */}
       <div style={card}>
         <h2 style={sectionTitle}>Generate Codes</h2>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.muted,
-          marginTop: -8, marginBottom: '1.25rem', lineHeight: 1.6 }}>
-          Generate single-use access codes for your group participants. Each code unlocks the Group Supplement
-          for one participant until the expiry date.
-        </p>
+
+        {/* How codes work */}
+        <div style={{ background: C.goldLt, border: `1px solid ${C.gold}40`, borderRadius: 8,
+          padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.78rem', fontWeight: 700,
+            color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.5rem' }}>
+            How Codes Work
+          </p>
+          <ul style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy,
+            lineHeight: 1.75, margin: 0, paddingLeft: '1.25rem' }}>
+            <li><strong>One code per participant, per book.</strong> Each code gives one participant access to the Solo Companion digital Group Supplement for that book only.</li>
+            <li><strong>Codes are book-specific.</strong> A code for Book 1 unlocks Book 1 content. When your group moves to Book 2, generate a new batch for Book 2.</li>
+            <li><strong>One batch per cohort session.</strong> Generate the number of codes equal to your group size. If you have 12 participants, generate 12 codes.</li>
+            <li><strong>Codes expire.</strong> By default, expiry is set to your cohort end date plus 6 weeks — giving participants time to finish after your last session. You can adjust this manually.</li>
+            <li><strong>Distribute before your first session for that book.</strong> Participants enter their code at <span style={{ fontFamily: 'monospace' }}>solo.tripillarstudio.com</span> to unlock their supplement.</li>
+          </ul>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted,
+            margin: '0.75rem 0 0', fontStyle: 'italic' }}>
+            Questions about codes or participant access? Contact wayne@tripillarstudio.com.
+          </p>
+        </div>
 
         <form onSubmit={generate}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
