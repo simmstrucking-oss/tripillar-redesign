@@ -4014,10 +4014,10 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
   const progressBar = (currentStep: number) => (
     <div style={{ marginBottom: '2rem' }}>
       <div style={{ fontSize: '0.8rem', color: C.muted, fontFamily: 'Inter, sans-serif', marginBottom: 8, textAlign: 'center' }}>
-        Step {currentStep} of 7
+        Step {currentStep} of 6
       </div>
       <div style={{ display: 'flex', gap: 4 }}>
-        {Array.from({ length: 7 }, (_, i) => (
+        {Array.from({ length: 6 }, (_, i) => (
           <div key={i} style={{
             flex: 1, height: 6, borderRadius: 3,
             background: i < currentStep ? C.gold : C.border,
@@ -4066,7 +4066,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         {step === 0 && (
           <div style={{ textAlign: 'center' }}>
             {heading("Welcome.")}
-            {body("We\u2019re glad you\u2019re here. This Hub is where your journey as a Live and Grieve\u2122 facilitator begins \u2014 and where it continues long after training day. Over the next seven steps, we\u2019ll walk through your preparation together. Some is reading. Some is reflection. Some is practical. Take your time with each one.")}
+            {body("We\u2019re glad you\u2019re here. This Hub is where your journey as a Live and Grieve\u2122 facilitator begins \u2014 and where it continues long after training day. Over the next six steps, we\u2019ll walk through your preparation together. Some is reading. Some is reflection. Some is practical. Take your time with each one.")}
             <button onClick={advance}
               style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
               I&apos;m ready. Let&apos;s begin.
@@ -4074,12 +4074,47 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 1 — Inner Work Guide with Reflections inline */}
+        {/* Step 1 — Training Details (was Step 6) */}
         {step === 1 && (
           <div>
             {progressBar(1)}
-            {heading("Step 1 of 7 — The Inner Work Guide")}
-            {body("Read the guide in full and answer each reflection as you go. Your answers are private — saved to your account, never reviewed by anyone. You can save progress and return at any time.")}
+            {heading("Step 1 of 6 \u2014 Your Training Day")}
+            {body("Let\u2019s start with the basics. Confirm your training details so we have everything on file and can prepare well for your day together.")}
+            <div style={{ display: 'grid', gap: '0.75rem', maxWidth: 400 }}>
+              <div>
+                <label style={fieldLabel}>Training Date</label>
+                <input type="date" style={inp} value={trainingDate}
+                  onChange={e => setTrainingDate(e.target.value)} />
+              </div>
+              <div>
+                <label style={fieldLabel}>Training Location</label>
+                <input type="text" style={inp} placeholder="City, State or venue name"
+                  value={trainingLocation}
+                  onChange={e => setTrainingLocation(e.target.value)} />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
+                <input type="checkbox" checked={trainingUnderstood}
+                  onChange={e => setTrainingUnderstood(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: C.gold }} />
+                I understand what to bring and what is expected of me before I arrive.
+              </label>
+              <button onClick={saveTraining}
+                disabled={!trainingDate || !trainingLocation || !trainingUnderstood || savingTraining || trainingSaved}
+                style={{ ...btn(C.gold, '#fff', true),
+                  opacity: (!trainingDate || !trainingLocation || !trainingUnderstood) ? 0.5 : 1,
+                  width: 'fit-content' }}>
+                {savingTraining ? 'Saving...' : trainingSaved ? 'Saved' : 'Save & Continue'}
+              </button>
+            </div>
+            {nextBtn(!trainingSaved)}
+          </div>
+        )}
+
+        {/* Step 7 — Inner Work Guide with Reflections inline (post-training) */}
+        {step === 7 && (
+          <div>
+            {heading("The Facilitator\u2019s Inner Work")}
+            {body("You covered the heart of this in training. Now it\u2019s yours to sit with. Read the guide at your own pace and answer each reflection when you\u2019re ready. Your answers are private \u2014 saved to your account, never reviewed by anyone. You can save progress and return any time.")}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 1rem' }}>
               <button onClick={() => findAndDownloadDoc('Facilitator_Inner_Work_Guide')}
                 disabled={openingDoc}
@@ -4089,27 +4124,14 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             </div>
             <IWGInlineForm onComplete={() => setChecked(true)} initialAnswers={onboarding.inner_work_reflections} isPreview={isPreview} />
             {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>✓ Reflections saved</div>}
-            {nextBtn(!checked)}
           </div>
         )}
 
-        {/* Step 2 — Grief Inventory */}
+        {/* Step 2 — Participant Appropriateness Guide (was Step 3) */}
         {step === 2 && (
           <div>
             {progressBar(2)}
-            {heading("Step 2 of 7 \u2014 Your Grief Inventory")}
-            {body("These four reflections are yours alone \u2014 private, not submitted, not reviewed by anyone. Write as much or as little as feels right. Come to training day having sat with your own answers.")}
-            <GriefInventoryForm onComplete={() => setChecked(true)} initialAnswers={onboarding.grief_inventory} isPreview={isPreview} />
-            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Inventory saved</div>}
-            {nextBtn(!checked)}
-          </div>
-        )}
-
-        {/* Step 3 — Participant Appropriateness Guide (inline) */}
-        {step === 3 && (
-          <div>
-            {progressBar(3)}
-            {heading("Step 3 of 7 \u2014 Who This Program Serves")}
+            {heading("Step 2 of 6 \u2014 Who This Program Serves")}
             {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. Read the guide below in full before moving on.")}
             {renderDocInline(PAG_CONTENT, C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
@@ -4124,11 +4146,23 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
+        {/* Step 3 — Grief Inventory (was Step 2) */}
+        {step === 3 && (
+          <div>
+            {progressBar(3)}
+            {heading("Step 3 of 6 \u2014 Your Grief Inventory")}
+            {body("These four reflections are yours alone \u2014 private, not submitted, not reviewed by anyone. Write as much or as little as feels right. Come to training day having sat with your own answers.")}
+            <GriefInventoryForm onComplete={() => setChecked(true)} initialAnswers={onboarding.grief_inventory} isPreview={isPreview} />
+            {checked && <div style={{ color: '#16A34A', fontWeight: 600, fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', margin: '0.5rem 0' }}>&#10003; Inventory saved</div>}
+            {nextBtn(!checked)}
+          </div>
+        )}
+
         {/* Step 4 — Code of Conduct (inline) */}
         {step === 4 && (
           <div>
             {progressBar(4)}
-            {heading("Step 4 of 7 \u2014 The Code of Conduct")}
+            {heading("Step 4 of 6 \u2014 The Code of Conduct")}
             {body("Read the Code of Conduct below in full. When you\u2019ve read it, check the box and sign.")}
             {renderDocInline(COC_CONTENT, C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
@@ -4160,7 +4194,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
         {step === 5 && (
           <div>
             {progressBar(5)}
-            {heading('Step 5 of 7 \u2014 Your First Session')}
+            {heading('Step 5 of 6 \u2014 Your First Session')}
 
             {firstBook ? (
               <>
@@ -4413,48 +4447,13 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           </div>
         )}
 
-        {/* Step 6 — Training Details */}
+        {/* Step 6 — Complete (was Step 7) */}
         {step === 6 && (
           <div>
             {progressBar(6)}
-            {heading("Step 6 of 7 \u2014 Your Training Day")}
-            {body("You\u2019re almost there. Confirm your training details below so we have everything on file and can prepare well for your day together.")}
-            <div style={{ display: 'grid', gap: '0.75rem', maxWidth: 400 }}>
-              <div>
-                <label style={fieldLabel}>Training Date</label>
-                <input type="date" style={inp} value={trainingDate}
-                  onChange={e => setTrainingDate(e.target.value)} />
-              </div>
-              <div>
-                <label style={fieldLabel}>Training Location</label>
-                <input type="text" style={inp} placeholder="City, State or venue name"
-                  value={trainingLocation}
-                  onChange={e => setTrainingLocation(e.target.value)} />
-              </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: C.navy, cursor: 'pointer' }}>
-                <input type="checkbox" checked={trainingUnderstood}
-                  onChange={e => setTrainingUnderstood(e.target.checked)}
-                  style={{ width: 16, height: 16, accentColor: C.gold }} />
-                I understand what to bring and what is expected of me before I arrive.
-              </label>
-              <button onClick={saveTraining}
-                disabled={!trainingDate || !trainingLocation || !trainingUnderstood || savingTraining || trainingSaved}
-                style={{ ...btn(C.gold, '#fff', true),
-                  opacity: (!trainingDate || !trainingLocation || !trainingUnderstood) ? 0.5 : 1,
-                  width: 'fit-content' }}>
-                {savingTraining ? 'Saving...' : trainingSaved ? 'Saved' : 'Save & Continue'}
-              </button>
-            </div>
-            {nextBtn(!trainingSaved)}
-          </div>
-        )}
-
-        {/* Step 7 — Complete */}
-        {step === 7 && (
-          <div>
-            {progressBar(7)}
-            {heading("Step 7 of 7 \u2014 You\u2019re ready.")}
+            {heading("Step 6 of 6 \u2014 You\u2019re ready.")}
             {body("Your pre-training preparation is complete. We\u2019ll see you on training day. Between now and then, your Hub is here \u2014 and so are we. If anything comes up \u2014 questions, something you want to think through, anything at all \u2014 the Get Support tab is always open.")}
+            {body("After training, return to your Hub to find The Facilitator\u2019s Inner Work guide waiting for you.")}
             <button onClick={completeOnboarding}
               style={{ ...btn(C.gold, '#fff'), fontSize: '1rem', padding: '0.75rem 2rem' }}>
               Enter your Hub
@@ -4468,7 +4467,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
 
 /* ── Persistent onboarding banner ── */
 function OnboardingBanner({ onboardingStep }: { onboardingStep: number }) {
-  if (onboardingStep >= 7) return null;
+  if (onboardingStep >= 6) return null;
 
   return (
     <div style={{
@@ -4476,7 +4475,7 @@ function OnboardingBanner({ onboardingStep }: { onboardingStep: number }) {
       padding: '0.75rem 1.1rem', marginBottom: '1.25rem',
       fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.gold, fontWeight: 600,
     }}>
-      Pre-training preparation: step {onboardingStep} of 7
+      Pre-training preparation: step {onboardingStep} of 6
     </div>
   );
 }
