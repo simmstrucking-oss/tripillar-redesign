@@ -4132,7 +4132,23 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(2)}
             {heading("Step 2 of 6 \u2014 Who This Program Serves")}
-            {body("Part of caring well for the people who come to you is knowing what Live and Grieve\u2122 can and can\u2019t hold. Read the guide below in full before moving on.")}
+
+            {/* PAG intro block */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Participant Appropriateness Guide
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                A Screening Framework for Facilitators, Referring Professionals, and Partner Organizations
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This guide answers one question: is this person ready for Live and Grieve&trade; right now? It does not determine whether someone deserves support &mdash; it determines whether this particular format is the right support at this particular time.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0' }}>
+                Live and Grieve&trade; is a structured peer support group. It is not therapy, crisis intervention, or a clinical treatment program. Its power comes from its structure, its consistency, and the relational environment of a group. That power depends on participants who are able to engage with all three.
+              </p>
+            </div>
+
             {renderDocInline(PAG_CONTENT, C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
@@ -4188,7 +4204,26 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
           <div>
             {progressBar(4)}
             {heading("Step 4 of 6 \u2014 The Code of Conduct")}
-            {body("Read the Code of Conduct below in full. When you\u2019ve read it, check the box and sign.")}
+
+            {/* COC intro block */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Facilitator Code of Conduct
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                All Certification Tracks &middot; All Authorized Contexts
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This Code of Conduct governs all individuals holding a current Live and Grieve&trade; Facilitator Certification issued by Tri-Pillars&trade;.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                Signing this document is a condition of certification and must be renewed annually.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0' }}>
+                The Live and Grieve&trade; program was built because grief deserves to be held with care, dignity, and skill. Every person who enters a Live and Grieve&trade; group is carrying real loss. They are trusting that the facilitator in that room has prepared, knows their boundaries, and will protect the space. This Code of Conduct exists to honor that trust.
+              </p>
+            </div>
+
             {renderDocInline(COC_CONTENT, C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
@@ -4221,9 +4256,28 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, isPreview
             {progressBar(5)}
             {heading('Step 5 of 6 \u2014 Your First Session')}
 
+            {/* Week 1 intro block */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Week 1 &mdash; Welcome and Orientation
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                Introductory Session &mdash; Modified Rhythm
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This is the first session of a fifty-two-week journey &mdash; but it is also the first session of a thirteen-week quarter. That distinction matters, and you will explain it today.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                Book 1 &mdash; In The Quiet &mdash; covers the Foundation Quarter: Understanding and Acknowledging. Weeks 1&ndash;4 name grief and establish safety. Weeks 5&ndash;9 explore its dimensions. Weeks 10&ndash;13 begin the first integration work. Today you are laying the ground that everything else stands on.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0' }}>
+                Your job today is not to teach. It is not to cover content. It is to make this room safe enough, warm enough, and clear enough that people come back next week. If they leave feeling welcomed, understood, and clear about what to expect &mdash; you have succeeded.
+              </p>
+            </div>
+
             {firstBook ? (
               <>
-                {body('Below is Week 1 of your Master Facilitator Manual. Read it before training day. Every layer is here \u2014 what participants will be working through, how the session is structured, and guidance for you as you hold the room. Familiarity with Week 1 before training day will make the experience much richer.')}
+                {body('Read Week 1 of your Master Facilitator Manual in full before training day. Every layer is here \u2014 what participants will be working through, how the session is structured, and guidance for you as you hold the room.')}
 
                 {/* Inline Week 1 content */}
                 <div style={{
