@@ -3676,7 +3676,7 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
   const rendered: React.ReactNode[] = [];
   const skipNext = new Set<number>();
 
-  IWG_CONTENT.forEach((p, i) => {
+  IWG_CONTENT.slice(6).forEach((p, i) => {
     if (skipNext.has(i)) return;
 
     if (!p.text.trim()) {
@@ -4150,7 +4150,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigat
               </p>
             </div>
 
-            {renderDocInline(PAG_CONTENT, C)}
+            {renderDocInline(PAG_CONTENT.slice(5), C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
                 disabled={openingDoc}
@@ -4225,7 +4225,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigat
               </p>
             </div>
 
-            {renderDocInline(COC_CONTENT, C)}
+            {renderDocInline(COC_CONTENT.slice(9), C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
                 disabled={openingDoc}
