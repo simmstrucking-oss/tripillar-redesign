@@ -375,7 +375,7 @@ export const PAG_CONTENT: DocParagraph[] = [
   { style: 'Normal', text: 'Active Substance Use as a Coping Mechanism' },
   { style: 'Normal', text: 'A person who is actively using alcohol or substances to manage grief-related distress may find that the group\'s emotional opening accelerates the need for clinical support they do not yet have in place. These participants are not excluded — but the facilitator and referring professional should be aware, and the person should ideally have individual support in place before beginning the group.' },
   { style: 'Normal', text: 'Cognitive or Communication Differences' },
-  { style: 'Normal', text: 'The program\'s written workbook format and verbal group discussion structure assumes standard literacy and verbal communication. Participants with significant cognitive differences or communication needs may require adaptation. Contact Tri-Pillars™ to discuss.' },
+  { style: 'Normal', text: 'The program\'s written workbook and group discussion format is designed to be accommodated in most situations. Participants with cognitive or communication differences are welcome — facilitators can adapt the format as needed. Contact Tri-Pillars™ to discuss options.' },
   { style: 'Normal', text: 'Who the Program Is Not Designed For' },
   { style: 'Normal', text: 'The following situations indicate that Live and Grieve™ is not the appropriate support at this time. Referral to a more appropriate resource is the right response.' },
   { style: 'Normal', text: 'Acute Psychiatric Crisis' },
