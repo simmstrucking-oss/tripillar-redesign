@@ -1751,11 +1751,12 @@ function CodesCard({ profile, cohorts }: { profile: Profile; cohorts: Cohort[] }
           </p>
           <ul style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy,
             lineHeight: 1.75, margin: 0, paddingLeft: '1.25rem' }}>
-            <li><strong>One code per participant, per book.</strong> Each code gives one participant access to the Solo Companion digital Group Supplement for that book only.</li>
-            <li><strong>Codes are book-specific.</strong> A code for Book 1 unlocks Book 1 content. When your group moves to Book 2, generate a new batch for Book 2.</li>
-            <li><strong>One batch per cohort session.</strong> Generate the number of codes equal to your group size. If you have 12 participants, generate 12 codes.</li>
-            <li><strong>Codes expire.</strong> By default, expiry is set to your cohort end date plus 6 weeks — giving participants time to finish after your last session. You can adjust this manually.</li>
-            <li><strong>Distribute before your first session for that book.</strong> Participants enter their code at <span style={{ fontFamily: 'monospace' }}>solo.tripillarstudio.com</span> to unlock their supplement.</li>
+            <li><strong>Codes are for the Solo Companion only.</strong> Each code gives one participant access to the <em>Solo Companion</em> digital Group Supplement at <span style={{ fontFamily: 'monospace' }}>solo.tripillarstudio.com</span> — not for outcome assessments or any other part of the program.</li>
+            <li><strong>One code per participant, per book.</strong> A code for Book 1 unlocks Book 1 content only. When your group moves to Book 2, generate a new batch for Book 2.</li>
+            <li><strong>One batch per cohort session.</strong> Generate the number of codes equal to your group size — if you have 12 participants, generate 12 codes.</li>
+            <li><strong>Codes expire</strong> at your cohort end date plus 6 weeks by default. You can adjust this manually.</li>
+            <li><strong>Distribute before your first session for that book.</strong> Participants enter their code at solo.tripillarstudio.com to unlock their supplement.</li>
+            <li><strong>Outcome assessments (Pre, Mid, Post, 90-Day) are separate.</strong> Those are accessed through your Cohort QR codes in the Cohorts tab — no code required from participants.</li>
           </ul>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted,
             margin: '0.75rem 0 0', fontStyle: 'italic' }}>
