@@ -3676,7 +3676,7 @@ function IWGInlineForm({ onComplete, initialAnswers, isPreview }: { onComplete: 
   const rendered: React.ReactNode[] = [];
   const skipNext = new Set<number>();
 
-  IWG_CONTENT.forEach((p, i) => {
+  IWG_CONTENT.slice(6).forEach((p, i) => {
     if (skipNext.has(i)) return;
 
     if (!p.text.trim()) {
@@ -4134,7 +4134,22 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigat
             {progressBar(2)}
             {heading("Step 2 of 6 \u2014 Who This Program Serves")}
 
-            {renderDocInline(PAG_CONTENT, C)}
+            {/* PAG intro block */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Participant Appropriateness Guide
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                A Screening Framework for Facilitators, Referring Professionals, and Partner Organizations
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This guide answers one question: is this person ready for Live and Grieve&trade; right now? It does not determine whether someone deserves support &mdash; it determines whether this particular format is the right support at this particular time.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0' }}>
+                Live and Grieve&trade; is a structured peer support group. It is not therapy, crisis intervention, or a clinical treatment program. Its power comes from its structure, its consistency, and the relational environment of a group. That power depends on participants who are able to engage with all three.
+              </p>
+            </div>
+            {renderDocInline(PAG_CONTENT.slice(5), C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Participant_Appropriateness_Guide')}
                 disabled={openingDoc}
@@ -4190,7 +4205,25 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigat
             {progressBar(4)}
             {heading("Step 4 of 6 \u2014 The Code of Conduct")}
 
-            {renderDocInline(COC_CONTENT, C)}
+            {/* COC intro block */}
+            <div style={{ borderLeft: `3px solid ${C.gold}`, paddingLeft: '1rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '0.8rem', fontWeight: 700, color: C.gold, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 0.25rem' }}>
+                Facilitator Code of Conduct
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: C.muted, fontStyle: 'italic', margin: '0 0 1rem' }}>
+                All Certification Tracks &middot; All Authorized Contexts
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                This Code of Conduct governs all individuals holding a current Live and Grieve&trade; Facilitator Certification issued by Tri-Pillars&trade;.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
+                Signing this document is a condition of certification and must be renewed annually.
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0' }}>
+                The Live and Grieve&trade; program was built because grief deserves to be held with care, dignity, and skill. Every person who enters a Live and Grieve&trade; group is carrying real loss. They are trusting that the facilitator in that room has prepared, knows their boundaries, and will protect the space. This Code of Conduct exists to honor that trust.
+              </p>
+            </div>
+            {renderDocInline(COC_CONTENT.slice(9), C)}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, margin: '0.5rem 0 0' }}>
               <button onClick={() => findAndDownloadDoc('Code_of_Conduct')}
                 disabled={openingDoc}
