@@ -48,7 +48,7 @@ export default function SignAgreement() {
           );
         } else if (data.error === 'already_signed') {
           setError(
-            'This agreement has already been signed. You will receive the fully executed copy by email once Tri-Pillars\u2122 co-signs.'
+            'This agreement has already been signed. You will receive the fully executed copy by email once Tri-Pillars™ LLC co-signs.'
           );
         } else if (data.agreement) {
           setAgreement(data.agreement);

@@ -4,11 +4,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "News | Tri-Pillars™",
   description:
-    "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+    "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars™ LLC.",
   openGraph: {
     title: "News | Tri-Pillars™",
     description:
-      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars™ LLC.",
     url: "https://tripillarstudio.com/content/news",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "News | Tri-Pillars™" }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "News | Tri-Pillars™",
     description:
-      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars.",
+      "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars™ LLC.",
     images: ["/og-image.png"],
   },
   alternates: { canonical: "https://tripillarstudio.com/content/news" },
@@ -66,7 +66,7 @@ export default function NewsPage() {
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-tight mb-6">
             What&apos;s happening{" "}
-            <span className="gold-text">at Tri-Pillars.</span>
+            <span className="gold-text">at Tri-Pillars™ LLC.</span>
           </h1>
         </div>
       </section>

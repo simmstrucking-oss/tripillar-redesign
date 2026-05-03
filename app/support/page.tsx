@@ -110,7 +110,7 @@ export default function SupportPage() {
               </Link>.
             </p>
             <p className="text-muted text-sm mb-8 bg-card-bg border border-card-border rounded-lg p-4 inline-block">
-              Tri-Pillars LLC is not a 501(c)(3) nonprofit. Contributions are
+              Tri-Pillars™ LLC is not a 501(c)(3) nonprofit. Contributions are
               not tax-deductible.
             </p>
             <div className="block">

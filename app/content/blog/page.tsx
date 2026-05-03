@@ -4,11 +4,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Blog | Tri-Pillars™",
   description:
-    "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+    "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars™ LLC.",
   openGraph: {
     title: "Blog | Tri-Pillars™",
     description:
-      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars™ LLC.",
     url: "https://tripillarstudio.com/content/blog",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Blog | Tri-Pillars™" }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Blog | Tri-Pillars™",
     description:
-      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars.",
+      "Wayne and Jamie Simms write about grief, research, and what they are building at Tri-Pillars™ LLC.",
     images: ["/og-image.png"],
   },
   alternates: { canonical: "https://tripillarstudio.com/content/blog" },

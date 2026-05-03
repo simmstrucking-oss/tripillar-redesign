@@ -73,7 +73,7 @@ export default function AboutPage() {
             <span className="gold-text">Designed for the living.</span>
           </h1>
           <p className="text-xl text-muted max-w-2xl leading-relaxed">
-            Tri-Pillars was founded by Wayne and Jamie Simms after the deaths of
+            Tri-Pillars™ LLC was founded by Wayne and Jamie Simms after the deaths of
             their son Jacoby and nephew Ian. What started as a search for
             something better became a program grounded in what research
             actually says about grief.
@@ -142,14 +142,14 @@ export default function AboutPage() {
             <div className="flex flex-col items-center text-center">
               <SiteImage src="/images/wayne-simms.jpg" alt="Wayne Simms, Co-Founder" maxWidth={320} className="rounded-xl w-full object-cover mb-5" />
               <h3 className="font-serif text-xl text-navy">Wayne Simms</h3>
-              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™</p>
+              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™ LLC</p>
             </div>
           </FadeIn>
           <FadeIn delay={150}>
             <div className="flex flex-col items-center text-center">
               <SiteImage src="/images/jamie-simms.jpg" alt="Jamie Simms, Co-Founder" maxWidth={320} className="rounded-xl w-full object-cover mb-5" />
               <h3 className="font-serif text-xl text-navy">Jamie Simms</h3>
-              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™</p>
+              <p className="text-gold text-sm mt-1">Co-Founder, Tri-Pillars™ LLC</p>
             </div>
           </FadeIn>
         </div>

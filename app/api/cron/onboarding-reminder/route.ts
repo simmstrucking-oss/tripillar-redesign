@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from:    'Tri-Pillars LLC <ember@tripillarstudio.com>',
+          from:    'Tri-Pillars™ LLC <ember@tripillarstudio.com>',
           to:      [fac.email],
           subject: 'Your Facilitator Hub is ready.',
           html: `

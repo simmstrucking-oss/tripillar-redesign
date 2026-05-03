@@ -124,7 +124,7 @@ export const PITCH_CONTENT: Record<string, PitchContent> = {
     points: [
       {
         title: "What the Group Use License includes",
-        body: "The right to facilitate Live and Grieve™ groups in a community setting. Access to all facilitator materials, session guides, and participant workbook ordering. Ongoing support from the Tri-Pillars network."
+        body: "The right to facilitate Live and Grieve™ groups in a community setting. Access to all facilitator materials, session guides, and participant workbook ordering. Ongoing support from the Tri-Pillars™ LLC network."
       },
       {
         title: "What it costs",

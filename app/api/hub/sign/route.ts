@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   const doc = new PDFDocument({
     size: 'LETTER',
     margins: { top: 60, bottom: 60, left: 60, right: 60 },
-    info: { Creator: 'Tri-Pillars LLC', Producer: 'Live and Grieve™' },
+    info: { Creator: 'Tri-Pillars™ LLC', Producer: 'Live and Grieve™' },
   });
 
   const W = doc.page.width;

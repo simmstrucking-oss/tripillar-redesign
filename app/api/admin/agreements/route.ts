@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
       <a href="${signLink}" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Review and Sign Agreement</a>
     </p>
     <p>Questions? Contact Wayne Simms at wayne@tripillarstudio.com.</p>
-    <p>Best regards,<br>Tri-Pillars LLC</p>
+    <p>Best regards,<br>Tri-Pillars™ LLC</p>
     </body></html>`
     );
 

@@ -25,7 +25,7 @@ export function createDoc() {
   return new PDFDocument({
     size:    'LETTER',
     margins: { top: 60, bottom: 60, left: 60, right: 60 },
-    info:    { Creator: 'Tri-Pillars LLC', Producer: 'Live and Grieve™' },
+    info:    { Creator: 'Tri-Pillars™ LLC', Producer: 'Live and Grieve™' },
   });
 }
 

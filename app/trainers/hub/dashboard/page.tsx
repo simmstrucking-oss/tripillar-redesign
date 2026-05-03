@@ -935,7 +935,7 @@ function ResourcesTab({ profile }: { profile: TrainerProfile }) {
                     lgyTracks.includes('elementary') ? 'Elementary (Ages 8–12)' : null,
                     lgyTracks.includes('middle_high') ? 'Middle/High (Ages 13–17)' : null,
                   ].filter(Boolean).join(', ')}`
-                : 'LGY Trainer — no tracks assigned yet. Contact Tri-Pillars\u2122.'}
+                : 'LGY Trainer — no tracks assigned yet. Contact Tri-Pillars™ LLC.'}
             </div>
           </div>
 

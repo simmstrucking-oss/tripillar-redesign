@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Tri-Pillars <ember@tripillarstudio.com>",
+          from: "Tri-Pillars™ LLC <ember@tripillarstudio.com>",
           to: ["wayne@tripillarstudio.com"],
           subject: `New memorial wall submission: ${trimmedName}`,
           html: `

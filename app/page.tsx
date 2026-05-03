@@ -79,7 +79,7 @@ export default function HomePage() {
           <div style={{ maxWidth: 'clamp(200px, 90vw, 280px)', margin: '0 auto 2rem' }}>
             <Image
               src="/brand/A_Stacked/A_Stacked_Large_Toward_The_Light_transparent.png"
-              alt="Live and Grieve™ — Tri-Pillars LLC"
+              alt="Live and Grieve™ — Tri-Pillars™ LLC"
               width={280}
               height={280}
               className="w-full h-auto"

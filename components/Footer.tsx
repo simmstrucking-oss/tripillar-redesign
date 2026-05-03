@@ -107,7 +107,7 @@ export default function Footer() {
             <div style={{ maxWidth: '260px', marginBottom: '1rem' }}>
               <Image
                 src="/brand/D_Rule/D_Rule_Toward_The_Light_transparent.png"
-                alt="Live and Grieve™ — Tri-Pillars LLC"
+                alt="Live and Grieve™ — Tri-Pillars™ LLC"
                 width={260}
                 height={60}
                 className="w-full h-auto"

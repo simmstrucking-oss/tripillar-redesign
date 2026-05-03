@@ -54,7 +54,7 @@ const sections = [
   {
     label: "News",
     title: "Program updates and milestones.",
-    desc: "Pilot launches, publishing updates, training announcements, and everything happening at Tri-Pillars.",
+    desc: "Pilot launches, publishing updates, training announcements, and everything happening at Tri-Pillars™ LLC.",
     href: "/news",
   },
   {

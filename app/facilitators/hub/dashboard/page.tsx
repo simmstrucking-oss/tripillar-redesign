@@ -1172,7 +1172,7 @@ function CohortSummaryForm({ cohortId, facilitatorId, onCompleted }: {
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={fieldLabel}>Curriculum Feedback for Tri-Pillars</label>
+        <label style={fieldLabel}>Curriculum Feedback for Tri-Pillars™ LLC</label>
         <textarea style={{ ...inp, height: 80, resize: 'vertical' }}
           placeholder="Suggestions for content, pacing, structure, or resources…"
           value={form.curriculum_feedback} onChange={e => set('curriculum_feedback', e.target.value)} />
@@ -2667,7 +2667,7 @@ function YouthTab({ profile }: { profile: Profile }) {
         </h2>
         <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: 0 }}>
           {tracks.length === 0
-            ? 'No LGY tracks assigned. Contact Tri-Pillars™ to add your certification.'
+            ? 'No LGY tracks assigned. Contact Tri-Pillars™ LLC to add your certification.'
             : `Certified tracks: ${[
                 hasElementary ? 'Elementary (Ages 8–12)' : null,
                 hasMH ? 'Middle/High (Ages 13–17)' : null,
@@ -3476,7 +3476,7 @@ ${reflHtml}
 <p class="prose">When you notice a signal, you have a choice. You can pause, breathe, stay in the room, and let the participant\u2019s experience belong to them. Or you can let your history pull you somewhere that isn\u2019t yours to go.</p>
 <div class="practice"><div class="practice-label">Practice \u2014 The Recognition Practice</div>
 <p style="margin:0">After each session, sit with this question for 5 minutes: <em>Was there a moment where I felt something that belonged to me rather than to the group?</em> Write it down in your Facilitator Reflection Log without judgment. Note what the trigger was, what you noticed in your body, and what you did. Over time, patterns will emerge \u2014 these patterns are your growth edge.</p></div>
-<p class="note">This chapter is for your personal use. Your reflections are not submitted or reviewed by Tri-Pillars\u2122.</p>
+<p class="note">This chapter is for your personal use. Your reflections are not submitted or reviewed by Tri-Pillars™ LLC.</p>
 </body></html>`);
     win.document.close();
     win.print();
@@ -3556,7 +3556,7 @@ ${reflHtml}
         </button>
       </div>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
-        Your reflections are saved to your account and never reviewed by Tri-Pillars&trade; or anyone else.
+        Your reflections are saved to your account and never reviewed by Tri-Pillars™ LLC or anyone else.
       </p>
     </div>
   );
@@ -3879,7 +3879,7 @@ function IWGReflectionsForm({ onComplete, initialAnswers, isPreview }: { onCompl
         </button>
       </div>
       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: C.muted, margin: '8px 0 0' }}>
-        Your reflections are private and never reviewed by Tri-Pillars\u2122 or anyone else.
+        Your reflections are private and never reviewed by Tri-Pillars™ LLC or anyone else.
       </p>
     </div>
   );
@@ -4214,7 +4214,7 @@ function OnboardingWizard({ profile, onboarding, onUpdate, onComplete, onNavigat
                 All Certification Tracks &middot; All Authorized Contexts
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
-                This Code of Conduct governs all individuals holding a current Live and Grieve&trade; Facilitator Certification issued by Tri-Pillars&trade;.
+                This Code of Conduct governs all individuals holding a current Live and Grieve&trade; Facilitator Certification issued by Tri-Pillars™ LLC.
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: C.navy, lineHeight: 1.75, margin: '0 0 0.75rem' }}>
                 Signing this document is a condition of certification and must be renewed annually.
@@ -4628,7 +4628,7 @@ function GroupUseLicenseCard() {
         padding: '1rem 1.25rem', marginBottom: '1rem',
         fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: C.navy, lineHeight: 1.7,
       }}>
-        I agree to use Live and Grieve™ materials only within my certified facilitator role, not to reproduce or redistribute materials without written permission from Tri-Pillars LLC, and to follow the Facilitator Code of Conduct at all times.
+        I agree to use Live and Grieve™ materials only within my certified facilitator role, not to reproduce or redistribute materials without written permission from Tri-Pillars™ LLC, and to follow the Facilitator Code of Conduct at all times.
       </div>
       <SignatureField documentName="Group Use License" />
     </div>
