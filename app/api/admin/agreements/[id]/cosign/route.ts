@@ -216,7 +216,7 @@ export async function POST(
     <div style="background:#F4F1EC;padding:20px;border-radius:4px;margin:20px 0;">
       <p><strong>Email:</strong> ${agreement.contact_email}</p>
       <p><strong>Temporary Password:</strong> ${randomPwd}</p>
-      <p style="margin-top:20px;"><a href="https://tripillarstudio.com/org/login" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Log In to Hub</a></p>
+      <p style="margin-top:20px;"><a href="https://www.tripillarstudio.com/org/login" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Log In to Hub</a></p>
     </div>
     <p><strong>Important:</strong> Please change your password on first login.</p>
     <p>Questions? Contact wayne@tripillarstudio.com.</p>

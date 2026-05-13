@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Become a Facilitator | Live and Grieve™",
     description:
       "Become a Live and Grieve™ Certified Facilitator. No clinical license required — only preparation, presence, and a willingness to walk alongside people in their grief.",
-    url: "https://tripillarstudio.com/facilitators",
+    url: "https://www.tripillarstudio.com/facilitators",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Become a Facilitator | Live and Grieve™" }],
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "Become a Live and Grieve™ Certified Facilitator. No clinical license required — only preparation, presence, and a willingness to walk alongside people in their grief.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/facilitators" },
+  alternates: { canonical: "https://www.tripillarstudio.com/facilitators" },
 };
 
 const steps = [

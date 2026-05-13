@@ -41,7 +41,7 @@ const CONTEXT = {
   },
 
   urls: {
-    main_site: 'https://tripillarstudio.com',
+    main_site: 'https://www.tripillarstudio.com',
     solo_companion: 'https://solo.tripillarstudio.com',
     login_portals: [
       '/login/facilitator',
@@ -235,7 +235,7 @@ const CONTEXT = {
       { name: 'Solo Companion — Supplement',  price: '$4.99',        payment_link: 'https://buy.stripe.com/fZubJ0auHgAq0na9QfgYU05', plink_id: 'plink_1TGALOCkNwRmFraL8CZDOCck' },
     ],
     deactivated: ['plink_1TGALMCkNwRmFraL1eDDzH9f ($29.99 old)'],
-    webhook_endpoint: 'https://tripillarstudio.com/api/webhook/stripe',
+    webhook_endpoint: 'https://www.tripillarstudio.com/api/webhook/stripe',
     redirect_after_payment: 'https://solo.tripillarstudio.com/access?token=granted',
   },
 

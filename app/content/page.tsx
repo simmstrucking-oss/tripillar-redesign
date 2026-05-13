@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "Content | Tri-Pillars™",
     description:
       "News, blog posts, and curated resources from the founders of Live and Grieve.",
-    url: "https://tripillarstudio.com/content",
+    url: "https://www.tripillarstudio.com/content",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Content | Tri-Pillars™" }],
     type: "website",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "News, blog posts, and curated resources from the founders of Live and Grieve.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/content" },
+  alternates: { canonical: "https://www.tripillarstudio.com/content" },
 };
 
 interface BlogPost {

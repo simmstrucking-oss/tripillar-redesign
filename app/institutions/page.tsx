@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "For Institutions | Live and Grieve™",
     description:
       "License Live and Grieve™ for your organization. Train your facilitators. Offer sustainable grief support to your community.",
-    url: "https://tripillarstudio.com/institutions",
+    url: "https://www.tripillarstudio.com/institutions",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "For Institutions | Live and Grieve™" }],
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "License Live and Grieve™ for your organization. Train your facilitators. Offer sustainable grief support to your community.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/institutions" },
+  alternates: { canonical: "https://www.tripillarstudio.com/institutions" },
 };
 
 const orgTypes = [

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Youth Program | Live and Grieve Youth™",
     description:
       "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
-    url: "https://tripillarstudio.com/program/youth",
+    url: "https://www.tripillarstudio.com/program/youth",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Youth Program | Live and Grieve Youth™" }],
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "A 13-session grief support program for children and teens, offered through schools and youth organizations.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/program/youth" },
+  alternates: { canonical: "https://www.tripillarstudio.com/program/youth" },
 };
 
 const youthBreadcrumbSchema = breadcrumbSchema([
@@ -43,10 +43,10 @@ const youthProgramSchema = {
   "provider": {
     "@type": "Organization",
     "name": "Tri-Pillars™ LLC",
-    "url": "https://tripillarstudio.com"
+    "url": "https://www.tripillarstudio.com"
   },
   "timeToComplete": "P13W",
-  "url": "https://tripillarstudio.com/program/youth",
+  "url": "https://www.tripillarstudio.com/program/youth",
   "educationalLevel": "Youth"
 };
 

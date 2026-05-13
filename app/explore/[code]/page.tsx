@@ -398,7 +398,7 @@ export default function ProspectLandingPage({
                 marginBottom: '20px'
               }}>
                 Thank you. Our team will be in touch shortly. In the meantime, feel free to explore more at{' '}
-                <a href="https://tripillarstudio.com" style={{ color: '#B8942F', textDecoration: 'underline' }}>
+                <a href="https://www.tripillarstudio.com" style={{ color: '#B8942F', textDecoration: 'underline' }}>
                   tripillarstudio.com
                 </a>.
               </p>

@@ -1142,7 +1142,7 @@ export default function TrainerHubDashboard() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <a href="https://tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem',
+            <a href="https://www.tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem',
               textDecoration: 'none', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
               &larr; tripillarstudio.com
             </a>

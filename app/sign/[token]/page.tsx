@@ -168,7 +168,7 @@ export default function SignAgreement() {
             </p>
             <p style={{ marginTop: '30px' }}>
               <a
-                href="https://tripillarstudio.com"
+                href="https://www.tripillarstudio.com"
                 style={{
                   color: '#B8942F',
                   textDecoration: 'none',

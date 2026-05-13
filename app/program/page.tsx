@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Live and Grieve™ Program Overview | Tri-Pillars™",
     description:
       "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion.",
-    url: "https://tripillarstudio.com/program",
+    url: "https://www.tripillarstudio.com/program",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Live and Grieve™ Program Overview" }],
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "Live and Grieve™ is a structured grief education program for adults, youth, and individuals. 52-week adult program, 13-session youth program, and Solo Companion.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/program" },
+  alternates: { canonical: "https://www.tripillarstudio.com/program" },
 };
 
 const programBreadcrumbSchema = breadcrumbSchema([

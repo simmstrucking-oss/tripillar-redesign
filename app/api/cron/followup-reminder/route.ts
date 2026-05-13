@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
     if (!profile?.email) continue;
 
-    const followupUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tripillarstudio.com'}/outcomes/followup?cohort=${cohort.id}`;
+    const followupUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.tripillarstudio.com'}/outcomes/followup?cohort=${cohort.id}`;
 
     await sendMail({
       to: profile.email,

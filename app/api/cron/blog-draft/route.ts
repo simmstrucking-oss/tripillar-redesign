@@ -83,7 +83,7 @@ function generateBlogDraft() {
 
 // Send Telegram notification to Wayne
 function generateSocialPreviews(title: string, excerpt: string, slug: string) {
-  const siteUrl = 'https://tripillarstudio.com/blog';
+  const siteUrl = 'https://www.tripillarstudio.com/blog';
   const hashtags = '#grief #griefeducation #griefsupport #mindfulness #wellbeing';
 
   const facebook = `${title}\n\n${excerpt}\n\nGrief doesn't follow a timeline — and you don't have to walk it alone. Live and Grieve™ was created to give you language, space, and community for the journey.\n\nRead the full post: ${siteUrl}/${slug}\n\n${hashtags}`;

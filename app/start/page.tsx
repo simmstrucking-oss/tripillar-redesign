@@ -176,7 +176,7 @@ export default function StartPage() {
         <p style={{ color: "rgba(248,244,238,0.35)", fontSize: "0.75rem", margin: "0.25rem 0" }}>
           &copy; {new Date().getFullYear()} Tri&#8209;Pillars™ LLC. All rights reserved.
         </p>
-        <a href="https://tripillarstudio.com" style={{ color: "rgba(248,244,238,0.4)", fontSize: "0.75rem", textDecoration: "none" }}>
+        <a href="https://www.tripillarstudio.com" style={{ color: "rgba(248,244,238,0.4)", fontSize: "0.75rem", textDecoration: "none" }}>
           tripillarstudio.com
         </a>
       </footer>

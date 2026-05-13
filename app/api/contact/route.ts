@@ -64,7 +64,7 @@ async function sendViaResend(name: string, email: string, label: string, message
               <p style="font-size:12px;color:#6B7280;font-family:Helvetica,sans-serif;margin:0 0 8px;text-transform:uppercase;letter-spacing:1px;">Message</p>
               <p style="font-size:14px;color:#2D3142;font-family:Helvetica,sans-serif;margin:0;line-height:1.7;white-space:pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
             </div>
-            <p style="margin-top:24px;font-size:12px;color:#9CA3AF;font-family:Helvetica,sans-serif;">Reply directly to this email to respond to ${name}.<br>Submitted via <a href="https://tripillarstudio.com/contact" style="color:#B8942F;">tripillarstudio.com/contact</a></p>
+            <p style="margin-top:24px;font-size:12px;color:#9CA3AF;font-family:Helvetica,sans-serif;">Reply directly to this email to respond to ${name}.<br>Submitted via <a href="https://www.tripillarstudio.com/contact" style="color:#B8942F;">tripillarstudio.com/contact</a></p>
           </div>
         </div>
       `,

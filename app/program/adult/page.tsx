@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     title: "Adult Program | Live and Grieve™",
     description:
       "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
-    url: "https://tripillarstudio.com/program/adult",
+    url: "https://www.tripillarstudio.com/program/adult",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Adult Program | Live and Grieve™" }],
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
       "A 52-week, four-book grief program for adults. Structured. Compassionate. Community-based.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/program/adult" },
+  alternates: { canonical: "https://www.tripillarstudio.com/program/adult" },
 };
 
 const adultBreadcrumbSchema = breadcrumbSchema([
@@ -44,10 +44,10 @@ const adultProgramSchema = {
   "provider": {
     "@type": "Organization",
     "name": "Tri-Pillars™ LLC",
-    "url": "https://tripillarstudio.com"
+    "url": "https://www.tripillarstudio.com"
   },
   "timeToComplete": "P52W",
-  "url": "https://tripillarstudio.com/program/adult",
+  "url": "https://www.tripillarstudio.com/program/adult",
   "educationalLevel": "Adult",
   "occupationalCategory": "Grief Education"
 };

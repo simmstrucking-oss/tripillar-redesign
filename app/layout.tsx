@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tripillarstudio.com"),
+  metadataBase: new URL("https://www.tripillarstudio.com"),
   title: "Tri-Pillars™ | Live and Grieve™",
   description:
     "A community-based grief support program that meets people where they are, not where they're supposed to be.",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "Tri-Pillars™ | Live and Grieve™",
     description:
       "A community-based grief support program that meets people where they are, not where they're supposed to be.",
-    url: "https://tripillarstudio.com",
+    url: "https://www.tripillarstudio.com",
     siteName: "Tri-Pillars™",
     images: [
       {
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   alternates: {
-    canonical: "https://tripillarstudio.com",
+    canonical: "https://www.tripillarstudio.com",
   },
 };
 
@@ -60,8 +60,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Tri-Pillars™ LLC",
-  "url": "https://tripillarstudio.com",
-  "logo": "https://tripillarstudio.com/logo.png",
+  "url": "https://www.tripillarstudio.com",
+  "logo": "https://www.tripillarstudio.com/logo.png",
   "description": "Tri-Pillars™ LLC operates Live and Grieve™, a 52-week peer-facilitated grief education program that draws on five research frameworks and the Wolfelt companioning philosophical influence.",
   "foundingDate": "2024",
   "founders": [

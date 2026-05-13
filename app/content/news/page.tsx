@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "News | Tri-Pillars™",
     description:
       "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars™ LLC.",
-    url: "https://tripillarstudio.com/content/news",
+    url: "https://www.tripillarstudio.com/content/news",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "News | Tri-Pillars™" }],
     type: "website",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
       "Program updates, publishing milestones, training announcements, and field news from Tri-Pillars™ LLC.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/content/news" },
+  alternates: { canonical: "https://www.tripillarstudio.com/content/news" },
 };
 
 const news = [

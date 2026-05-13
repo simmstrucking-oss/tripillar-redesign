@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Field News | Tri-Pillars™',
     description: 'The latest news and program updates from Tri-Pillars™.',
-    url: 'https://tripillarstudio.com/news',
+    url: 'https://www.tripillarstudio.com/news',
     siteName: 'Tri-Pillars™',
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Field News | Tri-Pillars™' }],
     type: 'website',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description: 'The latest news and program updates from Tri-Pillars™.',
     images: ['/og-image.png'],
   },
-  alternates: { canonical: 'https://tripillarstudio.com/news' },
+  alternates: { canonical: 'https://www.tripillarstudio.com/news' },
 };
 
 interface Post {

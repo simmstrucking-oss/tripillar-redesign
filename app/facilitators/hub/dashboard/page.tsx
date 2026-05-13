@@ -5127,7 +5127,7 @@ export default function HubDashboard() {
                 ))}
               </select>
             )}
-            <a href="https://tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
+            <a href="https://www.tripillarstudio.com" style={{ color: 'rgba(248,244,238,0.55)', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
               ← tripillarstudio.com
             </a>
             <button onClick={logout} style={{ ...btn('rgba(255,255,255,.15)', '#fff', true) }}>

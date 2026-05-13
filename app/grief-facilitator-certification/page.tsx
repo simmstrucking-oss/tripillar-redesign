@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     title: "Grief Facilitator Certification | Live and Grieve™",
     description:
       "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required.",
-    url: "https://tripillarstudio.com/grief-facilitator-certification",
+    url: "https://www.tripillarstudio.com/grief-facilitator-certification",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Grief Facilitator Certification" }],
     type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       "Become a certified Live and Grieve™ grief facilitator. 14 contact hours. No clinical license required.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/grief-facilitator-certification" },
+  alternates: { canonical: "https://www.tripillarstudio.com/grief-facilitator-certification" },
 };
 
 export default function GriefFacilitatorCertificationPage() {

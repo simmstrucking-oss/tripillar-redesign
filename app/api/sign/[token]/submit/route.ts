@@ -136,7 +136,7 @@ export async function POST(
     <p>Tier: <strong>${agreement.license_tier}</strong></p>
     <p>Signer: <strong>${signer_name}</strong></p>
     <p>Signed: ${signedDate}</p>
-    <p style="margin-top:20px;"><a href="https://tripillarstudio.com/admin/agreements" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Review in Admin</a></p>
+    <p style="margin-top:20px;"><a href="https://www.tripillarstudio.com/admin/agreements" style="background:#B8942F;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Review in Admin</a></p>
     </body></html>`,
       }),
     });

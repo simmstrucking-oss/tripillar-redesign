@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     title: "Support the Mission | Tri-Pillars™",
     description:
       "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
-    url: "https://tripillarstudio.com/support",
+    url: "https://www.tripillarstudio.com/support",
     siteName: "Tri-Pillars™",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Support the Mission | Tri-Pillars™" }],
     type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       "Help expand access to evidence-informed grief support. Your contribution funds facilitator scholarships, pilot programs, and youth development.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://tripillarstudio.com/support" },
+  alternates: { canonical: "https://www.tripillarstudio.com/support" },
 };
 
 const funds = [
