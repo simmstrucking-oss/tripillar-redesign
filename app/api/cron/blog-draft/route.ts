@@ -232,7 +232,7 @@ async function handler(req: NextRequest) {
     }
 
     // Get Telegram bot token — env var preferred, fallback to hardcoded
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN ?? "";
     {
       // Notify Wayne
       const notified = await notifyWayne(
