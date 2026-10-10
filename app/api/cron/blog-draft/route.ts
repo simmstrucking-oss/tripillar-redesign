@@ -103,8 +103,8 @@ async function makeActionToken(postId: string, adminSecret: string): Promise<str
 }
 
 async function notifyWayne(title: string, category: string, excerpt: string, postId: string, _botToken: string, slug: string) {
-  const resendKey = process.env.RESEND_API_KEY || 're_aDy5YJGb_ML9LLRsnH5PD7Np5W6BeKrk3';
-  const adminSecret = process.env.ADMIN_SECRET ?? 'tripillar-admin-2024';
+  const resendKey = process.env.RESEND_API_KEY;
+  const adminSecret = process.env.ADMIN_SECRET ?? '';
   const social = generateSocialPreviews(title, excerpt, slug);
 
   const token = await makeActionToken(postId, adminSecret);
@@ -174,6 +174,19 @@ async function saveDraftToSupabase(draft: any) {
   }
 
   try {
+    // Deduplicate: skip insert if a post with this title already exists
+    const checkRes = await fetch(
+      `${supabaseUrl}/rest/v1/blog_posts?title=eq.${encodeURIComponent(draft.title)}&select=id,title&limit=1`,
+      { headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` } }
+    );
+    if (checkRes.ok) {
+      const existing = await checkRes.json();
+      if (existing && existing.length > 0) {
+        console.log(`Blog draft already exists for title "${draft.title}" — skipping.`);
+        return { ...existing[0], _skipped: true };
+      }
+    }
+
     const response = await fetch(`${supabaseUrl}/rest/v1/blog_posts`, {
       method: 'POST',
       headers: {
@@ -212,8 +225,14 @@ async function handler(req: NextRequest) {
     // Save to Supabase
     const saved = await saveDraftToSupabase(draft);
 
+    // If title already existed, skip notification
+    if (saved._skipped) {
+      console.log('Skipping notification — draft already exists.');
+      return NextResponse.json({ success: true, skipped: true, post_id: saved.id, title: saved.title });
+    }
+
     // Get Telegram bot token — env var preferred, fallback to hardcoded
-    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8702053141:AAF0MaOOFfbSnpuhu2u_K59NtZ9k56X6Wxs';
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
     {
       // Notify Wayne
       const notified = await notifyWayne(
